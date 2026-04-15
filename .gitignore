@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Data files (downloaded, not committed)
+data/*.csv
+data/*.XPT
+data/*.gz
+data/*.npz
+data/*.clinicalMatrix
+
+# Generated fixtures (reproducible via R scripts)
+suite1_pystatistics/fixtures/
+suite2_pystatsbio/fixtures/
+suite3_gpu_stress/fixtures/
