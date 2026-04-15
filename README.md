@@ -61,8 +61,10 @@ Tested on **Forge**: Ubuntu 24.04, AMD Ryzen 5 7600X, 64GB DDR5, NVIDIA RTX 5070
 
 ## Setup
 
+Expects `pystatistics` and `pystatsbio` source trees at `../pystatistics` and `../pystatsbio` (sibling directories). The setup script installs them as editable (`pip install -e`) so you are always testing the latest local code, not a PyPI snapshot.
+
 ```bash
-# Create conda environment and install from PyPI
+# Create conda environment and install from local source
 bash setup_env.sh
 conda activate test
 
