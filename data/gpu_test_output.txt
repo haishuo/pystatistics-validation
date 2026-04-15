@@ -1,0 +1,92 @@
+/Users/haishuo/miniconda3/envs/test/lib/python3.12/site-packages/pystatsbio/doseresponse/_models.py:82: RuntimeWarning: overflow encountered in exp
+  return bottom + (top - bottom) / (1.0 + np.exp(exponent))
+/Users/haishuo/miniconda3/envs/test/lib/python3.12/site-packages/pystatsbio/doseresponse/_models.py:82: RuntimeWarning: overflow encountered in exp
+  return bottom + (top - bottom) / (1.0 + np.exp(exponent))
+/Users/haishuo/miniconda3/envs/test/lib/python3.12/site-packages/pystatsbio/doseresponse/_models.py:82: RuntimeWarning: overflow encountered in exp
+  return bottom + (top - bottom) / (1.0 + np.exp(exponent))
+Traceback (most recent call last):
+  File "/Volumes/Archive/Documents/Dropbox/Dev/test/test_gpu.py", line 46, in check
+    fn()
+  File "/Volumes/Archive/Documents/Dropbox/Dev/test/test_gpu.py", line 391, in test_regression_correctness
+    assert coef_corr > 0.9999, f"coef correlation={coef_corr:.8f}"
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: coef correlation=0.65977552
+
+============================================================
+  GPU availability
+============================================================
+    PyTorch 2.11.0
+    MPS: Apple Silicon GPU
+    Precision: FP32 (MPS does not support FP64)
+  [PASS] PyTorch with GPU backend
+
+============================================================
+  Tox21 HTS data (PubChem AID 743083)
+============================================================
+    2000 compounds × 8 doses loaded (from 8,358 total)
+    Active: 141, Inactive: 1859
+    Dose range: [0.00614, 70.35] µM
+  [PASS] Tox21 dataset loaded
+
+============================================================
+  Correctness: GPU vs CPU batch fit
+============================================================
+    Converged: CPU=1717, GPU=1782
+    Active + both converged: 123
+    log10(EC50) correlation (active only): 0.8571
+    RSS correlation (all converged): 0.8897
+  [PASS] GPU vs CPU: EC50 agreement (active compounds)
+
+============================================================
+  Correctness: GPU fits vs NCATS reference AC50
+============================================================
+    Active compounds: 141
+    GPU converged + valid AC50: 124
+    log10(EC50) vs NCATS log10(AC50) correlation: 0.9200
+  [PASS] GPU EC50 vs NCATS AC50 (active compounds)
+    CPU converged + valid AC50: 139
+    log10(EC50) vs NCATS log10(AC50) correlation: 0.6732
+  [PASS] CPU EC50 vs NCATS AC50 (active compounds)
+
+============================================================
+  Speed: GPU vs CPU batch fit
+============================================================
+    CPU: 119.76s (2000 compounds)
+    GPU: 46.82s (2000 compounds)
+    Speedup: 2.6×
+  [PASS] Speed: batch fit timing
+
+============================================================
+  Stability: edge cases
+============================================================
+    200 flat compounds: 161/200 converged, all RSS finite
+  [PASS] Stability: flat responses
+    200 noisy compounds: 179/200 converged, all RSS finite
+  [PASS] Stability: extreme noise
+
+============================================================
+  Batch AUC: 500 patients × 5,000 markers
+============================================================
+    AUC max diff: 0.000008, mean: 0.000000
+    AUC correlation: 1.0000000000
+    Top-50 marker overlap: 50/50
+  [PASS] Batch AUC: GPU vs CPU correctness
+    CPU: 0.67s, GPU: 905.27s
+    Speedup: 0.0×
+  [PASS] Batch AUC: speed comparison
+
+============================================================
+  Large regression: 50,000 × 100 (pystatistics)
+============================================================
+    Coef correlation: 0.6597755233
+    Max coef diff: 1.342519e+00
+    R²: CPU=0.840735, GPU=0.052757
+  [FAIL] Regression: GPU vs CPU correctness
+    CPU: 0.1335s, GPU: 0.0455s
+    Speedup: 2.9×
+  [PASS] Regression: speed comparison
+
+============================================================
+  GPU TEST RESULTS: 11/12 passed, 1 failed
+============================================================
+
