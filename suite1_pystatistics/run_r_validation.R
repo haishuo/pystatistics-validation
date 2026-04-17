@@ -295,24 +295,34 @@ results$logrank <- list(
 )
 cat("  Log-rank chi-sq:", logrank$chisq, "\n")
 
-# Cox PH on SIMULATED exponential survival data.
-# California Housing is NOT valid survival data (HouseAge/high_value is not
-# a real survival process). Using it causes Cox PH non-convergence.
-# Instead, we simulate proper survival data with known true coefficients.
-set.seed(42)
-n_cox <- 500
-X_cox <- matrix(rnorm(n_cox * 2), ncol = 2)
-true_beta <- c(0.5, -0.3)
-rate <- exp(X_cox %*% true_beta)
-surv_time <- rexp(n_cox, rate)
-censor_time <- 5.0
-event_cox <- as.numeric(surv_time < censor_time)
-time_cox <- pmin(surv_time, censor_time)
+# Cox PH on the NCCTG lung cancer dataset (survival::lung).
+# This is the canonical real-world Cox PH dataset — Loprinzi et al. 1994,
+# advanced lung cancer survival from the North Central Cancer Treatment
+# Group. Pystatistics should match R exactly on this; it's the dataset
+# every R survival tutorial uses.
+#
+# Columns:
+#   time     survival time in days
+#   status   1 = censored, 2 = dead
+#   age      age in years
+#   sex      1 = male, 2 = female
+#   ph.ecog  ECOG performance score (0 = best, 5 = dead), a few NAs
+#
+# Drop rows with any NA in the columns we use, then fit
+# Surv(time, event) ~ age + sex + ph.ecog.
+data(lung, package = "survival")
+cox_df <- lung[, c("time", "status", "age", "sex", "ph.ecog")]
+cox_df <- cox_df[complete.cases(cox_df), ]
+cox_df$event <- as.numeric(cox_df$status == 2)
 
-cox_df <- data.frame(time = time_cox, event = event_cox,
-                     x1 = X_cox[, 1], x2 = X_cox[, 2])
-cox_fit <- coxph(Surv(time, event) ~ x1 + x2, data = cox_df)
+cox_fit <- coxph(Surv(time, event) ~ age + sex + ph.ecog, data = cox_df)
 cox_s <- summary(cox_fit)
+
+# Save the prepared dataset as a CSV so Python reads the EXACT same rows
+# (after NA drop) that R fit. The CSV is the source of truth.
+cox_csv <- file.path(fixtures_dir, "lung_coxph.csv")
+write.csv(cox_df[, c("time", "event", "age", "sex", "ph.ecog")],
+          cox_csv, row.names = FALSE)
 
 results$coxph <- list(
     coefficients = as.numeric(coef(cox_fit)),
@@ -320,16 +330,13 @@ results$coxph <- list(
     hazard_ratios = as.numeric(cox_s$coefficients[, "exp(coef)"]),
     p_values = as.numeric(cox_s$coefficients[, "Pr(>|z|)"]),
     concordance = as.numeric(cox_s$concordance[1]),
-    true_beta = true_beta,
-    n = n_cox,
-    n_events = sum(event_cox),
-    # Save the actual simulated data so Python can load the SAME data
-    time = as.numeric(time_cox),
-    event = as.numeric(event_cox),
-    x1 = as.numeric(X_cox[, 1]),
-    x2 = as.numeric(X_cox[, 2])
+    n = nrow(cox_df),
+    n_events = sum(cox_df$event),
+    covariates = c("age", "sex", "ph.ecog"),
+    dataset = "survival::lung (NCCTG advanced lung cancer, complete cases)"
 )
-cat("  Cox PH coefs:", coef(cox_fit), "(true:", true_beta, ")\n")
+cat("  Cox PH coefs (lung, age+sex+ph.ecog):", coef(cox_fit), "\n")
+cat("  n =", nrow(cox_df), "events =", sum(cox_df$event), "\n")
 cat("  Concordance:", cox_s$concordance[1], "\n")
 
 # ──────────────────────────────────────────────────────────────────────
