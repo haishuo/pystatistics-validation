@@ -25,6 +25,13 @@ df <- read.csv(data_file, stringsAsFactors = TRUE)
 cat(sprintf("  %d rows, %d columns\n", nrow(df), ncol(df)))
 
 results <- list()
+results$timing <- list()
+
+time_elapsed <- function(expr) {
+    # Evaluate expr in caller's environment and return elapsed seconds.
+    t <- system.time(invisible(eval.parent(substitute(expr))))[["elapsed"]]
+    as.numeric(t)
+}
 
 # ──────────────────────────────────────────────────────────────────────
 # Regression
@@ -35,7 +42,7 @@ cat("\n=== Regression ===\n")
 numeric_cols <- c("MedInc", "HouseAge", "AveRooms", "AveBedrms",
                   "Population", "AveOccup", "Latitude", "Longitude")
 fml <- as.formula(paste("MedHouseVal ~", paste(numeric_cols, collapse = " + ")))
-ols_fit <- lm(fml, data = df)
+results$timing$ols <- time_elapsed(ols_fit <- lm(fml, data = df))
 s <- summary(ols_fit)
 cat("  OLS R-squared:", s$r.squared, "\n")
 
@@ -54,7 +61,9 @@ results$ols <- list(
 
 # GLM Binomial: high_value ~ numeric predictors (subset)
 glm_bin_fml <- high_value ~ MedInc + HouseAge + AveRooms + Population
-glm_bin <- glm(glm_bin_fml, data = df, family = binomial)
+results$timing$glm_binomial <- time_elapsed(
+    glm_bin <- glm(glm_bin_fml, data = df, family = binomial)
+)
 s_bin <- summary(glm_bin)
 cat("  GLM Binomial deviance:", glm_bin$deviance, "\n")
 
@@ -69,7 +78,9 @@ results$glm_binomial <- list(
 # GLM Poisson: round(Population/100) ~ predictors
 df$pop_count <- round(df$Population / 100)
 glm_pois_fml <- pop_count ~ MedInc + HouseAge + AveOccup
-glm_pois <- glm(glm_pois_fml, data = df, family = poisson)
+results$timing$glm_poisson <- time_elapsed(
+    glm_pois <- glm(glm_pois_fml, data = df, family = poisson)
+)
 s_pois <- summary(glm_pois)
 cat("  GLM Poisson deviance:", glm_pois$deviance, "\n")
 
@@ -212,7 +223,9 @@ cat("\n=== ANOVA ===\n")
 library(car)
 
 # One-way ANOVA: MedHouseVal ~ region
-aov1 <- aov(MedHouseVal ~ region, data = df)
+results$timing$anova_oneway <- time_elapsed(
+    aov1 <- aov(MedHouseVal ~ region, data = df)
+)
 aov1_s <- summary(aov1)[[1]]
 
 results$anova_oneway <- list(
@@ -228,8 +241,10 @@ results$anova_oneway <- list(
 cat("  One-way F:", aov1_s[["F value"]][1], "\n")
 
 # Factorial ANOVA Type II: MedHouseVal ~ region * old_house
-aov2 <- lm(MedHouseVal ~ region * factor(old_house), data = df)
-aov2_typeII <- Anova(aov2, type = 2)
+results$timing$anova_factorial <- time_elapsed({
+    aov2 <- lm(MedHouseVal ~ region * factor(old_house), data = df)
+    aov2_typeII <- Anova(aov2, type = 2)
+})
 
 results$anova_factorial <- list(
     ss = as.numeric(aov2_typeII[["Sum Sq"]]),
@@ -265,11 +280,17 @@ cat("\n=== Survival Analysis ===\n")
 
 library(survival)
 
-# Use HouseAge as "time" and high_value as "event" (proxy)
-surv_obj <- Surv(df$HouseAge, df$high_value)
+# KM and log-rank on REAL survival data (survival::lung) — same dataset
+# used by Cox PH below. California Housing's HouseAge/high_value is not a
+# real survival process.
+data(lung, package = "survival")
+lung_km <- lung[complete.cases(lung[, c("time", "status", "sex")]), ]
+lung_km$event <- as.numeric(lung_km$status == 2)
 
-# Kaplan-Meier
-km_fit <- survfit(surv_obj ~ 1)
+# Kaplan-Meier (overall curve)
+km_time_start <- proc.time()[["elapsed"]]
+km_fit <- survfit(Surv(time, event) ~ 1, data = lung_km)
+km_elapsed <- proc.time()[["elapsed"]] - km_time_start
 km_summary <- summary(km_fit)
 
 results$kaplan_meier <- list(
@@ -280,20 +301,32 @@ results$kaplan_meier <- list(
     std_err = as.numeric(km_summary$std.err),
     lower = as.numeric(km_summary$lower),
     upper = as.numeric(km_summary$upper),
-    median_survival = as.numeric(quantile(km_fit, probs = 0.5)$quantile)
+    median_survival = as.numeric(quantile(km_fit, probs = 0.5)$quantile),
+    dataset = "survival::lung (overall KM curve)"
 )
 
-# Log-rank test: by region
-logrank <- survdiff(surv_obj ~ region, data = df)
+# Log-rank test: lung survival by sex (1=M, 2=F) — canonical lung example
+lr_start <- proc.time()[["elapsed"]]
+logrank <- survdiff(Surv(time, event) ~ sex, data = lung_km)
+lr_elapsed <- proc.time()[["elapsed"]] - lr_start
 
 results$logrank <- list(
     statistic = as.numeric(logrank$chisq),
     df = length(logrank$n) - 1,
     p_value = as.numeric(1 - pchisq(logrank$chisq, df = length(logrank$n) - 1)),
     observed = as.numeric(logrank$obs),
-    expected = as.numeric(logrank$exp)
+    expected = as.numeric(logrank$exp),
+    dataset = "survival::lung (log-rank by sex)"
 )
-cat("  Log-rank chi-sq:", logrank$chisq, "\n")
+# Save the lung_km CSV so Python can load the same rows (same NA-drop)
+write.csv(lung_km[, c("time", "event", "sex")],
+          file.path(fixtures_dir, "lung_km.csv"), row.names = FALSE)
+cat("  KM n:", sum(km_summary$n.risk[1:1]), " log-rank chi-sq:", logrank$chisq, "\n")
+
+# Record timings
+if (is.null(results$timing)) results$timing <- list()
+results$timing$kaplan_meier <- as.numeric(km_elapsed)
+results$timing$logrank <- as.numeric(lr_elapsed)
 
 # Cox PH on the NCCTG lung cancer dataset (survival::lung).
 # This is the canonical real-world Cox PH dataset — Loprinzi et al. 1994,
@@ -315,7 +348,9 @@ cox_df <- lung[, c("time", "status", "age", "sex", "ph.ecog")]
 cox_df <- cox_df[complete.cases(cox_df), ]
 cox_df$event <- as.numeric(cox_df$status == 2)
 
-cox_fit <- coxph(Surv(time, event) ~ age + sex + ph.ecog, data = cox_df)
+results$timing$coxph <- time_elapsed(
+    cox_fit <- coxph(Surv(time, event) ~ age + sex + ph.ecog, data = cox_df)
+)
 cox_s <- summary(cox_fit)
 
 # Save the prepared dataset as a CSV so Python reads the EXACT same rows
@@ -353,7 +388,9 @@ mm_idx <- sample(nrow(df), 3000)
 mm_df <- df[mm_idx, ]
 
 # LMM: MedHouseVal ~ MedInc + HouseAge + (1 | block_id)
-lmm_fit <- lmer(MedHouseVal ~ MedInc + HouseAge + (1 | block_id), data = mm_df)
+results$timing$lmm <- time_elapsed(
+    lmm_fit <- lmer(MedHouseVal ~ MedInc + HouseAge + (1 | block_id), data = mm_df)
+)
 lmm_s <- summary(lmm_fit)
 
 vc <- as.data.frame(VarCorr(lmm_fit))
@@ -382,7 +419,9 @@ library(boot)
 set.seed(46)
 boot_data <- df$MedInc[1:1000]
 mean_fn <- function(data, indices) { mean(data[indices]) }
-boot_result <- boot(boot_data, mean_fn, R = 2000)
+results$timing$bootstrap <- time_elapsed(
+    boot_result <- boot(boot_data, mean_fn, R = 2000)
+)
 
 boot_ci_result <- boot.ci(boot_result, type = "perc")
 

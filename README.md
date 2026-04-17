@@ -33,8 +33,8 @@ takes ≥ 50 ms — below that, wall-clock noise dominates).
 | Descriptive stats | `colMeans`, `sd`, `cor`, `quantile`, `moments::skewness/kurtosis` | `california_prepared.csv` | Non-normal columns (right-skewed MedInc, bounded Latitude) stress skewness/quantiles |
 | Hypothesis tests | `t.test`, `chisq.test`, `wilcox.test`, `prop.test`, `ks.test` | `california_prepared.csv` | Real contingency tables (region × high_value); real skewed distributions for Wilcoxon/KS |
 | ANOVA | `aov`, `car::Anova(type=2)`, `TukeyHSD`, `leveneTest` | `california_prepared.csv` (region, old_house factors) | Gives real factorial design with unequal cell sizes — exercises Type II SS |
-| Kaplan-Meier | `survfit(Surv())` | `california_prepared.csv` (HouseAge as proxy time, high_value as event) | KM works even when the event isn't a true "death"; the curve math is dataset-agnostic |
-| Log-rank test | `survdiff()` | Same proxy survival | Proxy is fine for comparing two *curves*, which is what log-rank does |
+| Kaplan-Meier | `survfit(Surv(time, event) ~ 1)` overall curve | **`survival::lung`** (`fixtures/lung_km.csv`) | Real survival data, not a proxy. Same dataset as Cox PH so a reader can follow a consistent survival story |
+| Log-rank test | `survdiff(Surv(time, event) ~ sex)` | **`survival::lung`** by sex (canonical lung example) | Real survival data with a biologically meaningful grouping (the sex effect on lung-cancer survival is real and well-characterized) |
 | **Cox PH** | `coxph(Surv(time, event) ~ age + sex + ph.ecog)` — coefs, hazard ratios, concordance | **`survival::lung`** (NCCTG advanced lung cancer; `fixtures/lung_coxph.csv`, complete cases) | **Not California Housing, not simulated.** `survival::lung` (Loprinzi et al. 1994) is the canonical real-world Cox PH dataset used in every survival tutorial. R writes the prepared complete-case CSV; Python reads the same bytes. California's HouseAge/high_value proxy is not a survival process and caused Cox PH non-convergence in the original version |
 | Mixed models (LMM) | `lmer()` / lme4 | `california_prepared.csv` + `block_id` grouping | The block_id variable gives a real clustered structure |
 | Bootstrap | `boot::boot()` | `california_prepared.csv` MedInc[1:1000] | Skewed real data gives a non-trivial bootstrap distribution |
@@ -67,11 +67,13 @@ biomarkers) plus synthetic dose-response and PK data:
 | WHAT (pystatsbio) | HOW (R ref) | DATASET | WHY that dataset |
 |---|---|---|---|
 | Power / sample size | `pwr::pwr.t.test()`, `pwr.2p.test()`, `pwr.anova.test()` — solve-for-n, solve-for-power | analytic (no dataset) | Power calculations are closed-form; no data needed |
-| Dose-response (LL.4) | `drc::drm(fct=LL.4())` — EC50, hill, top/bottom | `dose_response_data.npz` (simulated 50 compounds × 8 doses from LL.4 with known parameters) | Real dose-response datasets are messy; a simulated one lets us verify parameter recovery |
+| Dose-response (LL.4) — real | `drc::drm(fct=LL.4())` on `drc::ryegrass` | **`drc::ryegrass`** (`fixtures/ryegrass.csv`) — Streibig et al. 1993 ferulic-acid root-length bioassay | THE canonical drc-package dataset. Real published bioassay data |
+| Dose-response (LL.4) — batch | `drc::drm(fct=LL.4())` loop | `dose_response_data.npz` (50 synthetic LL.4 compounds, fixed seed) | Batch API coverage; synthetic complements the single real ryegrass curve |
 | ROC / AUC | `pROC::roc()`, `pROC::ci.auc()` — AUC, DeLong SE/CI, DeLong test | NHANES biomarkers (e.g. GHb for diabetes classification) | Real diagnostic problem with a real continuous biomarker and binary outcome |
 | Batch AUC | `pROC::roc()` loop over 16 markers | NHANES biomarker panel | Needs many markers for a meaningful batch-vs-sequential comparison |
 | Optimal cutoff | Youden J from `pROC` | NHANES biomarkers | Real biomarker + clinical cutoff question |
-| NCA pharmacokinetics | `PKNCA::pk.nca()` — AUC_last, Cmax, Tmax, half-life | `pk_data.npz` (5 oral + 1 IV simulated subjects, 1-compartment model) | Real PK datasets are proprietary; simulated one-compartment is the standard NCA teaching case |
+| NCA pharmacokinetics — real | Manual linear-up/log-down AUC, Cmax/Tmax, half-life from terminal log-linear regression (identical formulas to `PKNCA::pk.nca`) | **`datasets::Theoph`** (`fixtures/Theoph.csv`) — 12 subjects, oral theophylline, Boeckmann/Sheiner/Beal 1994 | THE canonical R PK dataset — used by the PKNCA vignette and the `nlme` package. Real clinical PK. PKNCA's formula interface with Theoph's factor Subject is finicky, so R computes the reference manually with the same formulas |
+| NCA pharmacokinetics — synthetic | `PKNCA::pk.nca()` | `pk_data.npz` (5 oral + 1 IV simulated subjects, 1-compartment) | Retains the IV-route coverage and the full PKNCA wrapper path that Theoph's oral-only data does not exercise |
 
 **New-module suite (pystatsbio 1.5.0)** — uses canonical real-world R
 datasets (or published real data) where one exists. `run_r_newmodules.R`
@@ -82,7 +84,7 @@ references to `r_results.json`:
 |---|---|---|---|
 | `epi.epi_2by2(table)` | Manual R formulas (Woolf log-OR CI, log-RR Wald, Wald RD) | **Physicians' Health Study aspirin MI data** (NEJM 1989; 321:129-135). 11,037 aspirin / 104 MI vs. 11,034 placebo / 189 MI. `epi_2by2.json` | Published, famous real-world 2×2 where aspirin roughly halves MI risk. Result is textbook |
 | `epi.mantel_haenszel(tables)` | `stats::mantelhaen.test(correct=FALSE)` | **`datasets::UCBAdmissions`** — 6 Berkeley graduate departments × {Admit, Reject} × {M, F}, 1973. `mh_tables.json` | THE canonical stratified-analysis / Simpson's paradox dataset (Bickel 1975). Shows apparent sex bias in aggregate that disappears after stratifying by department |
-| `epi.rate_standardize(...)` | `epitools::ageadjust.direct()` | **Synthetic** (no compact canonical real age-standardization dataset). `rate_std.json` | Documented as synthetic; 5 age strata + standard pop exercises the direct code path. Keep an eye out for real US vital-stats age-standardization examples for future swaps |
+| `epi.rate_standardize(...)` | `epitools::ageadjust.direct()` | **Fleiss 1981 Down syndrome by maternal age** (epitools help-page example; recreates Table 1 of Fay & Feuer 1997). `rate_std.json` | Published real data — the example from the `epitools::ageadjust.direct` help page itself. Expected age-adjusted rate for first births is 92.3 per 100,000 (the number printed on the help page) |
 | `meta.rma(yi, vi, method='REML')` | `metafor::rma()` on log ORs from `escalc()` | **`metafor::dat.bcg`** — 13 BCG tuberculosis vaccine trials. `meta_yi.csv` | THE canonical metafor example. Historical meta-analysis with real heterogeneity (I² ≈ 92%) so REML vs FE results differ meaningfully |
 | `gee.gee(y, X, cluster_id, corr='exchangeable')` | `geepack::geeglm(Weight ~ Time + Cu, id=Pig, corstr='exchangeable')` — coefs + robust SEs | **`geepack::dietox`** — 72 pigs × ~12 weekly weights, dietary copper study. `gee_long.csv` | THE canonical geepack example, used in the vignette and in Fitzmaurice/Laird/Ware. Real repeated-measures longitudinal data |
 
@@ -173,14 +175,15 @@ New-module tests additionally require: `MASS` (polr, glm.nb), `nnet`
   R dataset exists for the module being tested, we use it (survival::lung,
   MASS::quine, MASS::housing, MASS::fgl, datasets::USArrests,
   datasets::mtcars, datasets::AirPassengers, MASS::mcycle,
-  datasets::UCBAdmissions, metafor::dat.bcg, geepack::dietox). The R
-  validation script loads the built-in and writes the exact numeric frame
-  Python will read to `fixtures/newmodules/…` — so both languages fit
-  byte-identical data. The single remaining synthetic fixture
-  (`rate_std.json`) is flagged as such in the README and in its test
-  docstring. Going forward, any test added for a new module must state
-  WHAT, HOW, DATASET (name the real dataset, or state explicitly that it
-  is synthetic and why), and WHY in its module docstring.
+  datasets::UCBAdmissions, metafor::dat.bcg, geepack::dietox, plus the
+  Fleiss 1981 Down syndrome example from the epitools help page, and the
+  published NEJM 1989 Physicians' Health Study 2×2). The R validation
+  script loads each dataset and writes the exact numeric frame Python
+  will read to `fixtures/newmodules/…` — so both languages fit
+  byte-identical real data. Going forward, any test added for a new
+  module must state WHAT, HOW, DATASET (name the real dataset, or state
+  explicitly that it is synthetic and why no real one was available),
+  and WHY in its module docstring.
 - **Runtime parity.** Every new-module test records Python wall-clock time
   alongside the R wall-clock time (from `system.time(...)$elapsed`) and
   asserts Python is no more than 20× slower than R, for fits R completes in

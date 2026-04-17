@@ -116,19 +116,57 @@ timing$mantel_haenszel <- r$elapsed
 cat("  MH OR:", mh_or, "CMH:", mh$statistic, "  (Simpson's paradox example)\n")
 
 # ─────────────────────────────────────────────────────────────────────
-# Rate standardization — simulated (no canonical R dataset).
-# Copied from the previous synthetic version.
+# Rate standardization — Fleiss (1981, p.249) Down syndrome birth
+# prevalence by maternal age and birth order. This is the example on
+# the epitools::ageadjust.direct help page and recreates Table 1 of
+# Fay & Feuer (1997, Stat Med 16:791-801).
+#
+# population[age, order] = live births for maternal-age × birth-order cell.
+# count[age, order]      = Down syndrome cases for the same cell.
+# We standardize birth-order group 1 to the average-population standard
+# (the average across birth-order columns 1..5).
 # ─────────────────────────────────────────────────────────────────────
-cat("\n=== Rate standardization (synthetic) ===\n")
+cat("\n=== Rate standardization (Fleiss 1981, Down syndrome) ===\n")
 library(epitools)
+# Copy the R help-page data verbatim (column-major fill, matching the
+# printed table in ?ageadjust.direct).
+population <- matrix(c(
+    230061, 329449, 114920, 39487, 14208, 3052,
+     72202, 326701, 208667, 83228, 28466, 5375,
+     15050, 175702, 207081, 117300, 45026, 8660,
+      2293,  68800, 132424, 98301, 46075, 9834,
+       327,  30666, 123419, 149919, 104088, 34392,
+    319933, 931318, 786511, 488235, 237863, 61313
+), 6, 6,
+   dimnames = list(
+     age = c("Under 20","20-24","25-29","30-34","35-39","40 and over"),
+     birth_order = c("1","2","3","4","5+","Total")))
+count <- matrix(c(
+    107, 141,  60,  40,  39,  25,
+     25, 150, 110,  84,  82,  39,
+      3,  71, 114, 103, 108,  75,
+      1,  26,  64,  89, 137,  96,
+      0,   8,  63, 112, 262, 295,
+    136, 396, 411, 428, 628, 530
+), 6, 6, dimnames = dimnames(population))
+
+# Standard = average across birth-order columns 1..5 (as in help example).
+standard <- rowMeans(population[, 1:5])
+
 rs <- list(
-    counts        = c(8, 15, 22, 30, 40),
-    person_time   = c(1000, 1500, 2000, 2500, 3000),
-    standard_pop  = c(5000, 4000, 3000, 2000, 1000),
-    standard_rates = c(0.005, 0.008, 0.012, 0.015, 0.020)
+    counts       = as.integer(count[, 1]),         # birth-order 1
+    person_time  = as.integer(population[, 1]),    # births in that group
+    standard_pop = as.numeric(standard),
+    age_groups   = rownames(population),
+    citation     = paste0(
+        "Fleiss (1981) Statistical Methods for Rates and Proportions ",
+        "p.249; example from epitools::ageadjust.direct; replicates ",
+        "Table 1 of Fay & Feuer (1997) Stat Med 16:791-801"
+    )
 )
 writeLines(toJSON(rs, auto_unbox = TRUE, pretty = TRUE),
            file.path(FIX, "rate_std.json"))
+
 r <- time_it(ageadjust.direct(count = rs$counts, pop = rs$person_time,
                                stdpop = rs$standard_pop, conf.level = 0.95))
 direct <- r$value
@@ -137,9 +175,11 @@ results$rate_standardize_direct <- list(
     adjusted_rate = as.numeric(direct["adj.rate"]),
     lci95         = as.numeric(direct["lci"]),
     uci95         = as.numeric(direct["uci"]),
-    dataset       = "synthetic (no canonical compact real dataset)"
+    dataset       = "Fleiss 1981 Down syndrome by maternal age, birth-order 1"
 )
 timing$rate_standardize_direct <- r$elapsed
+cat("  adj rate per 100k:", 1e5 * direct["adj.rate"],
+    "  (help page reports 92.3)\n")
 
 # ─────────────────────────────────────────────────────────────────────
 # Meta-analysis — metafor::dat.bcg (BCG tuberculosis vaccine trials).

@@ -93,10 +93,41 @@ results$power_anova_n <- list(
 
 # ──────────────────────────────────────────────────────────────────────
 # Dose-Response (drc package)
+#
+# Two validation targets:
+#   1. drc::ryegrass (REAL) — the canonical drc-package dataset. Root
+#      length (rootl) of Lolium perenne seedlings exposed to various
+#      concentrations of ferulic acid. Streibig et al. 1993.
+#   2. Synthetic LL.4 compounds — kept for coverage of the batch API and
+#      extreme parameter combinations not covered by ryegrass.
 # ──────────────────────────────────────────────────────────────────────
 cat("\n=== Dose-Response ===\n")
 
 library(drc)
+
+# --- Real ryegrass reference ---
+data(ryegrass, package = "drc")
+write.csv(ryegrass, file.path(fixtures_dir, "ryegrass.csv"), row.names = FALSE)
+ry_start <- proc.time()[["elapsed"]]
+ry_fit <- drm(rootl ~ conc, data = ryegrass, fct = LL.4())
+ry_elapsed <- proc.time()[["elapsed"]] - ry_start
+ry_params <- coef(ry_fit)
+ry_ed50 <- ED(ry_fit, 50, interval = "delta", display = FALSE)
+results$doseresponse_ryegrass <- list(
+    hill = as.numeric(ry_params["b:(Intercept)"]),
+    bottom = as.numeric(ry_params["c:(Intercept)"]),
+    top = as.numeric(ry_params["d:(Intercept)"]),
+    ec50 = as.numeric(ry_params["e:(Intercept)"]),
+    ec50_se = as.numeric(ry_ed50[, "Std. Error"]),
+    ec50_lower = as.numeric(ry_ed50[, "Lower"]),
+    ec50_upper = as.numeric(ry_ed50[, "Upper"]),
+    rss = sum(residuals(ry_fit)^2),
+    dataset = "drc::ryegrass (Streibig et al. 1993 ferulic-acid bioassay)"
+)
+if (is.null(results$timing)) results$timing <- list()
+results$timing$doseresponse_ryegrass <- as.numeric(ry_elapsed)
+cat(sprintf("  ryegrass EC50: %.4f (R time: %.3fs)\n",
+            ry_params["e:(Intercept)"], ry_elapsed))
 
 # Fit 5 representative compounds
 compound_files <- list.files(fixtures_dir, pattern = "compound_.*\\.json$", full.names = TRUE)
@@ -150,8 +181,11 @@ library(pROC)
 
 # ROC for HbA1c -> diabetic
 if ("LBXGH" %in% names(nhanes) && "diabetic" %in% names(nhanes)) {
+    if (is.null(results$timing)) results$timing <- list()
+    roc_start <- proc.time()[["elapsed"]]
     roc_hba1c <- roc(nhanes$diabetic, nhanes$LBXGH, direction = "<", quiet = TRUE)
     ci_hba1c <- ci.auc(roc_hba1c)
+    results$timing$roc_hba1c <- as.numeric(proc.time()[["elapsed"]] - roc_start)
 
     results$roc_hba1c <- list(
         auc = as.numeric(roc_hba1c$auc),
@@ -301,6 +335,74 @@ for (i in seq_along(pk_subjects)) {
 
 # ──────────────────────────────────────────────────────────────────────
 # Save all results
+# ──────────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────
+# NCA on Theoph (REAL PK dataset).
+#
+# datasets::Theoph — 12 subjects, oral theophylline concentrations over
+# 24 hours. Boeckmann, Sheiner & Beal (1994). THE canonical R PK dataset;
+# used by the PKNCA vignette and nlme package.
+# ──────────────────────────────────────────────────────────────────────
+cat("\n=== Theoph NCA (REAL) ===\n")
+data(Theoph, package = "datasets")
+write.csv(Theoph, file.path(fixtures_dir, "Theoph.csv"), row.names = FALSE)
+
+# PKNCA's formula interface with Theoph's Subject column (factor) is
+# finicky — the earlier setup silently dropped subjects and produced
+# dose-normalized AUCs. Compute linear-up/log-down AUC, Cmax, Tmax
+# manually per subject; half-life from terminal log-linear regression.
+# These are the same formulas used by PKNCA and the pystatsbio
+# implementation, so direct manual computation is an unambiguous
+# reference.
+
+lin_up_log_down_auc <- function(t, c) {
+    auc <- 0
+    for (i in seq_len(length(t) - 1)) {
+        dt <- t[i + 1] - t[i]
+        if (c[i] > c[i + 1] && c[i] > 0 && c[i + 1] > 0) {
+            auc <- auc + (c[i] - c[i + 1]) / log(c[i] / c[i + 1]) * dt
+        } else {
+            auc <- auc + (c[i] + c[i + 1]) / 2 * dt
+        }
+    }
+    auc
+}
+
+half_life_from_tail <- function(t, c, n_points = 3) {
+    # Last n_points for log-linear regression.
+    k <- length(t)
+    idx <- (k - n_points + 1):k
+    if (any(c[idx] <= 0)) return(NA_real_)
+    fit <- lm(log(c[idx]) ~ t[idx])
+    lambda_z <- -coef(fit)[2]
+    if (lambda_z <= 0) return(NA_real_)
+    as.numeric(log(2) / lambda_z)
+}
+
+subjects <- sort(unique(as.character(Theoph$Subject)))
+theoph_refs <- list()
+theo_start <- proc.time()[["elapsed"]]
+for (sid in subjects) {
+    sub <- Theoph[as.character(Theoph$Subject) == sid, ]
+    sub <- sub[order(sub$Time), ]
+    theoph_refs[[sid]] <- list(
+        auc_last  = lin_up_log_down_auc(sub$Time, sub$conc),
+        cmax      = max(sub$conc),
+        tmax      = sub$Time[which.max(sub$conc)],
+        half_life = half_life_from_tail(sub$Time, sub$conc, n_points = 3)
+    )
+}
+theo_elapsed <- proc.time()[["elapsed"]] - theo_start
+results$theoph <- list(
+    subjects = subjects,
+    per_subject = theoph_refs,
+    dataset = "datasets::Theoph (12 subjects, theophylline, Boeckmann 1994)"
+)
+if (is.null(results$timing)) results$timing <- list()
+results$timing$theoph <- as.numeric(theo_elapsed)
+cat(sprintf("  Theoph NCA done for %d subjects (R time: %.3fs)\n",
+            length(subjects), theo_elapsed))
+
 # ──────────────────────────────────────────────────────────────────────
 cat("\n=== Saving results ===\n")
 out_path <- file.path(fixtures_dir, "r_results.json")
