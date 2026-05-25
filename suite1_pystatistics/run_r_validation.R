@@ -93,6 +93,58 @@ results$glm_poisson <- list(
 )
 
 # ──────────────────────────────────────────────────────────────────────
+# Categorical predictors & interaction terms
+#
+# Reference matrices/fits for pystatistics' structured term spec
+# (C(name, ref=...) + interaction tuples). df is read with
+# stringsAsFactors=TRUE, so `region` (Central/North/South) and
+# `pop_quartile` (Q1..Q4) are factors with alphabetically sorted levels —
+# the same default baseline (first level) pystatistics uses. Coefficient
+# arrays are recorded in R's model.matrix column order; pystatistics emits
+# the same order, so the comparison is positional.
+# ──────────────────────────────────────────────────────────────────────
+cat("\n=== Categorical predictors & interactions ===\n")
+
+# (1) OLS, numeric * categorical: MedHouseVal ~ MedInc * region
+#     -> MedInc, region (2 dummies), MedInc:region (2 interaction cols)
+ols_fi <- lm(MedHouseVal ~ MedInc * region, data = df)
+s_fi <- summary(ols_fi)
+results$ols_factor_interaction <- list(
+    coefficients = as.numeric(coef(ols_fi)),
+    standard_errors = as.numeric(s_fi$coefficients[, "Std. Error"]),
+    coef_names = names(coef(ols_fi))
+)
+cat("  OLS MedInc*region coef names:", paste(names(coef(ols_fi)), collapse=", "), "\n")
+
+# (2) OLS, categorical * categorical: MedHouseVal ~ region * pop_quartile
+ols_cc <- lm(MedHouseVal ~ region * pop_quartile, data = df)
+s_cc <- summary(ols_cc)
+results$ols_cat_cat <- list(
+    coefficients = as.numeric(coef(ols_cc)),
+    standard_errors = as.numeric(s_cc$coefficients[, "Std. Error"]),
+    coef_names = names(coef(ols_cc))
+)
+cat("  OLS region*pop_quartile n coefs:", length(coef(ols_cc)), "\n")
+
+# (3) OLS, selectable reference level: region releveled to South baseline
+ols_rl <- lm(MedHouseVal ~ MedInc + relevel(region, ref = "South"), data = df)
+s_rl <- summary(ols_rl)
+results$ols_relevel <- list(
+    coefficients = as.numeric(coef(ols_rl)),
+    standard_errors = as.numeric(s_rl$coefficients[, "Std. Error"]),
+    coef_names = names(coef(ols_rl))
+)
+
+# (4) GLM binomial with a factor predictor: high_value ~ MedInc + region
+glm_fac <- glm(high_value ~ MedInc + region, data = df, family = binomial)
+s_glm_fac <- summary(glm_fac)
+results$glm_factor <- list(
+    coefficients = as.numeric(coef(glm_fac)),
+    standard_errors = as.numeric(s_glm_fac$coefficients[, "Std. Error"]),
+    coef_names = names(coef(glm_fac))
+)
+
+# ──────────────────────────────────────────────────────────────────────
 # Descriptive Statistics
 # ──────────────────────────────────────────────────────────────────────
 cat("\n=== Descriptive Statistics ===\n")
@@ -373,6 +425,19 @@ results$coxph <- list(
 cat("  Cox PH coefs (lung, age+sex+ph.ecog):", coef(cox_fit), "\n")
 cat("  n =", nrow(cox_df), "events =", sum(cox_df$event), "\n")
 cat("  Concordance:", cox_s$concordance[1], "\n")
+
+# Cox PH with factor predictors (no intercept): sex and ph.ecog as factors.
+# Validates pystatistics' terms= path on coxph. Same lung_coxph.csv rows.
+cox_fac <- coxph(Surv(time, event) ~ age + factor(sex) + factor(ph.ecog),
+                 data = cox_df)
+cox_fac_s <- summary(cox_fac)
+results$coxph_factor <- list(
+    coefficients = as.numeric(coef(cox_fac)),
+    se = as.numeric(cox_fac_s$coefficients[, "se(coef)"]),
+    hazard_ratios = as.numeric(cox_fac_s$coefficients[, "exp(coef)"]),
+    coef_names = names(coef(cox_fac))
+)
+cat("  Cox factor coef names:", paste(names(coef(cox_fac)), collapse=", "), "\n")
 
 # ──────────────────────────────────────────────────────────────────────
 # Mixed Models
