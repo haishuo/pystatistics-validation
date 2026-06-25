@@ -1,0 +1,40 @@
+{
+  "schema": "validation-artifact-manifest/v1",
+  "subsystem": "mice",
+  "pystatistics_version": "3.18.0",
+  "install_source": "pypi",
+  "evidence_state": "harness-generated",
+  "frozen_utc": "2026-06-25",
+  "provenance": {
+    "generated_by": "drivers/mice/generate_scaling.py on pystatsval, against a PyPI install of pystatistics==3.18.0",
+    "note": "First HARNESS-GENERATED mice artifact (not a bootstrap snapshot). Numeric scaling study, synthetic seeded DGP (make_complete + impose_mcar, seed 20260617). CPU + MPS produced on the Mac; the CUDA rows are pending a Forge run (the GPU there is free). This report currently covers the scaling study only; the other mice studies (fidelity vs R, Rubin coverage, categorical, vs-miceforest) remain at the 3.16.3 headline (bootstrap) until ported to native generators.",
+    "grid": "n in {2000, 5000, 20000}, p=20, m=20, maxit=5, method=pmm, missing rate 0.2"
+  },
+  "hosts": {
+    "mac": {"role": "MPS + CPU", "device": "Apple Silicon / Metal (MPS, fp32)"},
+    "forge": {"role": "CUDA + CPU (pending)", "device": "NVIDIA RTX 5070 Ti (CUDA)"}
+  },
+  "reference": {
+    "name": "R mice",
+    "kind": "cran-package",
+    "what": "The CRAN mice package (van Buuren & Groothuis-Oudshoorn) — multiple imputation by chained equations. The scaling study measures pystatistics CPU-vs-accelerator speed; head-to-head fidelity vs R is part of the (not-yet-regenerated-at-3.18.0) fidelity study."
+  },
+  "studies": [
+    {
+      "id": "scaling_local",
+      "title": "Numeric scaling: CPU vs MPS at 3.18.0 (synthetic, vary n)",
+      "device": ["cpu", "mps"],
+      "run": "runs/scaling_local.json",
+      "claim": "speed",
+      "render": "device_pivot",
+      "host": "mac"
+    }
+  ],
+  "record_fields": {
+    "wall_median_s": "median wall-clock over timed repeats",
+    "peak_mem_mb": "peak device/host memory (MB)",
+    "m_imputations": "number of imputations (m)",
+    "maxit": "iterations per chain",
+    "method": "imputation method (pmm)"
+  }
+}
