@@ -1,0 +1,186 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "3.18.0",
+    "install_source": "pypi",
+    "python": "3.11.14",
+    "numpy": "2.3.5",
+    "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+    "cpu": "x86_64",
+    "device": "cuda",
+    "torch": "2.11.0.dev20251226+cu128",
+    "available_devices": [
+      "cuda",
+      "cpu"
+    ],
+    "gpu_name": "NVIDIA GeForce RTX 5070 Ti",
+    "cuda_version": "12.8",
+    "host": "forge"
+  },
+  "config": {
+    "study": "scaling",
+    "slice": "vary_n",
+    "n": [
+      2000,
+      5000,
+      20000
+    ],
+    "p": 20,
+    "rate": 0.2,
+    "m": 20,
+    "maxit": 5,
+    "method": "pmm",
+    "seed": 20260617,
+    "backends": [
+      "cpu",
+      "gpu"
+    ],
+    "dgp": "make_complete+impose_mcar (synthetic, seeded)"
+  },
+  "records": [
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "n2000",
+      "n": 2000,
+      "p": 21,
+      "backend_name": "mice_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.7155817914754152,
+      "wall_min_s": 0.7124056983739138,
+      "wall_max_s": 0.7254037875682116,
+      "wall_times_s": [
+        0.7124056983739138,
+        0.7155817914754152,
+        0.7254037875682116
+      ],
+      "m_imputations": 20,
+      "maxit": 5,
+      "method": "pmm",
+      "peak_mem_mb": 10.4
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "n2000",
+      "n": 2000,
+      "p": 21,
+      "backend_name": "mice_gpu",
+      "precision": "fp32",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.061341564171016216,
+      "wall_min_s": 0.06075629033148289,
+      "wall_max_s": 0.06142501439899206,
+      "wall_times_s": [
+        0.06075629033148289,
+        0.061341564171016216,
+        0.06142501439899206
+      ],
+      "m_imputations": 20,
+      "maxit": 5,
+      "method": "pmm",
+      "peak_mem_mb": 26.1
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "n5000",
+      "n": 5000,
+      "p": 21,
+      "backend_name": "mice_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 1.5510839652270079,
+      "wall_min_s": 1.546488436870277,
+      "wall_max_s": 1.5523406192660332,
+      "wall_times_s": [
+        1.546488436870277,
+        1.5510839652270079,
+        1.5523406192660332
+      ],
+      "m_imputations": 20,
+      "maxit": 5,
+      "method": "pmm",
+      "peak_mem_mb": 15.7
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "n5000",
+      "n": 5000,
+      "p": 21,
+      "backend_name": "mice_gpu",
+      "precision": "fp32",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.06333052739501,
+      "wall_min_s": 0.06210063863545656,
+      "wall_max_s": 0.06568528804928064,
+      "wall_times_s": [
+        0.06210063863545656,
+        0.06568528804928064,
+        0.06333052739501
+      ],
+      "m_imputations": 20,
+      "maxit": 5,
+      "method": "pmm",
+      "peak_mem_mb": 50.3
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "n20000",
+      "n": 20000,
+      "p": 21,
+      "backend_name": "mice_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 6.093446631915867,
+      "wall_min_s": 6.04811292886734,
+      "wall_max_s": 6.100590453483164,
+      "wall_times_s": [
+        6.093446631915867,
+        6.100590453483164,
+        6.04811292886734
+      ],
+      "m_imputations": 20,
+      "maxit": 5,
+      "method": "pmm",
+      "peak_mem_mb": 67.2
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "n20000",
+      "n": 20000,
+      "p": 21,
+      "backend_name": "mice_gpu",
+      "precision": "fp32",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.16354688350111246,
+      "wall_min_s": 0.15871630609035492,
+      "wall_max_s": 0.16368636302649975,
+      "wall_times_s": [
+        0.15871630609035492,
+        0.16354688350111246,
+        0.16368636302649975
+      ],
+      "m_imputations": 20,
+      "maxit": 5,
+      "method": "pmm",
+      "peak_mem_mb": 176.1
+    }
+  ]
+}
