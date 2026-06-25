@@ -3,14 +3,12 @@ __pycache__/
 *.pyc
 .pytest_cache/
 
-# Data files (downloaded, not committed)
-data/*.csv
-data/*.XPT
-data/*.gz
-data/*.npz
-data/*.clinicalMatrix
+# Local scratch
+*.tmp
+.DS_Store
 
-# Generated fixtures (reproducible via R scripts)
-suite1_pystatistics/fixtures/
-suite2_pystatsbio/fixtures/
-suite3_gpu_stress/fixtures/
+# Archived suite's generated fixtures (reproducible via its R scripts)
+_archive/suite1_pystatistics/fixtures/
+_archive/suite2_pystatsbio/fixtures/
+_archive/suite3_pystatsbio/fixtures/
+_archive/suite3_gpu_stress/fixtures/

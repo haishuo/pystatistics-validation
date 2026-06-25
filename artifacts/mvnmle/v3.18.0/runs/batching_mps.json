@@ -1,0 +1,40 @@
+{
+  "records": [
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 25,
+      "mode": "loop",
+      "objective_ms": 4545.69,
+      "gradient_ms": 8234.8,
+      "version": "3.5.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 50,
+      "mode": "loop",
+      "objective_ms": 21561.07,
+      "gradient_ms": 31531.58,
+      "version": "3.5.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 25,
+      "mode": "loop",
+      "objective_ms": 61.49,
+      "gradient_ms": 125.72,
+      "version": "3.5.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 50,
+      "mode": "loop",
+      "objective_ms": 2555.47,
+      "gradient_ms": 4253.97,
+      "version": "3.5.1"
+    }
+  ]
+}

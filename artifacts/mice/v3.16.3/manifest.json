@@ -1,0 +1,144 @@
+{
+  "schema": "validation-artifact-manifest/v1",
+  "subsystem": "mice",
+  "pystatistics_version": "3.16.3",
+  "install_source": "pypi",
+  "evidence_state": "bootstrap-snapshot",
+  "frozen_utc": "2026-06-25",
+  "provenance": {
+    "snapshotted_from": "UMassD/Papers/gpu-mice-paper/results",
+    "note": "Bootstrap: legacy {study,config,metrics,env} envelopes flattened into validation-run/v1 by drivers/_bootstrap/convert_mice.py. Originals vendored under runs/legacy/. Headline version 3.16.3 (paper MANIFEST 'current library'); individual studies span 3.13.0-3.16.3 (recorded in each run's env). Going forward, drivers/mice/ regenerates these via pystatsval against a PyPI install.",
+    "version_span": "3.13.0 (validity, version-stable), 3.15.0/3.15.3 (scaling), 3.16.2/3.16.3 (categorical, miceforest)"
+  },
+  "hosts": {
+    "mac": {
+      "role": "MPS + CPU",
+      "device": "Apple Silicon / Metal (MPS)"
+    },
+    "forge": {
+      "role": "CUDA + CPU",
+      "device": "NVIDIA RTX 5070 Ti (CUDA)"
+    },
+    "r": {
+      "role": "reference",
+      "engine": "R mice 3.19.0"
+    }
+  },
+  "reference": {
+    "name": "R mice",
+    "kind": "cran-package",
+    "what": "The CRAN mice package (van Buuren & Groothuis-Oudshoorn) \u2014 multiple imputation by chained equations. pystatistics mirrors its defaults (m=5, maxit=5, pmm for numeric) and methods (pmm/norm/logreg/polyreg/polr)."
+  },
+  "studies": [
+    {
+      "id": "scaling_mps",
+      "run": "runs/mice_scaling_mps.json",
+      "title": "Numeric scaling: CPU vs MPS (vary n at m=100)",
+      "device": [
+        "cpu",
+        "mps"
+      ],
+      "claim": "speed",
+      "render": "device_pivot",
+      "host": "mac"
+    },
+    {
+      "id": "scaling_cuda",
+      "run": "runs/mice_scaling_cuda.json",
+      "title": "Numeric scaling: CPU vs CUDA (vary n at m=100)",
+      "device": [
+        "cpu",
+        "cuda"
+      ],
+      "claim": "speed",
+      "render": "device_pivot",
+      "host": "forge"
+    },
+    {
+      "id": "r_fidelity_cuda",
+      "run": "runs/mice_r_fidelity_cuda.json",
+      "title": "Speed & fidelity vs R mice (CUDA, pmm/norm)",
+      "device": [
+        "cpu",
+        "cuda"
+      ],
+      "claim": "agreement+speed",
+      "host": "forge",
+      "agreement": {
+        "reference_engine": "r:mice",
+        "sut_run": "runs/mice_r_fidelity_cuda.json",
+        "sut_engine": "pystatistics:cpu",
+        "pair_key": [
+          "dataset"
+        ]
+      }
+    },
+    {
+      "id": "r_fidelity_mps",
+      "run": "runs/mice_r_fidelity_mps.json",
+      "title": "Speed & fidelity vs R mice (MPS, pmm/norm)",
+      "device": [
+        "cpu",
+        "mps"
+      ],
+      "claim": "agreement+speed",
+      "host": "mac",
+      "agreement": {
+        "reference_engine": "r:mice",
+        "sut_run": "runs/mice_r_fidelity_mps.json",
+        "sut_engine": "pystatistics:cpu",
+        "pair_key": [
+          "dataset"
+        ]
+      }
+    },
+    {
+      "id": "validity",
+      "run": "runs/mice_validity.json",
+      "title": "Rubin coverage (MCAR/MAR; MICE vs naive arms)",
+      "device": [
+        "cpu",
+        "mps"
+      ],
+      "claim": "coverage",
+      "host": "mac"
+    },
+    {
+      "id": "categorical_cuda",
+      "run": "runs/mice_categorical_cuda.json",
+      "title": "Mixed-type imputation vs R mice (CUDA)",
+      "device": [
+        "cpu",
+        "cuda"
+      ],
+      "claim": "agreement+speed",
+      "host": "forge",
+      "agreement": {
+        "reference_engine": "r:mice",
+        "sut_run": "runs/mice_categorical_cuda.json",
+        "sut_engine": "pystatistics:cpu",
+        "pair_key": [
+          "dataset"
+        ]
+      }
+    },
+    {
+      "id": "vs_miceforest",
+      "run": "runs/mice_vs_miceforest.json",
+      "title": "Scale comparison vs miceforest (ML imputer)",
+      "device": [
+        "cpu",
+        "cuda"
+      ],
+      "claim": "speed",
+      "host": "forge"
+    }
+  ],
+  "record_fields": {
+    "wall_median_s": "median wall-clock over timed repeats",
+    "peak_mem_mb": "peak device/host memory (MB)",
+    "fidelity_max_diff": "max per-variable distribution distance vs R (mean diff for numeric, Wasserstein for mixed)",
+    "coverage_slopes_mean": "Rubin CI coverage averaged over slope coefficients (target ~0.95)",
+    "speedup_cpu_over_r / speedup_gpu_over_r": "pystatistics speedup over R mice"
+  }
+}

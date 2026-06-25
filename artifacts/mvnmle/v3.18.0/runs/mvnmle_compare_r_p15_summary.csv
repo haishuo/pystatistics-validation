@@ -1,0 +1,3 @@
+survey,p,n,n_patterns,missing_frac,engine,converged,n_iter,loglik,wall_median_s,backend_name,precision,parameterization,error
+wvs,15,97097,1596,0.08148346498861962,r:mvnmle,,57,-479040.3269080293,64.15,r_mvnmle,fp64,inverse_cholesky,
+gss,15,75683,89,0.1613986408220252,r:mvnmle,,100,11651.406580097739,65.759,r_mvnmle,fp64,inverse_cholesky,

@@ -1,0 +1,386 @@
+[
+  {
+    "study": "vs_miceforest",
+    "timestamp_utc": "2026-06-23T06:04:37.239160+00:00",
+    "seed": 20260617,
+    "config": {
+      "dataset": "synthetic",
+      "n": 50000
+    },
+    "metrics": {
+      "label": "synthetic",
+      "n": 50000,
+      "p": 7,
+      "m": 5,
+      "maxit": 5,
+      "pystat_gpu": {
+        "elapsed_s": 2.5229929704219103,
+        "peak_mem_bytes": 140349952
+      },
+      "pystat_cpu": {
+        "elapsed_s": 12.101391821168363,
+        "peak_mem_bytes": 194015232
+      },
+      "miceforest_cpu": {
+        "elapsed_s": 20.310695430263877,
+        "device": "cpu",
+        "failed": null
+      },
+      "miceforest_gpu": {
+        "elapsed_s": null,
+        "device": "gpu",
+        "failed": "LightGBMError: Unknown OpenCL Error (-9999)"
+      },
+      "pystat_gpu_over_mf_best": 0.124219920439678
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "d363102",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.16.3",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true,
+      "miceforest": "6.0.5",
+      "lightgbm": "4.6.0"
+    }
+  },
+  {
+    "study": "vs_miceforest",
+    "timestamp_utc": "2026-06-23T06:06:14.940101+00:00",
+    "seed": 20260617,
+    "config": {
+      "dataset": "synthetic",
+      "n": 100000
+    },
+    "metrics": {
+      "label": "synthetic",
+      "n": 100000,
+      "p": 7,
+      "m": 5,
+      "maxit": 5,
+      "pystat_gpu": {
+        "elapsed_s": 4.90056318603456,
+        "peak_mem_bytes": 261192704
+      },
+      "pystat_cpu": {
+        "elapsed_s": 24.75736180320382,
+        "peak_mem_bytes": 0
+      },
+      "miceforest_cpu": {
+        "elapsed_s": 28.913175714202225,
+        "device": "cpu",
+        "failed": null
+      },
+      "miceforest_gpu": {
+        "elapsed_s": null,
+        "device": "gpu",
+        "failed": "LightGBMError: Unknown OpenCL Error (-9999)"
+      },
+      "pystat_gpu_over_mf_best": 0.16949238763929314
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "d363102",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.16.3",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true,
+      "miceforest": "6.0.5",
+      "lightgbm": "4.6.0"
+    }
+  },
+  {
+    "study": "vs_miceforest",
+    "timestamp_utc": "2026-06-23T06:08:20.963994+00:00",
+    "seed": 20260617,
+    "config": {
+      "dataset": "synthetic",
+      "n": 250000
+    },
+    "metrics": {
+      "label": "synthetic",
+      "n": 250000,
+      "p": 7,
+      "m": 5,
+      "maxit": 5,
+      "pystat_gpu": {
+        "elapsed_s": 12.547438295558095,
+        "peak_mem_bytes": 626844672
+      },
+      "pystat_cpu": {
+        "elapsed_s": null,
+        "skipped": "impractical at scale"
+      },
+      "miceforest_cpu": {
+        "elapsed_s": 56.22659319266677,
+        "device": "cpu",
+        "failed": null
+      },
+      "miceforest_gpu": {
+        "elapsed_s": null,
+        "device": "gpu",
+        "failed": "LightGBMError: Out of Host Memory"
+      },
+      "pystat_gpu_over_mf_best": 0.22315843061241292
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "d363102",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.16.3",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true,
+      "miceforest": "6.0.5",
+      "lightgbm": "4.6.0"
+    }
+  },
+  {
+    "study": "vs_miceforest",
+    "timestamp_utc": "2026-06-23T06:11:42.415444+00:00",
+    "seed": 20260617,
+    "config": {
+      "dataset": "synthetic",
+      "n": 500000
+    },
+    "metrics": {
+      "label": "synthetic",
+      "n": 500000,
+      "p": 7,
+      "m": 5,
+      "maxit": 5,
+      "pystat_gpu": {
+        "elapsed_s": 25.134780008345842,
+        "peak_mem_bytes": 1239958528
+      },
+      "pystat_cpu": {
+        "elapsed_s": null,
+        "skipped": "impractical at scale"
+      },
+      "miceforest_cpu": {
+        "elapsed_s": 99.10349412821233,
+        "device": "cpu",
+        "failed": null
+      },
+      "miceforest_gpu": {
+        "elapsed_s": null,
+        "device": "gpu",
+        "failed": "LightGBMError: Out of Host Memory"
+      },
+      "pystat_gpu_over_mf_best": 0.25362153201004634
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "d363102",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.16.3",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true,
+      "miceforest": "6.0.5",
+      "lightgbm": "4.6.0"
+    }
+  },
+  {
+    "study": "vs_miceforest",
+    "timestamp_utc": "2026-06-23T06:17:33.984614+00:00",
+    "seed": 20260617,
+    "config": {
+      "dataset": "synthetic",
+      "n": 1000000
+    },
+    "metrics": {
+      "label": "synthetic",
+      "n": 1000000,
+      "p": 7,
+      "m": 5,
+      "maxit": 5,
+      "pystat_gpu": {
+        "elapsed_s": 51.05680578015745,
+        "peak_mem_bytes": 2451757056
+      },
+      "pystat_cpu": {
+        "elapsed_s": null,
+        "skipped": "impractical at scale"
+      },
+      "miceforest_cpu": {
+        "elapsed_s": 187.15045362245291,
+        "device": "cpu",
+        "failed": null
+      },
+      "miceforest_gpu": {
+        "elapsed_s": null,
+        "device": "gpu",
+        "failed": "LightGBMError: Memory Object Allocation Failure"
+      },
+      "pystat_gpu_over_mf_best": 0.27281155237356064
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "d363102",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.16.3",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true,
+      "miceforest": "6.0.5",
+      "lightgbm": "4.6.0"
+    }
+  },
+  {
+    "study": "vs_miceforest",
+    "timestamp_utc": "2026-06-23T06:19:56.643060+00:00",
+    "seed": 20260617,
+    "config": {
+      "dataset": "cses",
+      "n": 100000
+    },
+    "metrics": {
+      "label": "survey:cses",
+      "n": 100000,
+      "p": 10,
+      "m": 5,
+      "maxit": 5,
+      "pystat_gpu": {
+        "elapsed_s": 11.106790064834058,
+        "peak_mem_bytes": 379127808
+      },
+      "pystat_cpu": {
+        "elapsed_s": 71.72780793532729,
+        "peak_mem_bytes": 0
+      },
+      "miceforest_cpu": {
+        "elapsed_s": null,
+        "device": "cpu",
+        "failed": "ValueError: data must be finite, check for nan or inf values"
+      },
+      "miceforest_gpu": {
+        "elapsed_s": null,
+        "device": "gpu",
+        "failed": "LightGBMError: Out of Host Memory"
+      },
+      "pystat_gpu_over_mf_best": null
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "d363102",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.16.3",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true,
+      "miceforest": "6.0.5",
+      "lightgbm": "4.6.0"
+    }
+  },
+  {
+    "study": "vs_miceforest",
+    "timestamp_utc": "2026-06-23T06:24:10.968184+00:00",
+    "seed": 20260617,
+    "config": {
+      "dataset": "cses",
+      "n": 250000
+    },
+    "metrics": {
+      "label": "survey:cses",
+      "n": 250000,
+      "p": 10,
+      "m": 5,
+      "maxit": 5,
+      "pystat_gpu": {
+        "elapsed_s": 28.223651726730168,
+        "peak_mem_bytes": 917187072
+      },
+      "pystat_cpu": {
+        "elapsed_s": null,
+        "skipped": "impractical at scale"
+      },
+      "miceforest_cpu": {
+        "elapsed_s": null,
+        "device": "cpu",
+        "failed": "ValueError: data must be finite, check for nan or inf values"
+      },
+      "miceforest_gpu": {
+        "elapsed_s": null,
+        "device": "gpu",
+        "failed": "LightGBMError: Out of Host Memory"
+      },
+      "pystat_gpu_over_mf_best": null
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "d363102",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.16.3",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true,
+      "miceforest": "6.0.5",
+      "lightgbm": "4.6.0"
+    }
+  },
+  {
+    "study": "vs_miceforest",
+    "timestamp_utc": "2026-06-23T06:32:37.090298+00:00",
+    "seed": 20260617,
+    "config": {
+      "dataset": "cses",
+      "n": 395000
+    },
+    "metrics": {
+      "label": "survey:cses",
+      "n": 395000,
+      "p": 10,
+      "m": 5,
+      "maxit": 5,
+      "pystat_gpu": {
+        "elapsed_s": 44.31711137294769,
+        "peak_mem_bytes": 1434634752
+      },
+      "pystat_cpu": {
+        "elapsed_s": null,
+        "skipped": "impractical at scale"
+      },
+      "miceforest_cpu": {
+        "elapsed_s": 342.15498277172446,
+        "device": "cpu",
+        "failed": null
+      },
+      "miceforest_gpu": {
+        "elapsed_s": null,
+        "device": "gpu",
+        "failed": "LightGBMError: Out of Host Memory"
+      },
+      "pystat_gpu_over_mf_best": 0.12952350135001464
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "d363102",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.16.3",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true,
+      "miceforest": "6.0.5",
+      "lightgbm": "4.6.0"
+    }
+  }
+]

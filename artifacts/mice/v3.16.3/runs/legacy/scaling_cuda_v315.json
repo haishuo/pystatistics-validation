@@ -1,0 +1,332 @@
+[
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T13:10:12.066139+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "cpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 2000
+    },
+    "metrics": {
+      "median_s": 7.090171408839524,
+      "min_s": 7.062497727572918,
+      "iqr_s": 0.041798404417932034,
+      "peak_mem_bytes": 37130240,
+      "imputed_mean": 0.009351969227810612
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "unknown",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.0",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T13:10:12.907424+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "gpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 2000
+    },
+    "metrics": {
+      "median_s": 0.12173161562532187,
+      "min_s": 0.120676314458251,
+      "iqr_s": 0.0011493507772684097,
+      "peak_mem_bytes": 91355648,
+      "imputed_mean": 0.008139682081769932
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "unknown",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.0",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T13:10:59.100241+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "cpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 5000
+    },
+    "metrics": {
+      "median_s": 15.385441268794239,
+      "min_s": 15.379466113634408,
+      "iqr_s": 0.016484889201819897,
+      "peak_mem_bytes": 83988480,
+      "imputed_mean": 0.00646363224457901
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "unknown",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.0",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T13:11:00.282010+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "gpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 5000
+    },
+    "metrics": {
+      "median_s": 0.2850759206339717,
+      "min_s": 0.2813035473227501,
+      "iqr_s": 0.004491749219596386,
+      "peak_mem_bytes": 209904640,
+      "imputed_mean": 0.005351037188226338
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "unknown",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.0",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T13:14:02.147383+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "cpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 20000
+    },
+    "metrics": {
+      "median_s": 60.62343933619559,
+      "min_s": 60.30628388840705,
+      "iqr_s": 0.5024753250181675,
+      "peak_mem_bytes": 335945728,
+      "imputed_mean": 0.019855788430928865
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "unknown",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.0",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T13:14:07.346522+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "gpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 20000
+    },
+    "metrics": {
+      "median_s": 1.2614618120715022,
+      "min_s": 1.2451417995616794,
+      "iqr_s": 0.016985727474093437,
+      "peak_mem_bytes": 803635712,
+      "imputed_mean": 0.019513960520310458
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "unknown",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.0",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T13:23:00.776880+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "cpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 50000
+    },
+    "metrics": {
+      "median_s": 177.65671883523464,
+      "min_s": 177.39885242376477,
+      "iqr_s": 0.6858539897948503,
+      "peak_mem_bytes": 840007680,
+      "imputed_mean": 0.021223512795447045
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "unknown",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.0",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T13:23:14.299158+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "gpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 50000
+    },
+    "metrics": {
+      "median_s": 3.3035036688670516,
+      "min_s": 3.2664455911144614,
+      "iqr_s": 0.04386341292411089,
+      "peak_mem_bytes": 1989132288,
+      "imputed_mean": 0.02196427511696282
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "unknown",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.0",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T13:42:47.456621+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "cpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 100000
+    },
+    "metrics": {
+      "median_s": 390.7721090083942,
+      "min_s": 389.70069007761776,
+      "iqr_s": 2.3126594945788383,
+      "peak_mem_bytes": 1346269184,
+      "imputed_mean": 0.021328230230975923
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "unknown",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.0",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T13:43:15.285977+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "gpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 100000
+    },
+    "metrics": {
+      "median_s": 6.79702178016305,
+      "min_s": 6.702019176445901,
+      "iqr_s": 0.100586605258286,
+      "peak_mem_bytes": 3964416000,
+      "imputed_mean": 0.021233588072279208
+    },
+    "env": {
+      "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+      "python": "3.11.14",
+      "pystatistics_sha": "unknown",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.0",
+      "torch": "2.11.0.dev20251226+cu128",
+      "torch_threads": 6,
+      "mps": false,
+      "cuda": true
+    }
+  }
+]

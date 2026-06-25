@@ -1,0 +1,35 @@
+{
+  "schema": "validation-subsystem-meta/v1",
+  "subsystem": "mice",
+  "title": "Multiple Imputation by Chained Equations (MICE)",
+  "module": "pystatistics.mice",
+  "procedure": "Multiple imputation of missing data by chained equations: each incomplete variable is imputed in turn from a regression on the others, cycling for several iterations to produce m completed datasets. Analyses are run on each completed dataset and combined by Rubin's rules, propagating imputation uncertainty into the final standard errors. Entry point: mice(data, seed, m=5, maxit=5, method='pmm', backend='cpu'|'gpu') -> MICESolution; pooling via pool(estimates, variances, dfcom) -> PooledResult.",
+  "algorithms": [
+    "Chained equations: initialize missing cells by column mean, then for maxit iterations visit each incomplete column and impute it from a model fit on the observed rows; repeat for m independent chains with separate RNG streams.",
+    "Per-column methods mirror R mice: pmm (predictive mean matching, default for numeric), norm (Bayesian linear regression), logreg (binary), polyreg (unordered categorical, via the multinomial module), polr (ordered, proportional-odds with a ridge penalty on slopes to stay stable under chained-equation separation).",
+    "Inference by Rubin's rules: total variance T = Ubar + (1 + 1/m) B, Barnard-Rubin degrees of freedom, with relative increase in variance, lambda, and fraction of missing information reported.",
+    "Backends: CPU (NumPy/SciPy, fp64, the R-validated reference path) and GPU (PyTorch, batched chains on CUDA/MPS, fp32 by default; fp64 available on CUDA via use_fp64).",
+    "A seed is mandatory (reproducibility is enforced, not optional)."
+  ],
+  "reference": {
+    "name": "R mice",
+    "what": "The CRAN mice package (van Buuren & Groothuis-Oudshoorn, JSS 2011), the de-facto reference for chained-equation imputation. pystatistics mirrors its defaults (m=5, maxit=5, pmm for numeric) and method names; the head-to-head pins R mice 3.19.0. Agreement is assessed by per-variable imputed-distribution distance (mean/quantile differences for numeric, Wasserstein for mixed types) rather than exact equality, since imputation is stochastic.",
+    "also_compared": ["miceforest (LightGBM-based ML imputer) for large-scale speed"]
+  },
+  "tolerances": {
+    "fidelity_vs_r": "Imputation is stochastic, so agreement is distributional, not exact: per-variable imputed means/quantiles (numeric) and Wasserstein distance (mixed) are compared and expected small. The CPU path is the reference; the numeric path is version-stable across 3.13-3.16.",
+    "rubin_coverage": "Validity is judged by Monte-Carlo CI coverage of the analysis-model slopes under MCAR/MAR: MICE should recover ~0.95 nominal coverage, where naive arms (complete-case, listwise, mean imputation) under-cover.",
+    "gpu_vs_cpu": "fp32 GPU imputations match the fp64 CPU path within the GPU/fp32 tolerance tier; MPS rejects fp64."
+  },
+  "limitations": [
+    "Assumes missing-at-random (MAR); MNAR requires auxiliary information the model does not include.",
+    "GPU default is fp32 (fp64 only on CUDA); MPS has no fp64.",
+    "polr under chained equations can drive a column toward (quasi-)complete separation; a ridge penalty on slopes stabilizes it, but extreme designs remain hard.",
+    "Fully-missing columns are rejected (unimputable); columns with no missing values are skipped.",
+    "Categorical columns are handled as integer codes with tracked level maps; very high-cardinality nominal variables stress polyreg."
+  ],
+  "datasets": [
+    {"name": "synthetic (dgp.py)", "what": "Seeded data-generating processes with known coefficients: complete linear models (validity/coverage) and mixed-type latent-AR(1) data (categorical), with MCAR/MAR missingness imposed. Seed 20260617."},
+    {"name": "CSES / GSS surveys", "what": "Real survey microdata (Comparative Study of Electoral Systems; General Social Survey) for row-scaling and real-data fidelity at 76k-396k rows."}
+  ]
+}

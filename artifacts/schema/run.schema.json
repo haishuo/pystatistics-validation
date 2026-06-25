@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "validation-run/v1",
+  "title": "Validation benchmark run",
+  "type": "object",
+  "required": ["schema", "records"],
+  "properties": {
+    "schema": {"const": "validation-run/v1"},
+    "env": {
+      "type": "object",
+      "required": ["pystatistics_version", "install_source", "device"],
+      "properties": {
+        "pystatistics_version": {"type": "string"},
+        "install_source": {"enum": ["pypi", "editable"]},
+        "python": {"type": "string"},
+        "numpy": {"type": "string"},
+        "torch": {"type": "string"},
+        "blas": {"type": "string"},
+        "os": {"type": "string"},
+        "cpu": {"type": "string"},
+        "device": {"enum": ["cpu", "mps", "cuda"]},
+        "gpu_name": {"type": "string"},
+        "cuda_version": {"type": "string"},
+        "host": {"type": "string"}
+      }
+    },
+    "config": {"type": "object"},
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["engine"],
+        "properties": {
+          "engine": {"type": "string"},
+          "backend_name": {"type": "string"},
+          "precision": {"type": "string"},
+          "parameterization": {"type": "string"},
+          "n": {"type": ["integer", "null"]},
+          "p": {"type": ["integer", "null"]},
+          "converged": {"type": ["boolean", "null"]},
+          "n_iter": {"type": ["integer", "null"]},
+          "loglik": {"type": ["number", "null"]},
+          "wall_median_s": {"type": ["number", "null"]},
+          "wall_min_s": {"type": ["number", "null"]},
+          "wall_max_s": {"type": ["number", "null"]},
+          "wall_times_s": {"type": ["array", "null"], "items": {"type": "number"}}
+        }
+      }
+    }
+  }
+}

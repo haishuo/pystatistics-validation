@@ -1,7 +1,9 @@
+[project]
+name = "pystatistics-validation"
+version = "0.1.0"
+description = "Canonical version-pinned validation evidence and reports for pystatistics"
+requires-python = ">=3.11"
+
 [tool.pytest.ini_options]
-testpaths = ["suite1_pystatistics", "suite2_pystatsbio", "suite3_gpu_stress"]
-addopts = "-v --tb=short -m 'not slow'"
-markers = [
-    "slow: large/slow tests (GPU stress). Run with: pytest -m slow",
-    "gpu: requires CUDA GPU. Auto-skipped without one.",
-]
+testpaths = ["tests"]
+addopts = "-v --tb=short"

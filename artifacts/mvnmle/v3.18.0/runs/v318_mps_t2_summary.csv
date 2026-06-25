@@ -1,0 +1,5 @@
+survey,p,n,n_patterns,missing_frac,engine,converged,n_iter,loglik,wall_median_s,backend_name,precision,parameterization,error
+wvs,50,97220,22121,0.10059411643694713,pystatistics:gpu,True,35,-1495012.875,14.078969624999445,gpu_mps_fp32,fp32,cholesky,
+wvs,100,97220,43766,0.11516354659535075,pystatistics:gpu,True,86,-1776135.75,289.1534322085208,gpu_mps_fp32,fp32,cholesky,
+gss,50,75699,3778,0.24022457364033872,pystatistics:gpu,True,126,27712.59765625,7.884734708524775,gpu_mps_fp32,fp32,cholesky,
+gss,100,75699,32673,0.27359529187968135,pystatistics:gpu,True,195,-660176.3125,169.76803804200608,gpu_mps_fp32,fp32,cholesky,

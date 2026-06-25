@@ -1,0 +1,34 @@
+{
+  "schema": "validation-subsystem-meta/v1",
+  "subsystem": "mvnmle",
+  "title": "Multivariate-normal MLE with incomplete data",
+  "module": "pystatistics.mvnmle",
+  "procedure": "Maximum-likelihood estimation of the mean vector mu and covariance matrix Sigma of a multivariate normal distribution from data with arbitrary item-level missingness (missing-at-random). Each observation contributes the marginal log-likelihood over its observed coordinates; the estimator maximizes the summed observed-data log-likelihood.",
+  "algorithms": [
+    "Forward-Cholesky parameterization of Sigma: the optimizer works in the unconstrained space of a Cholesky factor, so every iterate is positive-definite by construction (no projection/repair step). This is the contribution the mvnmle paper formalizes.",
+    "CPU default since 3.17.0: a fast forward-Cholesky estimator in fp64 (deterministic).",
+    "Apple-Metal (MPS) optimizer loop since 3.18.0: a single fused objective/gradient pass per iteration; GPU reductions are fp32 (mildly non-deterministic in the last digits).",
+    "CUDA backend (fp32) for NVIDIA hardware.",
+    "Trace-term evaluation has two backends (direct solve vs blocked) selected per device; gradients via analytic form or autodiff (see the factorial study)."
+  ],
+  "reference": {
+    "name": "R mvnmle",
+    "what": "The CRAN mvnmle package, which maximizes the same observed-data likelihood using an inverse-Cholesky parameterization in fp64. It is the established reference implementation; agreement in loglik and in the estimated mu/Sigma summaries (Frobenius norm, log-determinant) is the correctness claim.",
+    "also_compared": ["semopy (Python SEM, on the GSS survey)"]
+  },
+  "tolerances": {
+    "loglik_vs_r": "Agreement to fp64 round-off on CPU; GPU fp32 paths agree to ~1e-4 relative on loglik and may differ in the last reported digit of mu/Sigma.",
+    "estimate_agreement": "Cross-engine agreement checked via sigma_fro and sigma_logdet rather than full elementwise equality at large p (the full p x p matrix is O(p^2) and is only stored for p <= 100).",
+    "gpu_nondeterminism": "fp32 GPU reductions are not bit-reproducible across runs; timings are reported as medians over repeats and estimates as the last timed repeat."
+  },
+  "limitations": [
+    "R mvnmle does not run past roughly p = 50 in practical time; head-to-head agreement is therefore established at p <= 25 and the high-p story is internal (CPU vs GPU).",
+    "GPU paths are fp32; for applications needing fp64 covariance to full precision, use the CPU backend.",
+    "Assumes missing-at-random; the estimator does not model a missingness mechanism.",
+    "The MLE requires the observed-data covariance to be non-degenerate; near-collinear columns make the problem ill-conditioned (the paper's data curation screens |corr| near 1)."
+  ],
+  "datasets": [
+    {"name": "WVS", "what": "World Values Survey — continuous/ordinal items, ~97k respondents, item-level missingness; large real survey with many missingness patterns."},
+    {"name": "GSS", "what": "General Social Survey — ~75k respondents; fewer but structurally different missingness patterns than WVS."}
+  ]
+}

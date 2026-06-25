@@ -1,0 +1,28 @@
+{
+  "records": [
+    {
+      "survey": "gss",
+      "p": 10,
+      "n": 75683,
+      "pystatistics_version": "3.12.0",
+      "pystat_s": 2.0996159999922384,
+      "pystat_loglik": -129268.734375,
+      "semopy_s": 6.170953416993143,
+      "sigma_max_abs_diff": 0.6813925255166678,
+      "sigma_rel_fro": 0.27550456943065676,
+      "speedup_semopy_over_pystat": 2.93908667919084
+    },
+    {
+      "survey": "gss",
+      "p": 25,
+      "n": 75699,
+      "pystatistics_version": "3.12.0",
+      "pystat_s": 4.033387458999641,
+      "pystat_loglik": 271862.0,
+      "semopy_s": 51.70773029199336,
+      "sigma_max_abs_diff": 1.5673802116807158,
+      "sigma_rel_fro": 1.2770646722688088,
+      "speedup_semopy_over_pystat": 12.819926381389077
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "validation-artifact-manifest/v1",
+  "title": "Validation artifact manifest",
+  "type": "object",
+  "required": ["schema", "subsystem", "pystatistics_version", "install_source", "studies"],
+  "properties": {
+    "schema": {"const": "validation-artifact-manifest/v1"},
+    "subsystem": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "pystatistics_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "install_source": {"enum": ["pypi", "editable"]},
+    "evidence_state": {"enum": ["bootstrap-snapshot", "harness-generated"],
+      "description": "bootstrap-snapshot = vendored from a paper's pre-migration results (may have been editable installs); harness-generated = produced by pystatsval against a PyPI install."},
+    "frozen_utc": {"type": "string"},
+    "provenance": {"type": "object"},
+    "hosts": {"type": "object"},
+    "reference": {
+      "type": "object",
+      "required": ["name", "what"],
+      "properties": {
+        "name": {"type": "string"},
+        "kind": {"type": "string"},
+        "what": {"type": "string"}
+      }
+    },
+    "studies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "device", "claim"],
+        "properties": {
+          "id": {"type": "string"},
+          "title": {"type": "string"},
+          "device": {"type": "array", "items": {"enum": ["cpu", "mps", "cuda"]}},
+          "run": {"type": "string"},
+          "runs": {"type": "array", "items": {"type": "string"}},
+          "summary": {"type": "string"},
+          "summaries": {"type": "array", "items": {"type": "string"}},
+          "claim": {"type": "string"},
+          "host": {"type": "string"},
+          "note": {"type": "string"}
+        },
+        "anyOf": [
+          {"required": ["run"]},
+          {"required": ["runs"]}
+        ]
+      }
+    },
+    "record_fields": {"type": "object"}
+  }
+}

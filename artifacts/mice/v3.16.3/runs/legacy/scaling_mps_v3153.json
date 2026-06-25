@@ -1,0 +1,332 @@
+[
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T19:37:17.805113+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "cpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 2000
+    },
+    "metrics": {
+      "median_s": 7.866361040971242,
+      "min_s": 7.833807250019163,
+      "iqr_s": 0.07898666698019952,
+      "peak_mem_bytes": 58736640,
+      "imputed_mean": 0.00818823045584786
+    },
+    "env": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "python": "3.12.13",
+      "pystatistics_sha": "00d2c17",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.3",
+      "torch": "2.12.0",
+      "torch_threads": 8,
+      "mps": true,
+      "cuda": false
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T19:37:27.426545+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "gpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 2000
+    },
+    "metrics": {
+      "median_s": 2.201935624994803,
+      "min_s": 2.1779737500473857,
+      "iqr_s": 0.024039624957367778,
+      "peak_mem_bytes": 2445934592,
+      "imputed_mean": 0.008780949141495287
+    },
+    "env": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "python": "3.12.13",
+      "pystatistics_sha": "00d2c17",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.3",
+      "torch": "2.12.0",
+      "torch_threads": 8,
+      "mps": true,
+      "cuda": false
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T19:38:23.599145+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "cpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 5000
+    },
+    "metrics": {
+      "median_s": 18.714948208013084,
+      "min_s": 18.573955082974862,
+      "iqr_s": 0.26122541702352464,
+      "peak_mem_bytes": 101761024,
+      "imputed_mean": 0.0055645562091572965
+    },
+    "env": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "python": "3.12.13",
+      "pystatistics_sha": "00d2c17",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.3",
+      "torch": "2.12.0",
+      "torch_threads": 8,
+      "mps": true,
+      "cuda": false
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T19:38:30.321978+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "gpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 5000
+    },
+    "metrics": {
+      "median_s": 1.5367000420228578,
+      "min_s": 1.5058403750299476,
+      "iqr_s": 0.11407162499381229,
+      "peak_mem_bytes": 5957550080,
+      "imputed_mean": 0.005732627399284969
+    },
+    "env": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "python": "3.12.13",
+      "pystatistics_sha": "00d2c17",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.3",
+      "torch": "2.12.0",
+      "torch_threads": 8,
+      "mps": true,
+      "cuda": false
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T19:42:39.236444+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "cpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 20000
+    },
+    "metrics": {
+      "median_s": 82.58948045800207,
+      "min_s": 82.56930929195369,
+      "iqr_s": 0.998917207994964,
+      "peak_mem_bytes": 460832768,
+      "imputed_mean": 0.019602717380627778
+    },
+    "env": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "python": "3.12.13",
+      "pystatistics_sha": "00d2c17",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.3",
+      "torch": "2.12.0",
+      "torch_threads": 8,
+      "mps": true,
+      "cuda": false
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T19:42:59.497470+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "gpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 20000
+    },
+    "metrics": {
+      "median_s": 4.9401360410265625,
+      "min_s": 4.908787374966778,
+      "iqr_s": 0.03347954206401482,
+      "peak_mem_bytes": 20114276352,
+      "imputed_mean": 0.018794704114057734
+    },
+    "env": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "python": "3.12.13",
+      "pystatistics_sha": "00d2c17",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.3",
+      "torch": "2.12.0",
+      "torch_threads": 8,
+      "mps": true,
+      "cuda": false
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T19:54:29.471609+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "cpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 50000
+    },
+    "metrics": {
+      "median_s": 229.19772245798958,
+      "min_s": 227.92155420896597,
+      "iqr_s": 4.443141125026159,
+      "peak_mem_bytes": 1010565120,
+      "imputed_mean": 0.021676180234256125
+    },
+    "env": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "python": "3.12.13",
+      "pystatistics_sha": "00d2c17",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.3",
+      "torch": "2.12.0",
+      "torch_threads": 8,
+      "mps": true,
+      "cuda": false
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T19:55:19.807540+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "gpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 50000
+    },
+    "metrics": {
+      "median_s": 12.432909666036721,
+      "min_s": 12.417507249978371,
+      "iqr_s": 0.025561332993675023,
+      "peak_mem_bytes": 37460951040,
+      "imputed_mean": 0.021677642578608023
+    },
+    "env": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "python": "3.12.13",
+      "pystatistics_sha": "00d2c17",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.3",
+      "torch": "2.12.0",
+      "torch_threads": 8,
+      "mps": true,
+      "cuda": false
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T20:18:08.749137+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "cpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 100000
+    },
+    "metrics": {
+      "median_s": 456.34866891702404,
+      "min_s": 452.14140120800585,
+      "iqr_s": 7.266271749977022,
+      "peak_mem_bytes": 1680080896,
+      "imputed_mean": 0.02155245116361102
+    },
+    "env": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "python": "3.12.13",
+      "pystatistics_sha": "00d2c17",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.3",
+      "torch": "2.12.0",
+      "torch_threads": 8,
+      "mps": true,
+      "cuda": false
+    }
+  },
+  {
+    "study": "A_scaling",
+    "timestamp_utc": "2026-06-18T20:20:26.034800+00:00",
+    "seed": 20260617,
+    "config": {
+      "slice": "vary_n_at_m100",
+      "backend": "gpu",
+      "p": 20,
+      "maxit": 10,
+      "rate": 0.2,
+      "method": "pmm",
+      "m": 100,
+      "n": 100000
+    },
+    "metrics": {
+      "median_s": 36.4323596250033,
+      "min_s": 30.853238667012192,
+      "iqr_s": 8.478903332957998,
+      "peak_mem_bytes": 97057030144,
+      "imputed_mean": 0.021146093466226572
+    },
+    "env": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit",
+      "python": "3.12.13",
+      "pystatistics_sha": "00d2c17",
+      "omp_num_threads": "unset",
+      "pystatistics_version": "3.15.3",
+      "torch": "2.12.0",
+      "torch_threads": 8,
+      "mps": true,
+      "cuda": false
+    }
+  }
+]
