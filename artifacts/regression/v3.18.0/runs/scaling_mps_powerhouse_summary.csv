@@ -1,0 +1,25 @@
+model_key,n,p,engine,device,wall_median_s,peak_mem_mb,n_iter,error
+ols,1000,8,pystatistics:gpu,mps,0.00325487507507205,8.8,,
+ols,1000,32,pystatistics:gpu,mps,0.003266792045906186,8.8,,
+ols,1000,128,pystatistics:gpu,mps,0.005062874988652766,8.8,,
+ols,10000,8,pystatistics:gpu,mps,0.003716832958161831,11.2,,
+ols,10000,32,pystatistics:gpu,mps,0.005721000023186207,44.7,,
+ols,10000,128,pystatistics:gpu,mps,0.015793542028404772,44.7,,
+ols,100000,8,pystatistics:gpu,mps,0.008699666941538453,44.7,,
+ols,100000,32,pystatistics:gpu,mps,0.054102124995552,1089.1,,
+ols,100000,128,pystatistics:gpu,mps,0.14868508302606642,1095.4,,
+ols,500000,8,pystatistics:gpu,mps,0.05908583290874958,1095.4,,
+ols,500000,32,pystatistics:gpu,mps,0.14782591699622571,1131.0,,
+ols,500000,128,pystatistics:gpu,mps,0.5808022080454975,1131.0,,
+glm_binomial,1000,8,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.
+glm_binomial,1000,32,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.
+glm_binomial,1000,128,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.
+glm_binomial,10000,8,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.
+glm_binomial,10000,32,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.
+glm_binomial,10000,128,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.
+glm_binomial,100000,8,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.
+glm_binomial,100000,32,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.
+glm_binomial,100000,128,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.
+glm_binomial,500000,8,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.
+glm_binomial,500000,32,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.
+glm_binomial,500000,128,pystatistics:gpu,mps,,,,RuntimeError: GPU LSTSQ failed on this device. The operation is not supported on your GPU backend. Use backend='cpu' instead.

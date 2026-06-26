@@ -1,0 +1,38 @@
+{
+  "schema": "validation-subsystem-meta/v1",
+  "subsystem": "regression",
+  "title": "Linear and generalized linear models (OLS + GLM families)",
+  "module": "pystatistics.regression",
+  "procedure": "Ordinary least squares and the generalized linear model under one interface. OLS estimates the coefficient vector beta minimizing the residual sum of squares for a Gaussian-error linear model, reporting standard errors, t-statistics, p-values, R-squared and the residual standard error. The GLM extends this to non-Gaussian responses (binomial, Poisson, Gamma, negative binomial) via a link function, estimating beta by maximum likelihood and reporting standard errors, Wald z/t-statistics, p-values, deviance and AIC. pystatistics deliberately unifies lm and glm — which R splits across lm() and glm() — into a single fit(design, family=...) entry point.",
+  "algorithms": [
+    "OLS, CPU (reference path): column-pivoted QR decomposition of the design matrix (the same factorization R's lm() uses), so coefficients, rank detection and the residual statistics match R to floating-point round-off. fp64, deterministic.",
+    "OLS, GPU: Cholesky factorization of the normal equations (X'X) beta = X'y, fp32 by default on consumer GPUs. Faster than QR for well-conditioned designs but squares the condition number; the backend computes the design's condition number and refuses the Cholesky path (unless force=True) when it exceeds 1e6, falling back to a least-squares solve.",
+    "GLM (all families): Iteratively Reweighted Least Squares (IRLS / Fisher scoring) to the maximum-likelihood coefficients, with R's glm.control defaults (tol 1e-8, max 25 iterations). Standard errors come from the inverse Fisher information at the solution.",
+    "Negative binomial: the dispersion parameter theta is estimated by profiling — alternating an IRLS fit of beta at fixed theta with a maximum-likelihood update of theta — mirroring MASS::glm.nb.",
+    "Backends: cpu (fp64, the R-reference path) and gpu (MPS on Apple Silicon, CUDA on NVIDIA; fp32 by default, fp64 on CUDA where supported)."
+  ],
+  "reference": {
+    "name": "R stats::lm / stats::glm / MASS::glm.nb",
+    "what": "R's lm() (OLS via pivoted QR) and glm() (GLM via IRLS) are the established reference implementations; the negative-binomial reference is MASS::glm.nb. Because pystatistics merges lm and glm into one module, the head-to-head pulls from BOTH R functions: lm() for the OLS claim and glm()/glm.nb() for the GLM-family claims. Agreement in coefficients, standard errors, test statistics, p-values, and the model-level fit summary (R-squared for OLS, deviance for GLM) is the correctness claim.",
+    "also_compared": []
+  },
+  "tolerances": {
+    "ols_vs_r": "CPU OLS agrees with R lm() to fp64 round-off (coefficients and standard errors to ~1e-12 relative or better) because both use pivoted QR on the same design.",
+    "glm_vs_r": "CPU GLM coefficients agree with R glm() to IRLS-convergence round-off (~1e-10 relative for binomial/Poisson). Standard errors and Wald statistics follow the coefficients.",
+    "gamma_link": "The Gamma claim is specifically for the LOG link (the textbook positive-continuous target). pystatistics' family='gamma' string defaults to the canonical INVERSE link; the validation pins GammaFamily(link='log') to match the reference. Gamma standard errors differ from R at the ~1e-2 relative level because pystatistics estimates the dispersion by maximum likelihood while R uses the Pearson/df estimator — a documented, intentional difference, not a defect.",
+    "negbin": "Negative-binomial coefficients agree with MASS::glm.nb to ~1e-4 relative; the small gap is the profiled theta landing at a slightly different value. The NB mean structure is identified only up to theta, so coefficient agreement on real overdispersed counts is the practical claim.",
+    "gpu_fp32": "GPU paths are fp32 by default and agree with the CPU/R reference to ~1e-4 relative on coefficients; for full fp64 precision use the CPU backend (or CUDA fp64 where supported)."
+  },
+  "limitations": [
+    "GPU OLS uses Cholesky on the normal equations, which squares the condition number; ill-conditioned designs (condition number > 1e6) are refused unless force=True. Use the CPU QR backend for ill-conditioned problems.",
+    "GPU paths are fp32 by default; MPS does not support fp64 at all. Applications needing full double precision must use the CPU backend.",
+    "The negative-binomial solution object does not expose the auto-estimated theta, so the NB validation compares coefficients (and SEs) rather than theta directly.",
+    "Tiny designs (n in the low hundreds) are dominated by fixed Python dispatch overhead and sit near R's timer resolution; the scaling study, not the small real datasets, carries the rigorous speed claim."
+  ],
+  "datasets": [
+    {"name": "California Housing", "what": "~20,640 California census blocks, 8 numeric predictors. Used for OLS (MedHouseVal ~ all predictors), binomial (high_value, a median split) and Poisson (pop_count = round(Population/100)). Large enough to exercise the QR and IRLS paths on a non-trivial real design."},
+    {"name": "airquality", "what": "datasets::airquality — daily NYC air quality, 111 complete cases. Gamma(log) target Ozone ~ Solar.R + Temp + Wind; ozone is positive, continuous and right-skewed, the textbook Gamma regression target."},
+    {"name": "quine", "what": "MASS::quine — 146 Australian schoolchildren, days absent by ethnicity/sex/age/learner status. THE canonical negative-binomial dataset (McCullagh & Nelder). The R model matrix is handed to Python so both engines fit the identical numeric design."},
+    {"name": "synthetic scaling grid", "what": "Deterministic Gaussian designs over n in {1e3, 1e4, 1e5, 5e5} x p in {8, 32, 128} for OLS and binomial, used only for the device-scaling/performance study (not correctness)."}
+  ]
+}

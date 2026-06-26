@@ -47,13 +47,25 @@ def _study_tables(study: dict[str, Any], L: Loaded) -> str:
     # Prefer a flat summary CSV when the manifest provides one and no hint is set.
     summaries = study.get("summaries") or ([study["summary"]] if study.get("summary") else [])
     if summaries and not study.get("render"):
+        # A study may override the default column set (e.g. a coefficient-agreement
+        # table whose columns are nothing like the wall-clock summary's).
+        cols = study.get("summary_cols", _SUMMARY_COLS)
         out = []
         for rel in summaries:
             header, rows = read_csv(L.version_dir, rel)
-            out.append(tables.table_from_csv(header, rows, _SUMMARY_COLS))
+            out.append(tables.table_from_csv(header, rows, cols))
         return "\n".join(out)
 
     runs = study.get("runs") or ([study["run"]] if study.get("run") else [])
+    # device_pivot pairs CPU vs accelerator by problem key, so it must see records
+    # from ALL of a study's run files at once (device is an internal axis spread
+    # across one run file per device). Concatenate, then pivot a single time.
+    if study.get("render") == "device_pivot":
+        allrec: list[dict[str, Any]] = []
+        for rel in runs:
+            allrec += read_records(L.version_dir, rel)
+        return tables.device_pivot(allrec)
+
     out = []
     for rel in runs:
         if rel.endswith(".csv"):
@@ -61,9 +73,7 @@ def _study_tables(study: dict[str, Any], L: Loaded) -> str:
             out.append(tables.table_from_csv(header, rows))
             continue
         records = read_records(L.version_dir, rel)
-        if study.get("render") == "device_pivot":
-            out.append(tables.device_pivot(records))
-        elif any(r.get("loglik") is not None for r in records):
+        if any(r.get("loglik") is not None for r in records):
             note = (f"\n_Showing first {MAX_ROWS} of {len(records)} records._\n"
                     if len(records) > MAX_ROWS else "")
             out.append(tables.table_from_records(records[:MAX_ROWS]) + note)
