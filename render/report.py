@@ -115,6 +115,37 @@ def _tolerances_block(meta: dict[str, Any]) -> str:
     return _bullets([f"**{k}:** {v}" for k, v in tol.items()])
 
 
+def _audit_block(meta: dict[str, Any]) -> str:
+    """Optional compliance/reconciliation section (rendered only if meta has it).
+
+    Subsystems that carry an `audit` block (e.g. a consistency-release validation
+    that audits the public API against the constitution and reconciles GPU
+    backends) get a dedicated, unnumbered section after Q4; subsystems without
+    one render byte-identically. Prose only — no claim numbers, like the other
+    meta blocks.
+    """
+    audit = meta.get("audit")
+    if not audit:
+        return ""
+    parts = ["\n## Constitutional compliance & GPU backend reconciliation\n\n"]
+    if audit.get("intro"):
+        parts.append(audit["intro"] + "\n")
+    if audit.get("gpu_reconciliation"):
+        parts.append(f"\n**GPU backend reconciliation.** {audit['gpu_reconciliation']}\n")
+    findings = audit.get("findings") or []
+    if findings:
+        parts.append("\n**Findings:**\n\n")
+        lines = []
+        for f in findings:
+            tag, title, status = f.get("id", ""), f.get("title", ""), f.get("status", "")
+            head = f"**{tag} — {title}**" if tag else f"**{title}**"
+            if status:
+                head += f" _({status})_"
+            lines.append(f"{head}: {f.get('detail', '')}")
+        parts.append(_bullets(lines))
+    return "".join(parts)
+
+
 def build(L: Loaded, rendered_utc: str) -> str:
     """Return the full markdown report for the loaded (subsystem, version)."""
     m, meta = L.manifest, L.meta
@@ -168,7 +199,7 @@ artifact or the renderer and re-render.
 {agree_md}
 ## 4. What numerical tolerances are expected?
 
-{_tolerances_block(meta)}
+{_tolerances_block(meta)}{_audit_block(meta)}
 ## 5. What benchmarks were run?
 
 {chr(10).join(bench)}

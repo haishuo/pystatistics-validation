@@ -1,0 +1,75 @@
+{
+  "schema": "validation-subsystem-meta/v1",
+  "subsystem": "survival",
+  "title": "Survival analysis (Kaplan-Meier, log-rank, Cox PH, discrete-time)",
+  "module": "pystatistics.survival",
+  "procedure": "Time-to-event analysis under one module. kaplan_meier estimates the product-limit survival curve S(t) with Greenwood standard errors and transformed confidence bands. survdiff is the log-rank (and G-rho weighted) test comparing survival across groups, reporting a chi-square statistic, degrees of freedom, observed/expected events per group, and a p-value. coxph fits the Cox proportional-hazards model by Newton-Raphson on the partial likelihood, reporting log hazard ratios, hazard ratios (exp coef), standard errors from the observed information, asymptotic-normal Wald z-statistics, p-values, Harrell's concordance, and the null/model partial log-likelihood. discrete_time fits a discrete-time survival model by expanding the data to person-period (long) format and fitting a logistic regression, reporting covariate hazard ratios and a per-interval baseline hazard.",
+  "algorithms": [
+    "Kaplan-Meier (kaplan_meier), CPU: the product-limit estimator S(t) = prod(1 - d_j/n_j) over event times, with the Greenwood variance Var(S(t)) = S(t)^2 * sum(d_j / (n_j (n_j - d_j))). Confidence bands via the log (R default), plain, or log-log transformation. fp64, deterministic; a single sorted pass over the data.",
+    "Log-rank / G-rho (survdiff), CPU: at each distinct event time, observed minus expected events per group are accumulated with the Mantel-Haenszel hypergeometric variance; the test statistic is the quadratic form (O-E)' V^-1 (O-E) on the first K-1 groups, referred to chi-square with K-1 df. rho > 0 gives the Fleming-Harrington weighted family (rho=1 is Peto-Peto / Gehan-Wilcoxon). fp64, deterministic.",
+    "Cox proportional hazards (coxph), CPU only: Newton-Raphson on the partial log-likelihood with Efron's (R default) or Breslow's handling of tied event times. Each iteration computes the score vector and observed information by sweeping the risk sets; standard errors are sqrt of the diagonal of the inverted information at the solution; Wald z = coef/se referred to the normal. Step-halving caps the Newton step to prevent exp-overflow. Harrell's concordance is computed from all comparable pairs. fp64, deterministic.",
+    "Discrete-time survival (discrete_time): the data are expanded to person-period format (one row per subject per interval at risk), then a binomial GLM is fit with interval indicators (the baseline hazard) plus covariates. The logistic fit is delegated to pystatistics.regression.fit(family='binomial'), so it inherits regression's CPU and GPU backends; covariate hazard ratios are exp(coef) and the per-interval baseline hazard is expit(interval coef).",
+    "Backends: kaplan_meier, survdiff, and coxph are CPU-only and expose no backend= parameter (see the GPU reconciliation below). Only discrete_time takes backend= ('cpu' default, 'gpu', 'auto'), which it forwards to the regression binomial GLM that does the actual fitting."
+  ],
+  "reference": {
+    "name": "R survival::survfit / survdiff / coxph",
+    "what": "The R survival package (Therneau) is the gold-standard reference for time-to-event analysis. The head-to-head pulls survfit() for the Kaplan-Meier curve, survdiff() for the log-rank test, and coxph() for the proportional-hazards fit, all on the canonical survival::lung dataset (NCCTG advanced lung cancer; Loprinzi et al. 1994). Discrete-time survival has no single R reference function, so it is validated against R's glm(family=binomial) fit on the identical person-period design that pystatistics constructs internally (the design is reconstructed in the driver and guarded: the reconstructed row count must equal the library's person_period_n). Agreement in the survival curve, the test statistic, the coefficient/HR/SE/z/p vectors, the concordance, and the partial log-likelihood is the correctness claim.",
+    "also_compared": []
+  },
+  "tolerances": {
+    "km_vs_r": "Kaplan-Meier matches R survfit() to fp64 round-off: event times and at-risk counts are bit-identical, and survival, Greenwood standard error, and the log-transformed confidence bands agree to ~1e-15 relative. The comparison is restricted to event times (where R's summary reports rows), the same set pystatistics emits.",
+    "logrank_vs_r": "The log-rank chi-square statistic and its p-value match R survdiff() to ~1e-14; observed events are integer-identical and expected events agree to ~1e-14. (Default rho=0 standard log-rank; the G-rho family is implemented but not part of the lung head-to-head.)",
+    "coxph_vs_r": "Cox PH coefficients, hazard ratios, standard errors, Wald z-statistics, p-values, and the model partial log-likelihood match R coxph() (ties='efron') to fp64 round-off (~1e-13 to 1e-15 relative) on the lung age+sex+ph.ecog model.",
+    "coxph_concordance": "Harrell's concordance agrees with R only to ~1e-4, NOT to round-off. This is a definitional difference, not a defect: pystatistics computes the classic Harrell C from comparable pairs, while R's survival >= 3.x reports a tie-aware concordance (Therneau's concordancefit, which counts time ties and is computed via an O(n log n) balanced-tree algorithm). The two definitions differ at the fourth decimal on data with tied times; both are valid C-statistics.",
+    "ties_efron_vs_breslow": "Efron (the default, matching R) and Breslow are both implemented for tied event times. The validation pins ties='efron' on both sides; Efron is the more accurate approximation and R's default. Breslow agreement is not separately tabulated here.",
+    "discrete_vs_r": "Discrete-time covariate coefficients, standard errors, Wald z-statistics, and p-values match R glm(binomial) on the identical person-period design to fp64 round-off (~1e-14). The model is validated on coarse quantile-binned intervals (see limitations) so the logistic baseline is identified on both sides."
+  },
+  "audit": {
+    "intro": "pystatistics 4.0.0 is the consistency release: it standardizes the public API to the PyStatistics Constitution (CONVENTIONS.md) without changing any mathematics. This validation treats survival as a published module and audits its public surface against that constitution. The numerical results above are unaffected by the audit; the findings below concern API shape and are queued as a held, authorized follow-up (4.0.0 must not be re-cut while downstream consumers pin to it).",
+    "gpu_reconciliation": "The constitution lists survival.coxph as a deliberate NO-GPU module (the partial likelihood is inherently sequential, below the >100 ms / >80%-in-a-cuBLAS-kernel bar for a GPU backend). The audit confirms the public API honors this: kaplan_meier, survdiff, and coxph expose no backend= parameter, and survival/backends/{cpu,gpu}.py are intentional documentation stubs (empty __all__), not real backends. The only GPU-capable path is discrete_time, which exposes backend= and forwards it to pystatistics.regression.fit(family='binomial') — the person-period expansion turns survival into a potentially large logistic regression, exactly regression's already-validated GPU target. So there is no manufactured GPU device-pivot for survival, and that is the correct result: KM/log-rank are cheap one-pass reductions and Cox PH is sequential, none of which warrants a GPU backend. No mismatch was found between the constitution's no-GPU-for-coxph rule and the shipped API.",
+    "findings": [
+      {
+        "id": "C1",
+        "title": "CoxSolution / DiscreteTimeSolution lack the uniform .conf_int accessor and hardcode 1.96",
+        "status": "report; held fix proposed",
+        "detail": "The constitution lists .conf_int as a uniform result accessor 'present whenever meaningful'. Hazard-ratio confidence intervals are meaningful and R reports them, but neither solution exposes .conf_int; instead CoxSolution.summary() computes the HR CI inline with a hardcoded 1.96 rather than honoring a conf_level. Proposed held fix: add a .conf_int accessor driven by a conf_level, mirroring the regression/GLM solutions."
+      },
+      {
+        "id": "C2",
+        "title": "KMSolution uses .se / .ci_lower / .ci_upper rather than .standard_errors / .conf_int",
+        "status": "report; likely acceptable as local",
+        "detail": "The Kaplan-Meier curve is not a coefficient fit, so the uniform accessor names map awkwardly; .se for the Greenwood standard error and .ci_lower/.ci_upper for the band are arguably clearer than the coefficient-style names. Flagged against the uniform-accessor table for a ruling, but no behavior change is recommended."
+      },
+      {
+        "id": "C3",
+        "title": "Stratified KM/Cox raise the builtin NotImplementedError, not a core.exceptions type",
+        "status": "report; minor",
+        "detail": "A4 routes every error through the core.exceptions hierarchy. The strata=... paths raise builtin NotImplementedError for an unimplemented feature, which is a different category from input validation; low priority, but noted for consistency."
+      },
+      {
+        "id": "O1",
+        "title": "Harrell's concordance is an O(n^2) nested Python loop",
+        "status": "measured; held optimization proposed",
+        "detail": "_concordance in survival/_cox.py compares all pairs in a double Python loop. R uses an O(n log n) balanced-tree count. On the lung dataset (n=227) this already makes pystatistics' coxph ~22x slower than R; the scaling study shows the pystatistics/R wall ratio growing roughly proportionally to n (23x at n=250 to 812x at n=8000), the signature of an O(n^2)-vs-O(n) gap. Proposed held optimization: replace with an order-statistic-tree count."
+      },
+      {
+        "id": "O2",
+        "title": "Cox partial-likelihood / score / information recompute risk sets per event time",
+        "status": "measured; held optimization proposed",
+        "detail": "_partial_loglik and _score_and_information recompute the risk mask time >= t_j and re-slice the design for every unique event time, every Newton iteration (~O(n_events * n) per iteration). The standard fix is reverse-cumulative sums over time-sorted data, turning each iteration into a single O(n) sweep. This is the second quadratic contributor to the scaling gap measured below."
+      }
+    ]
+  },
+  "limitations": [
+    "Cox PH is CPU-only by construction — the partial likelihood is inherently sequential and is not a GPU target (a constitutional decision, not a gap). For large n the CPU cost is dominated by the O(n^2) concordance (finding O1) and per-event-time risk-set recomputation (finding O2); see the scaling study. These are correctness-neutral performance issues queued as a held optimization.",
+    "Harrell's concordance differs from R's tie-aware concordance at ~1e-4 (a definitional difference; see tolerances). Both are valid C-statistics.",
+    "Stratified Kaplan-Meier and stratified Cox PH are not implemented (strata=... raises). The validation covers the unstratified models that R's lung examples use.",
+    "Discrete-time survival is validated on coarse quantile-binned intervals (5 bins), not the intervals=None default. On continuous data the default uses every unique event time as its own interval, producing hundreds of single-event intervals that separate perfectly — the logistic baseline diverges and neither pystatistics nor R glm converges cleanly. Discrete-time methods are designed for genuinely binned time; the coarse-interval head-to-head is the meaningful comparison.",
+    "Only the Efron tie handling (R's default) is tabulated in the head-to-head; Breslow is implemented but not separately validated here.",
+    "Tiny real datasets (lung, n~227) sit near R's timer resolution for KM and log-rank; the synthetic scaling study, not the lung timings, carries the rigorous performance claim."
+  ],
+  "datasets": [
+    {"name": "survival::lung (NCCTG advanced lung cancer)", "what": "Loprinzi et al. 1994; R's canonical survival teaching dataset. KM and log-rank use the complete cases on (time, status, sex) (n=228, 165 events); Cox PH and discrete-time use the complete cases on (time, status, age, sex, ph.ecog) (n=227, 164 events), with event = (status == 2). The CSVs are emitted from R with the documented NA drop and committed, so Python fits the exact rows R fit."},
+    {"name": "synthetic proportional-hazards grid", "what": "Deterministic (seeded) exponential-baseline PH samples with three covariates over n in {250, 500, 1000, 2000, 4000, 8000}, ~30% censoring. Used only for the Cox PH CPU-scaling study (not correctness), to expose the O(n^2) concordance and risk-set hotspots against R's O(n log n) coxph."}
+  ]
+}

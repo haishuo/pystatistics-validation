@@ -1,0 +1,301 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.0.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "host": "powerhouse"
+  },
+  "config": {
+    "study": "coxph_cpu_scaling",
+    "dataset": "synthetic proportional-hazards DGP (exponential baseline)",
+    "n_grid": [
+      250,
+      500,
+      1000,
+      2000,
+      4000,
+      8000
+    ],
+    "true_beta": [
+      0.5,
+      -0.3,
+      0.2
+    ],
+    "seed": 20260627,
+    "censor_rate": 0.45,
+    "backend": "cpu",
+    "repeats": 3,
+    "reference": "R survival::coxph (ties='efron')"
+  },
+  "records": [
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "sim_n250",
+      "n": 250,
+      "p": 3,
+      "backend_name": "cpu_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": 4,
+      "converged": true,
+      "wall_median_s": 0.03129554190672934,
+      "wall_min_s": 0.031231250148266554,
+      "wall_max_s": 0.03190341708250344,
+      "wall_times_s": [
+        0.03190341708250344,
+        0.031231250148266554,
+        0.03129554190672934
+      ],
+      "procedure": "coxph",
+      "n_events": 180
+    },
+    {
+      "engine": "r:coxph",
+      "dataset": "sim_n250",
+      "n": 250,
+      "p": 3,
+      "backend_name": "r_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.0013333333333333346,
+      "wall_min_s": 0.0013333333333333346,
+      "wall_max_s": 0.0013333333333333346,
+      "wall_times_s": [
+        0.0013333333333333346,
+        0.0013333333333333346,
+        0.0013333333333333346
+      ],
+      "procedure": "coxph",
+      "n_events": 180
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "sim_n500",
+      "n": 500,
+      "p": 3,
+      "backend_name": "cpu_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": 3,
+      "converged": true,
+      "wall_median_s": 0.06760924984700978,
+      "wall_min_s": 0.06710012489929795,
+      "wall_max_s": 0.06813470809720457,
+      "wall_times_s": [
+        0.06760924984700978,
+        0.06710012489929795,
+        0.06813470809720457
+      ],
+      "procedure": "coxph",
+      "n_events": 334
+    },
+    {
+      "engine": "r:coxph",
+      "dataset": "sim_n500",
+      "n": 500,
+      "p": 3,
+      "backend_name": "r_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.001666666666666668,
+      "wall_min_s": 0.001666666666666668,
+      "wall_max_s": 0.001666666666666668,
+      "wall_times_s": [
+        0.001666666666666668,
+        0.001666666666666668,
+        0.001666666666666668
+      ],
+      "procedure": "coxph",
+      "n_events": 334
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "sim_n1000",
+      "n": 1000,
+      "p": 3,
+      "backend_name": "cpu_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": 3,
+      "converged": true,
+      "wall_median_s": 0.216044417116791,
+      "wall_min_s": 0.2150857918895781,
+      "wall_max_s": 0.21719858306460083,
+      "wall_times_s": [
+        0.2150857918895781,
+        0.216044417116791,
+        0.21719858306460083
+      ],
+      "procedure": "coxph",
+      "n_events": 672
+    },
+    {
+      "engine": "r:coxph",
+      "dataset": "sim_n1000",
+      "n": 1000,
+      "p": 3,
+      "backend_name": "r_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.0023333333333333353,
+      "wall_min_s": 0.0023333333333333353,
+      "wall_max_s": 0.0023333333333333353,
+      "wall_times_s": [
+        0.0023333333333333353,
+        0.0023333333333333353,
+        0.0023333333333333353
+      ],
+      "procedure": "coxph",
+      "n_events": 672
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "sim_n2000",
+      "n": 2000,
+      "p": 3,
+      "backend_name": "cpu_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": 3,
+      "converged": true,
+      "wall_median_s": 0.7588332497980446,
+      "wall_min_s": 0.7566262080799788,
+      "wall_max_s": 0.7598117908928543,
+      "wall_times_s": [
+        0.7598117908928543,
+        0.7566262080799788,
+        0.7588332497980446
+      ],
+      "procedure": "coxph",
+      "n_events": 1357
+    },
+    {
+      "engine": "r:coxph",
+      "dataset": "sim_n2000",
+      "n": 2000,
+      "p": 3,
+      "backend_name": "r_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.00366666666666667,
+      "wall_min_s": 0.00366666666666667,
+      "wall_max_s": 0.00366666666666667,
+      "wall_times_s": [
+        0.00366666666666667,
+        0.00366666666666667,
+        0.00366666666666667
+      ],
+      "procedure": "coxph",
+      "n_events": 1357
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "sim_n4000",
+      "n": 4000,
+      "p": 3,
+      "backend_name": "cpu_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": 3,
+      "converged": true,
+      "wall_median_s": 2.62333804089576,
+      "wall_min_s": 2.6110969169531018,
+      "wall_max_s": 2.635594666004181,
+      "wall_times_s": [
+        2.635594666004181,
+        2.6110969169531018,
+        2.62333804089576
+      ],
+      "procedure": "coxph",
+      "n_events": 2628
+    },
+    {
+      "engine": "r:coxph",
+      "dataset": "sim_n4000",
+      "n": 4000,
+      "p": 3,
+      "backend_name": "r_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.006333333333333339,
+      "wall_min_s": 0.006333333333333339,
+      "wall_max_s": 0.006333333333333339,
+      "wall_times_s": [
+        0.006333333333333339,
+        0.006333333333333339,
+        0.006333333333333339
+      ],
+      "procedure": "coxph",
+      "n_events": 2628
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "sim_n8000",
+      "n": 8000,
+      "p": 3,
+      "backend_name": "cpu_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": 3,
+      "converged": true,
+      "wall_median_s": 10.0179972499609,
+      "wall_min_s": 9.970216207904741,
+      "wall_max_s": 10.057607166003436,
+      "wall_times_s": [
+        10.0179972499609,
+        10.057607166003436,
+        9.970216207904741
+      ],
+      "procedure": "coxph",
+      "n_events": 5445
+    },
+    {
+      "engine": "r:coxph",
+      "dataset": "sim_n8000",
+      "n": 8000,
+      "p": 3,
+      "backend_name": "r_cox",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.012333333333333344,
+      "wall_min_s": 0.012333333333333344,
+      "wall_max_s": 0.012333333333333344,
+      "wall_times_s": [
+        0.012333333333333344,
+        0.012333333333333344,
+        0.012333333333333344
+      ],
+      "procedure": "coxph",
+      "n_events": 5445
+    }
+  ]
+}
