@@ -43,6 +43,11 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
   surfacing it to the user to schedule. Re-check this constraint each module.
 - **One at a time.** Do not spawn the next module chip until the current one is done
   AND the user says go. The coordinator confirms before spawning.
+- **fp32 GPU non-convergence is a false-negative until proven otherwise (RIGOR R9).**
+  CPU is fp64; MPS/CUDA fp32 cannot meet R's absolute `|Δβ| < 1e-8`. Before recording
+  any MPS/CUDA path as failing/unstable, compare its coefficients to the fp64 fit —
+  agreement to the fp32 tier (`max_rel ~1e-6`) means the fit is correct and the
+  convergence *test* is wrong. Do not blame the GPU backend without cause.
 - **Cross-module consistency discoveries → pause + library-wide minor release** (see
   RIGOR.md R8). If, while validating a module, you find a consistency issue that
   affects **more than one module**, pause that module's work and ship a consistency
