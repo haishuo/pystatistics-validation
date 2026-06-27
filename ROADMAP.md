@@ -5,9 +5,15 @@ a time**, each to the rigor of `RIGOR.md` (treat as if publishing). The
 **coordinator chip** owns this file: it advances the program one module at a time
 and keeps the status table current.
 
-**Current library version:** pystatistics **4.1.0** (on PyPI). The 4.0 "consistency
-release" standardized the API to `CONVENTIONS.md`; 4.1.0 caught a few more lurking
-inconsistencies (and the coxph O(n²)→O(n) complexity fix — see R1).
+**Current library version:** pystatistics **4.1.0** (on PyPI) — a **consistency-only**
+release. While working on survival we found a consistency issue that touched multiple
+modules, so it was spun out and shipped library-wide as 4.1.0 (it is NOT survival's
+validation result). 4.0 standardized the API to `CONVENTIONS.md`; 4.1.0 swept the
+multi-module inconsistency that survival surfaced.
+
+**Survival is still IN PROGRESS and lands as 4.2.0** — the coxph O(n²)→O(n) fix is
+just one of several inefficiencies being fixed there. Only **regression, mvnmle, mice**
+are truly done.
 
 ## Order + status
 
@@ -17,8 +23,8 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 | # | Module | Status | Notes |
 |---|---|---|---|
 | 1 | regression (OLS + GLM families) | ✅ done | baseline v3.18.0 → optimized v3.20.0 |
-| 2 | survival (KM / log-rank / coxph) | ✅ done @ v4.0.0; **re-validate @ 4.1.0** | the coxph O(n²)→O(n) fix landed in 4.1.0 and must be documented per R1/R6; the v4.0.0 report did NOT catch the O(n²) — the gap R1 exists to close |
-| 3 | multivariate (PCA + factor analysis) | ⬜ next | SVD/eigendecomposition; the most GPU-amenable op; TCGA large-matrix scaling; self-contained |
+| 2 | survival (KM / log-rank / coxph) | 🔄 IN PROGRESS → lands **v4.2.0** | fixing several inefficiencies (coxph O(n²)→O(n) is one — the R1 incident). The v4.0.0 report is an earlier baseline, NOT the final; final lands at 4.2.0 with the complexity fix documented (R6). |
+| 3 | multivariate (PCA + factor analysis) | ⬜ next NEW module (after survival lands) | SVD/eigendecomposition; the most GPU-amenable op; TCGA large-matrix scaling; self-contained |
 | 4 | mixed (LMM) | ⬜ pending | biggest optimization headroom (least GPU-touched); REML over variance components |
 | 5 | gam | ⬜ pending | penalized IRLS + REML smoothing selection; rides the kernel |
 | 6 | timeseries (ARIMA/ETS/STL) | ⬜ pending | largest module; Kalman/state-space + optimizer loops |
@@ -37,6 +43,13 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
   surfacing it to the user to schedule. Re-check this constraint each module.
 - **One at a time.** Do not spawn the next module chip until the current one is done
   AND the user says go. The coordinator confirms before spawning.
+- **Cross-module consistency discoveries → pause + library-wide minor release** (see
+  RIGOR.md R8). If, while validating a module, you find a consistency issue that
+  affects **more than one module**, pause that module's work and ship a consistency
+  minor release for the library as a whole (this is exactly what **4.1.0** was — a
+  multi-module fix surfaced by survival, spun out so survival could continue). **If
+  the fix is breaking, STOP and discuss with the user** (a breaking change is not a
+  quiet minor release).
 
 ## Per-module chip template (the coordinator fills `<<…>>` and embeds the rules)
 

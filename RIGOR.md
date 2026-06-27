@@ -80,6 +80,26 @@ When validation finds an inefficiency (R1) or a justified-but-improvable cost
 `CONVENTIONS.md` + the Coding Bible + `.release/UNRELEASED.md`, and respect any
 release-hold coordination in `ROADMAP.md`.
 
+## R8 — Cross-module consistency discoveries: pause + library-wide minor release
+
+Validating one module routinely surfaces issues that are not local to it — a naming
+or API inconsistency, a shared `core/compute` defect, a convention drift — that
+affect **more than one module**. When that happens:
+
+- **Pause** the current module's validation work.
+- **Fix it library-wide and ship a consistency minor release** for the whole library
+  (not buried inside one module's optimization). This is exactly what **4.1.0** was:
+  a multi-module consistency fix that the survival work surfaced, spun out as its own
+  release so survival could then continue toward 4.2.0.
+- **If the fix is breaking, STOP and discuss with the user first.** A breaking change
+  is not a quiet minor release — it is a deliberate, discussed decision (cf. the 4.0
+  consistency release).
+- A defect local to the single module under validation is handled in-module (R1/R6),
+  not via a library-wide release.
+
+This keeps module work from silently absorbing cross-cutting fixes, and keeps the
+library coherent (one standard, applied everywhere) rather than patched per-module.
+
 ## R7 — The seven questions
 
 Every report answers them (see `ARCHITECTURE.md` / the template): procedure,
