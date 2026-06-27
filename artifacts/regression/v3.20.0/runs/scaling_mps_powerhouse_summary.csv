@@ -1,0 +1,77 @@
+model_key,n,p,engine,device,wall_median_s,peak_mem_mb,n_iter,error
+ols,1000,8,pystatistics:gpu,mps,0.0026669579092413187,8.8,,
+ols,1000,32,pystatistics:gpu,mps,0.0029944998677819967,8.8,,
+ols,1000,128,pystatistics:gpu,mps,0.004227875033393502,8.8,,
+ols,10000,8,pystatistics:gpu,mps,0.002624332904815674,11.2,,
+ols,10000,32,pystatistics:gpu,mps,0.00404058420099318,44.7,,
+ols,10000,128,pystatistics:gpu,mps,0.00584062491543591,44.7,,
+ols,100000,8,pystatistics:gpu,mps,0.004620375111699104,44.7,,
+ols,100000,32,pystatistics:gpu,mps,0.034252666868269444,1089.1,,
+ols,100000,128,pystatistics:gpu,mps,0.05066199996508658,1095.4,,
+ols,500000,8,pystatistics:gpu,mps,0.0408054580911994,1095.4,,
+ols,500000,32,pystatistics:gpu,mps,0.05374516686424613,1131.0,,
+ols,500000,128,pystatistics:gpu,mps,0.07341954205185175,1131.0,,
+glm_binomial,1000,8,pystatistics:gpu,mps,0.007111041806638241,57.3,4,
+glm_binomial,1000,32,pystatistics:gpu,mps,0.008459584088996053,57.3,4,
+glm_binomial,1000,128,pystatistics:gpu,mps,0.012017000000923872,57.3,4,
+glm_binomial,10000,8,pystatistics:gpu,mps,0.010057999985292554,57.3,4,
+glm_binomial,10000,32,pystatistics:gpu,mps,0.012642415938898921,90.8,4,
+glm_binomial,10000,128,pystatistics:gpu,mps,0.018534624949097633,90.8,4,
+glm_binomial,100000,8,pystatistics:gpu,mps,0.037250333931297064,90.8,4,
+glm_binomial,100000,32,pystatistics:gpu,mps,0.0850652081426233,1131.0,4,
+glm_binomial,100000,128,pystatistics:gpu,mps,,,,"NumericalError: GPU GLM did not produce a reliable fit: IRLS did not converge within 25 iterations in float32. This is expected for log-link families (Poisson/Gamma) at large sample sizes, where float32 Cholesky on the normal equations is unstable (especially on Apple Silicon / MPS, which has no float64).
+Options:
+  - Use backend='cpu' for a correct double-precision fit (slower)
+  - Use a ridge-penalized fit (a different, better-conditioned estimator)
+  - Pass force=True to return the float32 GPU fit anyway (fast, but may be inaccurate / unstable)"
+glm_binomial,500000,8,pystatistics:gpu,mps,0.2212648328859359,1131.0,4,
+glm_binomial,500000,32,pystatistics:gpu,mps,0.2644083749037236,1131.0,4,
+glm_binomial,500000,128,pystatistics:gpu,mps,,,,"NumericalError: GPU GLM did not produce a reliable fit: IRLS did not converge within 25 iterations in float32. This is expected for log-link families (Poisson/Gamma) at large sample sizes, where float32 Cholesky on the normal equations is unstable (especially on Apple Silicon / MPS, which has no float64).
+Options:
+  - Use backend='cpu' for a correct double-precision fit (slower)
+  - Use a ridge-penalized fit (a different, better-conditioned estimator)
+  - Pass force=True to return the float32 GPU fit anyway (fast, but may be inaccurate / unstable)"
+glm_poisson,1000,8,pystatistics:gpu,mps,0.008299832930788398,44.7,5,
+glm_poisson,1000,32,pystatistics:gpu,mps,0.010291999904438853,44.7,5,
+glm_poisson,1000,128,pystatistics:gpu,mps,0.014375083148479462,44.7,5,
+glm_poisson,10000,8,pystatistics:gpu,mps,0.012151000089943409,44.7,5,
+glm_poisson,10000,32,pystatistics:gpu,mps,0.01503479084931314,80.3,5,
+glm_poisson,10000,128,pystatistics:gpu,mps,0.022571290843188763,80.3,5,
+glm_poisson,100000,8,pystatistics:gpu,mps,0.03933737496845424,80.3,5,
+glm_poisson,100000,32,pystatistics:gpu,mps,0.09296170785091817,1124.7,5,
+glm_poisson,100000,128,pystatistics:gpu,mps,,,,"NumericalError: GPU GLM did not produce a reliable fit: IRLS did not converge within 25 iterations in float32. This is expected for log-link families (Poisson/Gamma) at large sample sizes, where float32 Cholesky on the normal equations is unstable (especially on Apple Silicon / MPS, which has no float64).
+Options:
+  - Use backend='cpu' for a correct double-precision fit (slower)
+  - Use a ridge-penalized fit (a different, better-conditioned estimator)
+  - Pass force=True to return the float32 GPU fit anyway (fast, but may be inaccurate / unstable)"
+glm_poisson,500000,8,pystatistics:gpu,mps,0.20913058402948081,1131.0,5,
+glm_poisson,500000,32,pystatistics:gpu,mps,0.2679580841213465,1131.0,5,
+glm_poisson,500000,128,pystatistics:gpu,mps,,,,"NumericalError: GPU GLM did not produce a reliable fit: IRLS did not converge within 25 iterations in float32. This is expected for log-link families (Poisson/Gamma) at large sample sizes, where float32 Cholesky on the normal equations is unstable (especially on Apple Silicon / MPS, which has no float64).
+Options:
+  - Use backend='cpu' for a correct double-precision fit (slower)
+  - Use a ridge-penalized fit (a different, better-conditioned estimator)
+  - Pass force=True to return the float32 GPU fit anyway (fast, but may be inaccurate / unstable)"
+glm_gamma,1000,8,pystatistics:gpu,mps,0.009673292050138116,51.0,6,
+glm_gamma,1000,32,pystatistics:gpu,mps,0.013562374981120229,51.0,7,
+glm_gamma,1000,128,pystatistics:gpu,mps,0.03660987480543554,51.0,14,
+glm_gamma,10000,8,pystatistics:gpu,mps,0.012393207987770438,51.0,5,
+glm_gamma,10000,32,pystatistics:gpu,mps,0.014650666154921055,80.3,5,
+glm_gamma,10000,128,pystatistics:gpu,mps,0.02533900015987456,80.3,6,
+glm_gamma,100000,8,pystatistics:gpu,mps,0.03705004206858575,80.3,5,
+glm_gamma,100000,32,pystatistics:gpu,mps,,,,"NumericalError: GPU GLM did not produce a reliable fit: IRLS did not converge within 25 iterations in float32. This is expected for log-link families (Poisson/Gamma) at large sample sizes, where float32 Cholesky on the normal equations is unstable (especially on Apple Silicon / MPS, which has no float64).
+Options:
+  - Use backend='cpu' for a correct double-precision fit (slower)
+  - Use a ridge-penalized fit (a different, better-conditioned estimator)
+  - Pass force=True to return the float32 GPU fit anyway (fast, but may be inaccurate / unstable)"
+glm_gamma,100000,128,pystatistics:gpu,mps,,,,"NumericalError: GPU GLM did not produce a reliable fit: IRLS did not converge within 25 iterations in float32. This is expected for log-link families (Poisson/Gamma) at large sample sizes, where float32 Cholesky on the normal equations is unstable (especially on Apple Silicon / MPS, which has no float64).
+Options:
+  - Use backend='cpu' for a correct double-precision fit (slower)
+  - Use a ridge-penalized fit (a different, better-conditioned estimator)
+  - Pass force=True to return the float32 GPU fit anyway (fast, but may be inaccurate / unstable)"
+glm_gamma,500000,8,pystatistics:gpu,mps,0.21220691688358784,1131.0,5,
+glm_gamma,500000,32,pystatistics:gpu,mps,0.3190440421458334,1131.0,7,
+glm_gamma,500000,128,pystatistics:gpu,mps,,,,"NumericalError: GPU GLM did not produce a reliable fit: IRLS did not converge within 25 iterations in float32. This is expected for log-link families (Poisson/Gamma) at large sample sizes, where float32 Cholesky on the normal equations is unstable (especially on Apple Silicon / MPS, which has no float64).
+Options:
+  - Use backend='cpu' for a correct double-precision fit (slower)
+  - Use a ridge-penalized fit (a different, better-conditioned estimator)
+  - Pass force=True to return the float32 GPU fit anyway (fast, but may be inaccurate / unstable)"

@@ -39,22 +39,42 @@ _REPO = Path(__file__).resolve().parent.parent.parent
 # intercept column. Kept modest at the top end so a full sweep is minutes, not hours.
 _N_GRID = (1_000, 10_000, 100_000, 500_000)
 _P_GRID = (8, 32, 128)
-# Families swept: OLS (the normal-eq/QR/Cholesky path) and binomial (the IRLS path).
-_FAMILIES = (("ols", None), ("glm_binomial", "binomial"))
+# Families swept: OLS (normal-eq/QR/Cholesky) plus the three GLM IRLS paths —
+# binomial (bounded, the float32-stable case) and the two LOG-LINK families
+# (Poisson, Gamma), which are the ones that expose float32 ill-conditioning at
+# large n. Covering them here closes the gap that hid the 3.19.0 MPS bug.
+_FAMILIES = (
+    ("ols", None),
+    ("glm_binomial", "binomial"),
+    ("glm_poisson", "poisson"),
+    ("glm_gamma", "gamma"),
+)
 
 
 def _synth(n: int, p: int, family: str | None, *, seed: int):
-    """Deterministic synthetic design with intercept column. No timed randomness."""
+    """Deterministic synthetic design with intercept column. No timed randomness.
+
+    GLM coefficients are scaled by 1/sqrt(p) so the linear predictor stays O(1)
+    (realistic; avoids exp() overflow for log links), while the large-n float32
+    behaviour of each path is still exercised.
+    """
     rng = np.random.default_rng(seed)
     Xp = rng.standard_normal((n, p))
     X = np.column_stack([np.ones(n), Xp])
+    if family in ("binomial", "poisson", "gamma"):
+        beta = rng.standard_normal(p + 1) * 0.4 / np.sqrt(p)
+        eta = X @ beta
+        if family == "binomial":
+            y = (rng.random(n) < 1.0 / (1.0 + np.exp(-eta))).astype(np.float64)
+        elif family == "poisson":
+            y = rng.poisson(np.exp(eta)).astype(np.float64)
+        else:  # gamma (log link)
+            y = rng.gamma(shape=2.0, scale=np.exp(eta) / 2.0) + 1e-3
+        return X, y
+    # OLS / gaussian
     beta = rng.standard_normal(p + 1) * 0.5
     eta = X @ beta
-    if family == "binomial":
-        prob = 1.0 / (1.0 + np.exp(-eta))
-        y = (rng.random(n) < prob).astype(np.float64)
-    else:  # OLS / gaussian
-        y = eta + rng.standard_normal(n)
+    y = eta + rng.standard_normal(n)
     return X, y
 
 

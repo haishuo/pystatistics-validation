@@ -1,0 +1,122 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "3.20.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "mps",
+    "torch": "2.12.1",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ],
+    "host": "powerhouse"
+  },
+  "config": {
+    "study": "gpu_glm_stability",
+    "lam": 100.0,
+    "grid": [
+      [
+        100000,
+        64
+      ],
+      [
+        200000,
+        128
+      ],
+      [
+        500000,
+        128
+      ]
+    ]
+  },
+  "records": [
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_poisson",
+      "n": 100000,
+      "p": 64,
+      "model_key": "glm_poisson",
+      "lam": 100.0,
+      "plain_status": "converged",
+      "plain_rel_vs_cpu": 2.9579330697764586e-07,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 3.065946161557826e-05,
+      "fp64_status": "unsupported",
+      "fp64_rel_vs_cpu": null
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_poisson",
+      "n": 200000,
+      "p": 128,
+      "model_key": "glm_poisson",
+      "lam": 100.0,
+      "plain_status": "raised",
+      "plain_rel_vs_cpu": null,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 0.004393088938533216,
+      "fp64_status": "unsupported",
+      "fp64_rel_vs_cpu": null
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_poisson",
+      "n": 500000,
+      "p": 128,
+      "model_key": "glm_poisson",
+      "lam": 100.0,
+      "plain_status": "raised",
+      "plain_rel_vs_cpu": null,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 0.0031178380421401806,
+      "fp64_status": "unsupported",
+      "fp64_rel_vs_cpu": null
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_gamma",
+      "n": 100000,
+      "p": 64,
+      "model_key": "glm_gamma",
+      "lam": 100.0,
+      "plain_status": "converged",
+      "plain_rel_vs_cpu": 3.411528241839025e-07,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 6.323466082021026e-06,
+      "fp64_status": "unsupported",
+      "fp64_rel_vs_cpu": null
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_gamma",
+      "n": 200000,
+      "p": 128,
+      "model_key": "glm_gamma",
+      "lam": 100.0,
+      "plain_status": "raised",
+      "plain_rel_vs_cpu": null,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 0.0037838164673944306,
+      "fp64_status": "unsupported",
+      "fp64_rel_vs_cpu": null
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_gamma",
+      "n": 500000,
+      "p": 128,
+      "model_key": "glm_gamma",
+      "lam": 100.0,
+      "plain_status": "raised",
+      "plain_rel_vs_cpu": null,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 0.013280351596326007,
+      "fp64_status": "unsupported",
+      "fp64_rel_vs_cpu": null
+    }
+  ]
+}
