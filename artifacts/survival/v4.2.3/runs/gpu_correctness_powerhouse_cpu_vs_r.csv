@@ -1,0 +1,5 @@
+dataset,person_period_n,procedure,quantity,n_elements,max_abs,max_rel
+flchain_yearly,82919,discrete_time,coefficients,7,1.1102230246251565e-15,8.109733465634553e-15
+flchain_yearly,82919,discrete_time,standard_errors,7,1.1102230246251565e-16,8.8986195186216e-16
+flchain_yearly,82919,discrete_time,z_values,7,3.552713678800501e-14,7.626512149917463e-15
+flchain_yearly,82919,discrete_time,p_values,7,3.83026943495679e-15,6.283526229246875e-14
