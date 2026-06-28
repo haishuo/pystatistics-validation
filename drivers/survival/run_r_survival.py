@@ -41,7 +41,12 @@ def _run_worker(mode: str, csv_args: list[str], reps: int) -> dict[str, Any]:
 
 def _wall(raw: dict[str, Any]) -> dict[str, Any]:
     elapsed = float(raw["elapsed_s"])
-    times = [float(t) for t in raw.get("elapsed_times_s", [elapsed])]
+    raw_times = raw.get("elapsed_times_s", [elapsed])
+    # jsonlite(auto_unbox=TRUE) collapses a length-1 elapsed vector (reps=1) to a
+    # scalar; normalize back to a list so single-rep R runs parse like the rest.
+    if not isinstance(raw_times, (list, tuple)):
+        raw_times = [raw_times]
+    times = [float(t) for t in raw_times]
     return {"median_s": elapsed, "min_s": min(times), "max_s": max(times),
             "times_s": times}
 

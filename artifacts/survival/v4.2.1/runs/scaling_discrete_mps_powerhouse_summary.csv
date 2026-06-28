@@ -1,0 +1,31 @@
+dataset,n,cols,engine,device,precision,wall_median_s,peak_mem_mb,converged,error
+flchain_5yr,19690,10,pystatistics:gpu,mps,fp32,0.01518212491646409,8.8,True,
+flchain_2_5yr,36018,13,pystatistics:gpu,mps,fp32,0.022803291911259294,42.4,True,
+flchain_yearly,82919,21,pystatistics:gpu,mps,fp32,,,,"NumericalError: GPU GLM did not produce a reliable fit: the float32 fit did not reach a stationary point (relative Newton decrement 1.32e-03 exceeds the float32 acceptance threshold 1e-06). This happens for ill-conditioned designs at large n in float32 — typically a log-link family (Poisson/Gamma) — where the float32 solve cannot locate the optimum (most often on Apple Silicon / MPS, which has no float64). PyStatistics does not silently substitute a CPU or lower-precision result; choose explicitly:
+  - backend='cpu' for a correct double-precision fit (slower)
+  - backend='gpu_fp64' on CUDA for an exact GPU fit
+  - a ridge-penalized fit (a different, better-conditioned estimator)
+  - force=True to return the float32 fit anyway (fast, but may be inaccurate / unstable)"
+flchain_quarterly,319508,62,pystatistics:gpu,mps,fp32,,,,"NumericalError: GPU GLM did not produce a reliable fit: the float32 fit did not reach a stationary point (relative Newton decrement 4.68e-03 exceeds the float32 acceptance threshold 1e-06). This happens for ill-conditioned designs at large n in float32 — typically a log-link family (Poisson/Gamma) — where the float32 solve cannot locate the optimum (most often on Apple Silicon / MPS, which has no float64). PyStatistics does not silently substitute a CPU or lower-precision result; choose explicitly:
+  - backend='cpu' for a correct double-precision fit (slower)
+  - backend='gpu_fp64' on CUDA for an exact GPU fit
+  - a ridge-penalized fit (a different, better-conditioned estimator)
+  - force=True to return the float32 fit anyway (fast, but may be inaccurate / unstable)"
+flchain_monthly,951967,172,pystatistics:gpu,mps,fp32,,,,"NumericalError: GPU GLM did not produce a reliable fit: the float32 fit did not reach a stationary point (relative Newton decrement 6.13e-06 exceeds the float32 acceptance threshold 1e-06). This happens for ill-conditioned designs at large n in float32 — typically a log-link family (Poisson/Gamma) — where the float32 solve cannot locate the optimum (most often on Apple Silicon / MPS, which has no float64). PyStatistics does not silently substitute a CPU or lower-precision result; choose explicitly:
+  - backend='cpu' for a correct double-precision fit (slower)
+  - backend='gpu_fp64' on CUDA for an exact GPU fit
+  - a ridge-penalized fit (a different, better-conditioned estimator)
+  - force=True to return the float32 fit anyway (fast, but may be inaccurate / unstable)"
+synth_pp_n130000,130000,68,pystatistics:gpu,mps,fp32,0.15519704204052687,1164.6,True,
+synth_pp_n260000,260000,68,pystatistics:gpu,mps,fp32,0.2643816249910742,1173.0,True,
+synth_pp_n520000,520000,68,pystatistics:gpu,mps,fp32,,,,"NumericalError: GPU GLM did not produce a reliable fit: the float32 inner solve broke down (XᵀWX not positive-definite in float32). This happens for ill-conditioned designs at large n in float32 — typically a log-link family (Poisson/Gamma) — where the float32 solve cannot locate the optimum (most often on Apple Silicon / MPS, which has no float64). PyStatistics does not silently substitute a CPU or lower-precision result; choose explicitly:
+  - backend='cpu' for a correct double-precision fit (slower)
+  - backend='gpu_fp64' on CUDA for an exact GPU fit
+  - a ridge-penalized fit (a different, better-conditioned estimator)
+  - force=True to return the float32 fit anyway (fast, but may be inaccurate / unstable)"
+synth_pp_n1040000,1040000,68,pystatistics:gpu,mps,fp32,,,,"NumericalError: GPU GLM did not produce a reliable fit: the float32 inner solve broke down (XᵀWX not positive-definite in float32). This happens for ill-conditioned designs at large n in float32 — typically a log-link family (Poisson/Gamma) — where the float32 solve cannot locate the optimum (most often on Apple Silicon / MPS, which has no float64). PyStatistics does not silently substitute a CPU or lower-precision result; choose explicitly:
+  - backend='cpu' for a correct double-precision fit (slower)
+  - backend='gpu_fp64' on CUDA for an exact GPU fit
+  - a ridge-penalized fit (a different, better-conditioned estimator)
+  - force=True to return the float32 fit anyway (fast, but may be inaccurate / unstable)"
+synth_pp_n2080000,2080000,68,pystatistics:gpu,mps,fp32,1.7131198749411851,2001.3,True,

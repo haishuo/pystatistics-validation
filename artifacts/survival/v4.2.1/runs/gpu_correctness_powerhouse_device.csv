@@ -1,0 +1,6 @@
+dataset,person_period_n,cols,n_intervals,backend,precision,gate_result,coef_max_rel,forced_max_rel,faithfulness_rel,note
+flchain_5yr,19690,10,3,gpu,fp32,accepted,1.0965668791316167e-05,,0.0,
+flchain_2_5yr,36018,13,6,gpu,fp32,accepted,0.001280405477896246,,0.0,
+flchain_yearly,82919,21,14,gpu,fp32,rejected,,0.6237619691217776,0.0,NumericalError
+flchain_half_yr,162408,35,28,gpu,fp32,rejected,,0.07359021669924416,0.0,NumericalError
+flchain_quarterly,319508,62,55,gpu,fp32,rejected,,0.7510732611662145,0.0,NumericalError
