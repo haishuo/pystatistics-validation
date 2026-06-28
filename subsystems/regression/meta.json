@@ -5,7 +5,7 @@
   "module": "pystatistics.regression",
   "procedure": "Ordinary least squares and the generalized linear model under one interface. OLS estimates the coefficient vector beta minimizing the residual sum of squares for a Gaussian-error linear model, reporting standard errors, t-statistics, p-values, R-squared and the residual standard error. The GLM extends this to non-Gaussian responses (binomial, Poisson, Gamma, negative binomial) via a link function, estimating beta by maximum likelihood and reporting standard errors, Wald z/t-statistics, p-values, deviance and AIC. pystatistics deliberately unifies lm and glm — which R splits across lm() and glm() — into a single fit(design, family=...) entry point.",
   "algorithms": [
-    "OLS, CPU (reference path): column-pivoted QR decomposition of the design matrix (the same factorization R's lm() uses), so coefficients, rank detection and the residual statistics match R to floating-point round-off. fp64, deterministic.",
+    "OLS, CPU (reference path): a single-pass rank-revealing QR decomposition of the design matrix equivalent to R's lm.fit/glm.fit (LINPACK dqrls), so coefficients, rank detection, and the residual statistics match R to floating-point round-off. As of 4.2.2 this replaced a heavier full column-pivoted QR (LAPACK dgeqp3) run on every solve; the lighter factorization brings CPU wall-clock to parity-or-better with R (per the Prime Directive: CPU speed parity with R is a requirement). fp64, deterministic.",
     "OLS, GPU: Cholesky factorization of the normal equations (X'X) beta = X'y, fp32 by default on consumer GPUs. Faster than QR for well-conditioned designs but squares the condition number; the backend computes the design's condition number and refuses the Cholesky path (unless force=True) when it exceeds 1e6, falling back to a least-squares solve.",
     "GLM (all families): Iteratively Reweighted Least Squares (IRLS / Fisher scoring) to the maximum-likelihood coefficients, with R's glm.control defaults (tol 1e-8, max 25 iterations). Standard errors come from the inverse Fisher information at the solution.",
     "GLM, GPU: each IRLS step solves the weighted normal equations (XtWX) beta = XtWz by Cholesky (a Metal-supported primitive, so GLM runs on Apple Silicon as well as CUDA). fp32 by default. When the float32 fit cannot converge (log-link families at large n, where XtWX is ill-conditioned in fp32) it FAILS LOUD with a NumericalError listing the options (CPU, a ridge-penalized fit, or force=True), rather than returning unreliable coefficients.",
@@ -23,21 +23,33 @@
     "glm_vs_r": "CPU GLM coefficients agree with R glm() to IRLS-convergence round-off (~1e-10 relative for binomial/Poisson). Standard errors and Wald statistics follow the coefficients.",
     "gamma_link": "The Gamma claim is specifically for the LOG link (the textbook positive-continuous target). pystatistics' family='gamma' string defaults to the canonical INVERSE link; the validation pins GammaFamily(link='log') to match the reference. Gamma standard errors differ from R at the ~1e-2 relative level because pystatistics estimates the dispersion by maximum likelihood while R uses the Pearson/df estimator — a documented, intentional difference, not a defect.",
     "negbin": "Negative-binomial coefficients agree with MASS::glm.nb to ~1e-4 relative; the small gap is the profiled theta landing at a slightly different value. The NB mean structure is identified only up to theta, so coefficient agreement on real overdispersed counts is the practical claim.",
-    "gpu_fp32": "GPU paths are fp32 by default and agree with the CPU/R reference to ~1e-4 relative on coefficients (float32 tier).",
+    "gpu_fp32": "GPU paths are fp32 by default and agree with the CPU/R reference to ~1e-4 relative on coefficients (float32 tier). As of 4.2.3 the float32 GPU IRLS stops on the relative Newton decrement (the acceptance gate's own measure) instead of the float32 round-off floor, plus monotone-descent step-halving, so the plain (unpenalized) float32 GLM now CONVERGES across the stability grid -- including the log-link Poisson/Gamma families that previously failed loud at large n -- matching the CPU fit to ~1e-6 on both MPS and CUDA. The strict fp64 acceptance gate is unchanged (no silently-accepted wrong fits); genuinely float32-infeasible conditioning still fails loud.",
     "gpu_fp64": "backend='gpu_fp64' (CUDA only) agrees with the CPU reference to ~1e-15 — numerically exact; a correctness option, not a speed claim (fast double precision needs a data-center GPU).",
     "ridge_vs_r": "Ridge coefficients match MASS::lm.ridge to ~1e-15 (LM) and glmnet(alpha=0) (GLM) at matched lambda. A ridge GPU fit matches the CPU ridge fit to the float32 tier (~1e-4)."
   },
   "limitations": [
     "GPU OLS uses Cholesky on the normal equations, which squares the condition number; ill-conditioned designs (condition number > 1e6) are refused unless force=True. Use the CPU QR backend for ill-conditioned problems.",
-    "Plain (unpenalized) GLM with a log link (Poisson/Gamma) is ill-conditioned in float32 at large sample size and does not converge on the GPU there — the fit FAILS LOUD rather than returning wrong numbers. The remedies are backend='cpu' (exact, slower), a ridge-penalized GPU fit (fast and stable — the penalty fixes the conditioning), or backend='gpu_fp64' on CUDA (exact). Binomial (bounded) is float32-stable and is unaffected.",
+    "Plain (unpenalized) GLM with a log link (Poisson/Gamma) was ill-conditioned in float32 at large n and used to FAIL LOUD on the GPU (remedy: ridge, backend='cpu', or backend='gpu_fp64'). As of 4.2.3 the float32 GPU IRLS uses a Newton-decrement stop plus descent step-halving, and the plain log-link fit now CONVERGES across the validated stability grid (n up to 500k, p up to 128) on both MPS and CUDA, matching the CPU fit to ~1e-6. Ridge and gpu_fp64 remain available and exact; the fail-loud guarantee still holds for genuinely float32-infeasible conditioning -- never silently-wrong numbers.",
     "GPU fp32 is the speed path; for double precision use backend='cpu' anywhere, or backend='gpu_fp64' on CUDA. Apple Silicon (Metal/MPS) has no float64 at all, so gpu_fp64 is CUDA-only.",
     "The negative-binomial solution object does not expose the auto-estimated theta, so the NB validation compares coefficients (and SEs) rather than theta directly.",
     "Tiny designs (n in the low hundreds) are dominated by fixed Python dispatch overhead and sit near R's timer resolution; the scaling study, not the small real datasets, carries the rigorous speed claim."
   ],
   "datasets": [
-    {"name": "California Housing", "what": "~20,640 California census blocks, 8 numeric predictors. Used for OLS (MedHouseVal ~ all predictors), binomial (high_value, a median split) and Poisson (pop_count = round(Population/100)). Large enough to exercise the QR and IRLS paths on a non-trivial real design."},
-    {"name": "airquality", "what": "datasets::airquality — daily NYC air quality, 111 complete cases. Gamma(log) target Ozone ~ Solar.R + Temp + Wind; ozone is positive, continuous and right-skewed, the textbook Gamma regression target."},
-    {"name": "quine", "what": "MASS::quine — 146 Australian schoolchildren, days absent by ethnicity/sex/age/learner status. THE canonical negative-binomial dataset (McCullagh & Nelder). The R model matrix is handed to Python so both engines fit the identical numeric design."},
-    {"name": "synthetic scaling grid", "what": "Deterministic Gaussian designs over n in {1e3, 1e4, 1e5, 5e5} x p in {8, 32, 128} for OLS and binomial, used only for the device-scaling/performance study (not correctness)."}
+    {
+      "name": "California Housing",
+      "what": "~20,640 California census blocks, 8 numeric predictors. Used for OLS (MedHouseVal ~ all predictors), binomial (high_value, a median split) and Poisson (pop_count = round(Population/100)). Large enough to exercise the QR and IRLS paths on a non-trivial real design."
+    },
+    {
+      "name": "airquality",
+      "what": "datasets::airquality — daily NYC air quality, 111 complete cases. Gamma(log) target Ozone ~ Solar.R + Temp + Wind; ozone is positive, continuous and right-skewed, the textbook Gamma regression target."
+    },
+    {
+      "name": "quine",
+      "what": "MASS::quine — 146 Australian schoolchildren, days absent by ethnicity/sex/age/learner status. THE canonical negative-binomial dataset (McCullagh & Nelder). The R model matrix is handed to Python so both engines fit the identical numeric design."
+    },
+    {
+      "name": "synthetic scaling grid",
+      "what": "Deterministic Gaussian designs over n in {1e3, 1e4, 1e5, 5e5} x p in {8, 32, 128} for OLS and binomial, used only for the device-scaling/performance study (not correctness)."
+    }
   ]
 }

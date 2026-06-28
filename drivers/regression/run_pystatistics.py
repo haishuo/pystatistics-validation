@@ -91,7 +91,7 @@ def run_regression_record(
     }
     if is_ols:
         summary.update(
-            test_statistic=_as_list(sol.t_statistics),
+            test_statistic=_as_list(sol.t_values),
             stat_name="t value",
             r_squared=float(sol.r_squared),
             adjusted_r_squared=float(sol.adjusted_r_squared),
@@ -101,7 +101,7 @@ def run_regression_record(
         )
     else:
         summary.update(
-            test_statistic=_as_list(sol.test_statistics),
+            test_statistic=_as_list(sol.z_values),
             stat_name="z value",
             deviance=float(sol.deviance),
             null_deviance=float(sol.null_deviance),

@@ -1,0 +1,7 @@
+model_key,n,p,lam,plain_status,plain_rel_vs_cpu,ridge_status,ridge_rel_vs_cpu_ridge,fp64_status,fp64_rel_vs_cpu
+glm_poisson,100000,64,100.0,converged,2.7013399000196953e-07,converged,3.065946161557826e-05,unsupported,
+glm_poisson,200000,128,100.0,converged,2.3376198661371616e-07,converged,6.282261498554593e-05,unsupported,
+glm_poisson,500000,128,100.0,converged,3.0799525898922755e-07,converged,3.5650416896124e-05,unsupported,
+glm_gamma,100000,64,100.0,converged,3.3234149681749204e-07,converged,6.323466082021026e-06,unsupported,
+glm_gamma,200000,128,100.0,converged,0.0012811734737418687,converged,0.0015630677532563876,unsupported,
+glm_gamma,500000,128,100.0,converged,3.4099864340744714e-07,converged,6.681384146759899e-06,unsupported,
