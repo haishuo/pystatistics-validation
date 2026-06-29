@@ -45,13 +45,14 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-- **Multivariate (#3) — next NEW module, FULL run + red-team in ONE chip.** No baseline
-  exists → first-time validation AND red-team together, worked in priority order. PCA +
-  factor analysis (SVD/eigendecomposition), the most GPU-amenable op. R refs:
-  `stats::prcomp`/`princomp` (PCA), `stats::factanal` (factor analysis). Datasets: small
-  textbook (e.g. iris/USArrests) for correctness + a large matrix (TCGA-like, wide `p`)
-  for scaling. Target current PyPI **4.3.3**. Forge/CUDA allowance if a GPU path is
-  warranted per CONVENTIONS. Awaiting user go.
+- **Multivariate (#3) — CHIP SPAWNED (full run + red-team in ONE chip).** No baseline →
+  first-time validation AND red-team together, priority order. PCA + factor analysis
+  (SVD/eigendecomposition). R refs: `stats::prcomp`/`princomp` (PCA), `stats::factanal`
+  (FA). Chip picks canonical datasets (added to the central HDF5 store per R17). Target
+  PyPI **4.3.3**. Forge/CUDA allowance granted. **Must clear CARRY_FORWARD CF-1** —
+  verify PCA's GPU path forms the covariance/Gram in fp64, not fp32 (the regression
+  4.3.2 defect class); ill-conditioned R10 case on MPS + CUDA; library fix via R8/R6, or
+  R16 if a showstopper silent-wrong.
 - **Owed (cross-program, before any paper):** prior-art trawl (arXiv/PyPI/GitHub) for the
   survival novelty claim "first discrete-time survival on GPU at scale" (R13). Not blocking
   the validation corpus; required before publication.
