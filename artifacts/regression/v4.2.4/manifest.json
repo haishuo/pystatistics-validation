@@ -237,6 +237,32 @@
                        "forced_dev_rel_vs_fp64", "fp64_dev_rel_vs_cpu",
                        "classification"],
       "note": "The same R12 no-silent-wrong proof on the CUDA Cholesky path. Every ACCEPTED float32 fit reached the float64 optimum (accepted_dev_rel_vs_fp64 <= ~1e-6); gpu_fp64 is exact vs CPU (fp64_dev_rel_vs_cpu ~ round-off). REFUSED fits are dominated by true positives (forced fit wrong/overflowing). NO row is SILENT-WRONG. The CUDA Cholesky and MPS gated-CG paths have DIFFERENT accept envelopes (CUDA accepts some large-coefficient designs MPS refuses, and vice versa) but share the same guarantee: never accept a wrong fit, never return a silently-wrong number."
+    },
+    {
+      "id": "inference_se_powerhouse",
+      "title": "R12 (inference): SEs/CIs never silently understate instability — Powerhouse (MPS)",
+      "device": ["mps"],
+      "summary": "runs/inference_se_mps_powerhouse_summary.csv",
+      "run": "runs/inference_se_mps_powerhouse.json",
+      "claim": "inference",
+      "host": "powerhouse+r",
+      "summary_cols": ["model_key", "family", "eq_cond", "gpu_status",
+                       "coef_rel_gpu_vs_cpu", "se_rel_gpu_vs_cpu", "se_rel_gpu_vs_r",
+                       "cpu_se_max", "gpu_se_max", "r_se_max", "inference_verdict"],
+      "note": "Extends the R12 no-silent-wrong proof from the deviance/optimum to the INFERENCE outputs (the standard errors), which is the product's differentiator. R12 shows an accepted fit reaches the right optimum, but on a near-collinear design the coefficients become non-identifiable even there (coef_rel up to ~1). The decisive question is whether the reported fp32 SEs blow up to reflect that (a large SE warns the user, exactly as R does) or understate it (a coefficient wrong yet looking precise -- an inference-silent-wrong). Across OLS + log-link Poisson/Gamma over a conditioning sweep on MPS, EVERY accepted fp32 GPU fit is inference-warned: the SEs match the fp64 CPU fit to the documented Tier-2 contract (se_rel_gpu_vs_cpu <= 1e-2, here <= ~4e-4) and match R (the gamma rows carry the documented ~1e-2 dispersion-estimator gap), and the SE on the least-identified coefficient grows with conditioning (cpu_se_max/gpu_se_max track together from ~0.05 to ~160). NO accepted fit understates its SE. This is mathematically necessary -- the SE is sqrt(diag of the same (XtX)^-1 / (XtWX)^-1 that drives the instability, so a non-identifiable coefficient must carry a large SE -- and here it is confirmed empirically in float32."
+    },
+    {
+      "id": "inference_se_forge",
+      "title": "R12 (inference): SEs/CIs never silently understate instability — Forge (CUDA)",
+      "device": ["cuda"],
+      "summary": "runs/inference_se_cuda_forge_summary.csv",
+      "run": "runs/inference_se_cuda_forge.json",
+      "claim": "inference",
+      "host": "forge+r",
+      "summary_cols": ["model_key", "family", "eq_cond", "gpu_status",
+                       "coef_rel_gpu_vs_cpu", "se_rel_gpu_vs_cpu", "se_rel_gpu_vs_r",
+                       "cpu_se_max", "gpu_se_max", "r_se_max", "inference_verdict"],
+      "note": "The same inference-trustworthiness proof on the CUDA Cholesky path. CUDA's accept envelope reaches genuinely non-identifiable designs -- e.g. the OLS row at eq_cond ~ 6.7e4 is ACCEPTED with coef_rel ~ 0.998 (coefficients ~100% off) yet se_rel_gpu_vs_cpu ~ 1e-4 and its SE has blown up to ~158, matching CPU and R. EVERY accepted fp32 fit is inference-warned; NO row understates its SE. So even where the float32 coefficients are non-identifiable, the reported standard errors correctly flag them as untrustworthy -- the inference user gets the same warning they would from R, never a wrong coefficient that looks precise."
     }
   ],
   "record_fields": {

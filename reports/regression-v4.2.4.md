@@ -85,7 +85,8 @@ R's lm() (OLS via pivoted QR) and glm() (GLM via IRLS) are the established refer
 - **hardcase_r10:** On the adversarial grid pystatistics matches R's BEHAVIOUR, not only its easy-data coefficients (RIGOR R10). The CPU QR path agrees with R to round-off even on near-collinear designs across the whole condition sweep. Logistic separation (complete and quasi): both engines diverge and flag non-convergence — pystatistics via converged=False at the iteration cap, R via converged=False plus the 'fitted probabilities numerically 0 or 1' warning. Factor + interaction designs: pystatistics' own treatment-contrast term builder (build_terms_design / C) reproduces R's default model.matrix column-for-column (design bijection) and the identical fit to ~1e-15. Rank-deficient/aliased designs: pystatistics drops the aliased column to NaN in the same position as R's NA, with the identified coefficients still matching to round-off. Prior weights and offsets are not exposed by fit() at 4.2.4 — the call fails loud with a TypeError (a documented scope limitation per CONVENTIONS A6, never a silently-different answer).
 - **gpu_ols_conditioning_r10:** The GPU fp32 Cholesky OLS path never returns a silently-wrong FIT. Where it accepts, predictions and residual sum of squares track the CPU fit; the per-coefficient gap grows with conditioning because the coefficients become non-identifiable in float32 (the documented float32 tier), not because the optimum is wrong. The accept/refuse gate keys on the backend's own fp32-Gram condition number against a 1e6 threshold; beyond what float32 Cholesky can factor it fails loud (NumericalError), and force=True is the explicit override. Use backend='cpu' (QR, fp64) when ill-conditioned coefficient inference is the goal.
 - **precision_isolation_r11:** The headline device speedups bundle two effects (float32-vs-float64 and GPU-vs-CPU). The same-precision isolation (gpu_fp64 vs cpu_fp64 on CUDA) measures the hardware effect alone; gpu_fp64 is numerically exact vs CPU (~1e-13..1e-15), so the comparison is on equivalent computation. At scale the bundled GPU win is roughly half hardware, half precision; at small n the fp64 GPU is slower than CPU (kernel/transfer overhead). The reference BLAS each host's R links is recorded (Apple Accelerate on powerhouse, reference netlib BLAS on forge) so the CPU-vs-R gap is interpretable (RIGOR R11).
-- **fp32_boundary_r12:** The plain (unpenalized) float32 log-link GLM was relaxed from fail-loud to 'converges' at 4.2.3/4.2.4; RIGOR R12 (the complement of R9) requires proof that the accept/refuse gate never accepts a wrong fit. On an adversarial grid straddling the float32 floor (near-collinear conditioning, large coefficients, heavy low-weight blocks) on BOTH the MPS gated-CG path and the CUDA Cholesky path, every accepted float32 fit reached the float64 optimum (deviance to the float32 tier, <=~1e-6); every refusal is fail-loud and is dominated by true positives (the forced fit is genuinely wrong or overflows), with a few conservative refusals that force=True still recovers correctly. NO design was accepted-but-wrong — there is no silent-wrong band. (As in the OLS case, accepted coefficients can be non-identifiable at high conditioning even when the deviance/optimum is correct.)
+- **fp32_boundary_r12:** The plain (unpenalized) float32 log-link GLM was relaxed from fail-loud to 'converges' at 4.2.3/4.2.4; RIGOR R12 (the complement of R9) requires proof that the accept/refuse gate never accepts a wrong fit. On an adversarial grid straddling the float32 floor (near-collinear conditioning, large coefficients, heavy low-weight blocks) on BOTH the MPS gated-CG path and the CUDA Cholesky path, every accepted float32 fit reached the float64 optimum (deviance to the float32 tier, <=~1e-6); every refusal is fail-loud and is dominated by true positives (the forced fit is genuinely wrong or overflows), with a few conservative refusals that force=True still recovers correctly. NO design was accepted-but-wrong — there is no silent-wrong band. (As in the OLS case, accepted coefficients can be non-identifiable at high conditioning even when the deviance/optimum is correct; the inference_se study shows the reported SEs flag exactly those cases.)
+- **inference_se_r12:** R12 extended from the optimum to the INFERENCE outputs (the differentiator). On a near-collinear design the coefficients are non-identifiable even at the correct optimum — coef_rel can reach ~1.0 — so the question that matters for a user reaching for coefficients and SEs is whether the float32 standard errors blow up to flag the instability (as R does via large SEs) or understate it (a coefficient wrong yet looking precise). Across OLS and the log-link Poisson/Gamma families over a conditioning sweep, on BOTH MPS and CUDA, EVERY accepted float32 GPU fit is inference-warned: the SEs agree with the fp64 CPU fit to the documented Tier-2 contract (rtol <= 1e-2; observed <= ~4e-4) and with R (the gamma rows carry the documented ~1e-2 dispersion gap), and the SE on the least-identified coefficient grows in lockstep with conditioning. No accepted fit understates its SE — including CUDA rows accepted with coefficients ~100% off, whose SEs have correctly blown up by 3-4 orders of magnitude and match R. This is mathematically necessary (the SE is the square root of the diagonal of the same near-singular (XtWX)^-1 that drives the instability) and is confirmed empirically in float32: the float32 GPU path never returns a coefficient that is wrong AND looks precise.
 
 ## Constitutional compliance & GPU backend reconciliation
 
@@ -359,6 +360,64 @@ _claim: boundary · device: cuda · host: forge_
 
 > The same R12 no-silent-wrong proof on the CUDA Cholesky path. Every ACCEPTED float32 fit reached the float64 optimum (accepted_dev_rel_vs_fp64 <= ~1e-6); gpu_fp64 is exact vs CPU (fp64_dev_rel_vs_cpu ~ round-off). REFUSED fits are dominated by true positives (forced fit wrong/overflowing). NO row is SILENT-WRONG. The CUDA Cholesky and MPS gated-CG paths have DIFFERENT accept envelopes (CUDA accepts some large-coefficient designs MPS refuses, and vice versa) but share the same guarantee: never accept a wrong fit, never return a silently-wrong number.
 
+### R12 (inference): SEs/CIs never silently understate instability — Powerhouse (MPS)
+_claim: inference · device: mps · host: powerhouse+r_
+
+| model_key | family | eq_cond | gpu_status | coef_rel_gpu_vs_cpu | se_rel_gpu_vs_cpu | se_rel_gpu_vs_r | cpu_se_max | gpu_se_max | r_se_max | inference_verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| ols | gaussian | 20.2915 | accepted | 2.931e-05 | 5.423e-09 | 5.423e-09 | 0.0474 | 0.0474 | 0.0474 | inference-warned |
+| ols | gaussian | 202.1197 | accepted | 0.0027 | 2.732e-08 | 2.732e-08 | 0.4736 | 0.4736 | 0.4736 | inference-warned |
+| ols | gaussian | 1997 | accepted | 0.171 | 7.875e-07 | 7.875e-07 | 4.7397 | 4.7397 | 4.7397 | inference-warned |
+| ols | gaussian | 6734 | refused |  |  |  | 15.9282 |  | 15.9282 | refused (fail-loud) |
+| ols | gaussian | 1.978e+04 | accepted | 0.9439 | 0.0003703 | 0.0003703 | 47.1894 | 47.2069 | 47.1894 | inference-warned |
+| ols | gaussian | 6.724e+04 | accepted | 0.9854 | 0.0001024 | 0.0001024 | 158.1514 | 158.1676 | 158.1514 | inference-warned |
+| ols | gaussian | 2.018e+05 | refused |  |  |  | 472.3239 |  | 472.3239 | refused (fail-loud) |
+| glm_poisson | poisson | 20.9609 | accepted | 8.938e-06 | 2.399e-07 | 1.919e-07 | 0.1255 | 0.1255 | 0.1255 | inference-warned |
+| glm_poisson | poisson | 200.7261 | accepted | 3.372e-05 | 4.451e-07 | 3.874e-07 | 1.2157 | 1.2157 | 1.2157 | inference-warned |
+| glm_poisson | poisson | 2006 | accepted | 0.0071 | 8.176e-07 | 7.775e-07 | 12.2985 | 12.2985 | 12.2985 | inference-warned |
+| glm_poisson | poisson | 6577 | accepted | 0.0056 | 2.207e-06 | 2.258e-06 | 40.1704 | 40.1704 | 40.1704 | inference-warned |
+| glm_poisson | poisson | 2.018e+04 | accepted | 0.0047 | 1.182e-06 | 1.135e-06 | 123.3679 | 123.368 | 123.3679 | inference-warned |
+| glm_poisson | poisson | 6.714e+04 | accepted | 0.0254 | 1.352e-05 | 1.347e-05 | 407.6942 | 407.6926 | 407.6943 | inference-warned |
+| glm_poisson | poisson | 1.991e+05 | refused |  |  |  | 1224 |  | 1224 | refused (fail-loud) |
+| glm_gamma | gamma | 19.832 | accepted | 7.234e-07 | 2.047e-14 | 0.0379 | 0.1173 | 0.1173 | 0.113 | inference-warned |
+| glm_gamma | gamma | 205.0235 | accepted | 2.596e-05 | 4.383e-11 | 0.0346 | 1.1763 | 1.1763 | 1.1369 | inference-warned |
+| glm_gamma | gamma | 2023 | accepted | 0.0002324 | 1.925e-09 | 0.0416 | 11.7322 | 11.7322 | 11.2636 | inference-warned |
+| glm_gamma | gamma | 6746 | accepted | 0.0182 | 3.35e-08 | 0.0495 | 39.0186 | 39.0186 | 37.1782 | inference-warned |
+| glm_gamma | gamma | 1.992e+04 | accepted | 0.0789 | 1.222e-07 | 0.0434 | 115.7206 | 115.7206 | 110.9033 | inference-warned |
+| glm_gamma | gamma | 6.699e+04 | accepted | 0.0095 | 9.895e-07 | 0.0582 | 386.1433 | 386.1437 | 364.9006 | inference-warned |
+| glm_gamma | gamma | 1.958e+05 | refused |  |  |  | 1145 |  | 1083 | refused (fail-loud) |
+
+> Extends the R12 no-silent-wrong proof from the deviance/optimum to the INFERENCE outputs (the standard errors), which is the product's differentiator. R12 shows an accepted fit reaches the right optimum, but on a near-collinear design the coefficients become non-identifiable even there (coef_rel up to ~1). The decisive question is whether the reported fp32 SEs blow up to reflect that (a large SE warns the user, exactly as R does) or understate it (a coefficient wrong yet looking precise -- an inference-silent-wrong). Across OLS + log-link Poisson/Gamma over a conditioning sweep on MPS, EVERY accepted fp32 GPU fit is inference-warned: the SEs match the fp64 CPU fit to the documented Tier-2 contract (se_rel_gpu_vs_cpu <= 1e-2, here <= ~4e-4) and match R (the gamma rows carry the documented ~1e-2 dispersion-estimator gap), and the SE on the least-identified coefficient grows with conditioning (cpu_se_max/gpu_se_max track together from ~0.05 to ~160). NO accepted fit understates its SE. This is mathematically necessary -- the SE is sqrt(diag of the same (XtX)^-1 / (XtWX)^-1 that drives the instability, so a non-identifiable coefficient must carry a large SE -- and here it is confirmed empirically in float32.
+
+### R12 (inference): SEs/CIs never silently understate instability — Forge (CUDA)
+_claim: inference · device: cuda · host: forge+r_
+
+| model_key | family | eq_cond | gpu_status | coef_rel_gpu_vs_cpu | se_rel_gpu_vs_cpu | se_rel_gpu_vs_r | cpu_se_max | gpu_se_max | r_se_max | inference_verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| ols | gaussian | 20.2915 | accepted | 4.635e-05 | 3.816e-08 | 3.816e-08 | 0.0474 | 0.0474 | 0.0474 | inference-warned |
+| ols | gaussian | 202.1197 | accepted | 0.0063 | 2.733e-08 | 2.733e-08 | 0.4736 | 0.4736 | 0.4736 | inference-warned |
+| ols | gaussian | 1997 | accepted | 0.4132 | 4.671e-06 | 4.671e-06 | 4.7397 | 4.7397 | 4.7397 | inference-warned |
+| ols | gaussian | 6734 | refused |  |  |  | 15.9282 |  | 15.9282 | refused (fail-loud) |
+| ols | gaussian | 1.978e+04 | refused |  |  |  | 47.1894 |  | 47.1894 | refused (fail-loud) |
+| ols | gaussian | 6.724e+04 | accepted | 0.9982 | 0.0001051 | 0.0001051 | 158.1514 | 158.1678 | 158.1514 | inference-warned |
+| ols | gaussian | 2.018e+05 | refused |  |  |  | 472.3239 |  | 472.3239 | refused (fail-loud) |
+| glm_poisson | poisson | 20.9609 | accepted | 6.594e-05 | 2.707e-07 | 2.227e-07 | 0.1255 | 0.1255 | 0.1255 | inference-warned |
+| glm_poisson | poisson | 200.7261 | accepted | 0.0008654 | 4.037e-07 | 3.596e-07 | 1.2157 | 1.2157 | 1.2157 | inference-warned |
+| glm_poisson | poisson | 2006 | accepted | 0.0199 | 1.722e-06 | 1.762e-06 | 12.2985 | 12.2985 | 12.2985 | inference-warned |
+| glm_poisson | poisson | 6577 | refused |  |  |  | 40.1704 |  | 40.1704 | refused (fail-loud) |
+| glm_poisson | poisson | 2.018e+04 | refused |  |  |  | 123.3679 |  | 123.3679 | refused (fail-loud) |
+| glm_poisson | poisson | 6.714e+04 | refused |  |  |  | 407.6942 |  | 407.6943 | refused (fail-loud) |
+| glm_poisson | poisson | 1.991e+05 | refused |  |  |  | 1224 |  | 1224 | refused (fail-loud) |
+| glm_gamma | gamma | 19.832 | accepted | 5.701e-05 | 3.439e-12 | 0.0379 | 0.1173 | 0.1173 | 0.113 | inference-warned |
+| glm_gamma | gamma | 205.0235 | accepted | 0.002 | 2.526e-09 | 0.0346 | 1.1763 | 1.1763 | 1.1369 | inference-warned |
+| glm_gamma | gamma | 2023 | refused |  |  |  | 11.7322 |  | 11.2636 | refused (fail-loud) |
+| glm_gamma | gamma | 6746 | refused |  |  |  | 39.0186 |  | 37.1782 | refused (fail-loud) |
+| glm_gamma | gamma | 1.992e+04 | refused |  |  |  | 115.7206 |  | 110.9033 | refused (fail-loud) |
+| glm_gamma | gamma | 6.699e+04 | refused |  |  |  | 386.1433 |  | 364.9006 | refused (fail-loud) |
+| glm_gamma | gamma | 1.958e+05 | refused |  |  |  | 1145 |  | 1083 | refused (fail-loud) |
+
+> The same inference-trustworthiness proof on the CUDA Cholesky path. CUDA's accept envelope reaches genuinely non-identifiable designs -- e.g. the OLS row at eq_cond ~ 6.7e4 is ACCEPTED with coef_rel ~ 0.998 (coefficients ~100% off) yet se_rel_gpu_vs_cpu ~ 1e-4 and its SE has blown up to ~158, matching CPU and R. EVERY accepted fp32 fit is inference-warned; NO row understates its SE. So even where the float32 coefficients are non-identifiable, the reported standard errors correctly flag them as untrustworthy -- the inference user gets the same warning they would from R, never a wrong coefficient that looks precise.
+
 ## 6. What are the known limitations?
 
 - GPU OLS uses Cholesky on the normal equations, which squares the condition number; ill-conditioned designs (condition number > 1e6) are refused unless force=True. Use the CPU QR backend for ill-conditioned problems.
@@ -366,9 +425,10 @@ _claim: boundary · device: cuda · host: forge_
 - GPU fp32 is the speed path; for double precision use backend='cpu' anywhere, or backend='gpu_fp64' on CUDA. Apple Silicon (Metal/MPS) has no float64 at all, so gpu_fp64 is CUDA-only.
 - The negative-binomial solution object does not expose the auto-estimated theta, so the NB validation compares coefficients (and SEs) rather than theta directly.
 - Tiny designs (n in the low hundreds) are dominated by fixed Python dispatch overhead and sit near R's timer resolution; the scaling study, not the small real datasets, carries the rigorous speed claim.
-- Prior weights (weights=) and an offset term (offset=) are not exposed by fit() at 4.2.4. A call passing them fails loud with a TypeError rather than silently ignoring them; matching R's weights=/offset= is a future API addition, not a silent divergence.
-- GPU fp32 Cholesky OLS keeps the FIT correct (predictions and RSS track CPU) but its per-coefficient estimates become non-identifiable as conditioning rises in float32, well before the 1e6 refusal gate; for ill-conditioned COEFFICIENT inference use backend='cpu' (fp64 QR). Beyond what float32 Cholesky can factor the GPU fails loud rather than returning a wrong fit.
+- FUNCTIONAL GAP — prior weights (weights=) and an offset term (offset=) are not exposed by fit() at 4.2.4. These are core GLM features for the target audience (offsets for Poisson rate/exposure models; prior weights for survey and biostatistics work), so this is a real completeness gap, not a corner case, and is prioritized for a future release. A call passing them fails loud with a TypeError rather than silently ignoring them, so the current behaviour is safe (never a silent divergence from R) — but the feature is missing, and that is the honest framing.
+- GPU fp32 Cholesky OLS keeps the FIT correct (predictions and RSS track CPU); its per-coefficient estimates become non-identifiable as conditioning rises in float32 — exactly as the fp64 CPU and R coefficients do on the same design — and the reported standard errors blow up to flag this (matching CPU and R; see the inference_se study), so a large SE warns the inference user rather than a precise-looking wrong coefficient. For a definitive double-precision answer use backend='cpu' (fp64 QR). Beyond what float32 Cholesky can factor the GPU fails loud rather than returning a wrong fit.
 - The float32 GPU GLM accept/refuse gate is conservative in places: on some boundary-straddling designs the default fp32 fit is refused (fail-loud) even though force=True would recover a correct fit. This errs on the safe side — it never accepts a wrong fit — but means a small band of force-recoverable designs are refused by default.
+- CPU-vs-R speed framing: the headline Prime-Directive parity claim is the Powerhouse result — pystatistics CPU meets or beats R linked against Apple Accelerate, a fast vendor BLAS (a true apples-to-apples win). The larger Forge margins are secondary and caveated: Forge's R links the reference (netlib) BLAS, which is single-threaded and unoptimised, so part of that gap is R being slow rather than pystatistics being fast. The reference BLAS per host is recorded in the blas_provenance study so the comparison is interpretable.
 
 ## 7. Which version of pystatistics do these results apply to?
 
@@ -378,4 +438,4 @@ _claim: boundary · device: cuda · host: forge_
 - **Provenance:** Generated by drivers/regression on the pystatsval harness against a PyPI-installed pystatistics==4.2.4. The 4.2.4 change is the Apple Silicon (MPS) float32 GLM IRLS inner solve: it moves from a Cholesky of XtWX to a gated matrix-free conjugate gradient on H v = Xt(W(X v)) (squaring-free; the host float64 Newton-decrement acceptance gate is unchanged). On the GPU GLM stability grid (Poisson/Gamma, n up to 500k, p up to 128) the convergence OUTCOMES are unchanged from 4.2.3 -- the plain (unpenalized) float32 log-link fit converges and ridge holds on both MPS and CUDA -- because the 4.2.3 Newton-decrement stop already cleared the premature-stop false negative; 4.2.4 changes HOW the MPS float32 inner solve is computed (gated CG, squaring-free) so it no longer relies on a positive-definite float32 Cholesky. CUDA and CPU paths are UNCHANGED and match 4.2.3 exactly. Correctness vs R is unchanged (round-off). MPS rows produced on torch 2.12.1 (version-sensitive solver envelope; the host float64 gate is the version-independent fail-loud guarantee). Hosts: powerhouse (Apple Silicon, CPU fp64 + Metal/MPS fp32, R 4.5.2) and forge (NVIDIA CUDA, CPU fp64 + CUDA fp32/fp64, R 4.3.3).
 
 ---
-_Rendered 2026-06-29 04:02 UTC from `artifacts/regression/v4.2.4/manifest.json`._
+_Rendered 2026-06-29 05:07 UTC from `artifacts/regression/v4.2.4/manifest.json`._
