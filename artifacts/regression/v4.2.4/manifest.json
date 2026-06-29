@@ -122,7 +122,7 @@
       "claim": "speed",
       "render": "device_pivot",
       "host": "powerhouse",
-      "note": "PRIORITY 4 (GPU, weak bar): this table is evidence that the MPS path is NOT grossly inefficient relative to CPU -- not a claim that the GPU beats R or is the recommended path. The R-equivalent speed claim is the CPU-vs-R study above (priority 3). OLS + GLM device scaling, CPU (fp64) vs MPS (fp32). As of 4.2.4 the MPS float32 GLM inner solve is a gated matrix-free conjugate gradient (squaring-free); convergence and timing on this grid match 4.2.3. The MPS GPU is competitive-to-faster than CPU at large n where float32 is stable and slower than CPU at small n (dispatch/transfer overhead) -- acceptable under the weak bar; for the R-equivalent path use the CPU."
+      "note": "GPU value proposition (vs the priority-3 CPU-vs-R claim above): the GPU path trades double precision for float32, so it has to BUY SPEED over the CPU to be worth using at all -- a slower-and-less-accurate GPU would be pointless. This table shows the MPS GPU earns its place where it is meant to be used: at large n with a non-trivial p it is materially faster than the fp64 CPU (up to ~18x for OLS and ~10x for the GLM families at n=5e5, p=128). The advantage shrinks toward parity for narrow designs (p=8) or small n, where fixed dispatch/transfer overhead dominates and the CPU is the better choice -- that envelope is reported honestly rather than hidden. The CPU remains the reference/accuracy path (priority 3 owns the R-equivalent claim); the GPU is the throughput path and is held to actually delivering throughput. OLS + GLM device scaling, CPU (fp64) vs MPS (fp32); as of 4.2.4 the MPS float32 GLM inner solve is a gated matrix-free conjugate gradient (squaring-free), convergence/timing matching 4.2.3."
     },
     {
       "id": "scaling_forge",
@@ -138,7 +138,7 @@
       "claim": "speed",
       "render": "device_pivot",
       "host": "forge",
-      "note": "PRIORITY 4 (GPU, weak bar): evidence the CUDA path is not grossly inefficient vs CPU, not a GPU-beats-R claim (the R-equivalent speed claim is the CPU-vs-R study above). OLS + GLM device scaling, CPU (fp64) vs CUDA (fp32)."
+      "note": "GPU value proposition (see the Powerhouse scaling note): the CUDA GPU must buy speed over the fp64 CPU to justify its float32 precision, and it does -- materially faster than CPU at large n (up to ~15x for OLS and ~5-6x for the GLM families at n=5e5, p=128), narrowing toward parity at small n / narrow p where the CPU is preferable. The CPU stays the R-equivalent reference path (priority 3); the GPU is the throughput path and is held to actually delivering it. OLS + GLM device scaling, CPU (fp64) vs CUDA (fp32)."
     },
     {
       "id": "stability_powerhouse",
@@ -222,7 +222,7 @@
       "summary_cols": ["model_key", "n", "p", "wall_cpu_fp64_s", "wall_gpu_fp32_s",
                        "wall_gpu_fp64_s", "speedup_fp32_vs_cpu",
                        "speedup_fp64_vs_cpu", "gpu_fp64_coef_rel_vs_cpu"],
-      "note": "PRIORITY 4 (GPU, weak bar) -- framed as 'the GPU speedup is attributable and the gpu_fp64 path is correct', NOT as 'GPU beats R/CPU'. Isolates the HARDWARE effect from the PRECISION effect in the GPU speed number (RIGOR R11). speedup_fp32_vs_cpu is the BUNDLED headline (hardware + float32); speedup_fp64_vs_cpu is the same-precision, hardware-ONLY win (both float64). gpu_fp64 agrees with the CPU fit to ~1e-13..1e-15 (the numerically-exact path), so the isolated timing compares equivalent computation. The bundled GPU win is roughly half hardware, half precision at scale; at small n the fp64 GPU is slower than CPU (kernel/transfer overhead) — the hardware win emerges only at large n. CUDA only: Apple Silicon has no float64."
+      "note": "GPU speedup attribution (RIGOR R11): the GPU exists to be faster than the CPU, but the headline GPU-vs-CPU number bundles two effects -- the float32-vs-float64 win and the GPU-vs-CPU hardware win. This study separates them so the speedup is honest and attributable, and confirms the gpu_fp64 path is numerically exact. speedup_fp32_vs_cpu is the BUNDLED headline (hardware + float32); speedup_fp64_vs_cpu is the same-precision, hardware-ONLY win (both float64). gpu_fp64 agrees with the CPU fit to ~1e-13..1e-15 (the numerically-exact path), so the isolated timing compares equivalent computation. The bundled GPU win is roughly half hardware, half precision at scale; at small n the fp64 GPU is slower than CPU (kernel/transfer overhead) — the hardware win emerges only at large n. CUDA only: Apple Silicon has no float64."
     },
     {
       "id": "blas_provenance",
