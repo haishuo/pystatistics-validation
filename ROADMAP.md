@@ -28,7 +28,7 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 |---|---|---|---|
 | 1 | regression (OLS + GLM families) | ✅ done + red-teamed (v4.3.2) | v3.18.0 → v3.20.0 → v4.2.x → hardened/red-teamed **v4.3.2**: R10 hard cases (weights/offset now supported), R11 precision/hardware isolation + BLAS, R12 extended to inference SEs, priority-3 CPU-vs-R across sizes (meets/beats R at every n incl. n=50), priority-4 GPU value (~18×/10×). Found+fixed 3 correctness defects (→4.3.2). |
 | 2 | survival (KM / log-rank / coxph) | 🔄 done-but-red-team IN PROGRESS | validated v4.0.0 → v4.2.0 (coxph O(n²)→O(n)) → v4.2.1 (GPU/flchain) → v4.2.3 → v4.2.4 re-render. **Red-team-enhanced pass is the next chip** (target: current PyPI **4.3.2**): R15 default-degeneracy footgun, R13 discrete-time-specific R12 boundary, stratified-Cox gap. |
-| 3 | multivariate (PCA + factor analysis) | ⬜ next NEW module | SVD/eigendecomposition; the most GPU-amenable op; TCGA large-matrix scaling; self-contained. Starts after the survival red-team lands AND user says go. |
+| 3 | multivariate (PCA + factor analysis) | ⬜ next NEW module — FULL run + red-team in ONE chip | SVD/eigendecomposition; the most GPU-amenable op; TCGA large-matrix scaling; self-contained. No baseline exists → first-time validation AND red-team together (not done until red-teamed). Starts after the survival red-team lands AND user says go. |
 | 4 | mixed (LMM) | ⬜ pending | biggest optimization headroom (least GPU-touched); REML over variance components |
 | 5 | gam | ⬜ pending | penalized IRLS + REML smoothing selection; rides the kernel |
 | 6 | timeseries (ARIMA/ETS/STL) | ⬜ pending | largest module; Kalman/state-space + optimizer loops |
@@ -102,21 +102,37 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Per-module chip template (the coordinator fills `<<…>>` and embeds the rules)
 
+**Two chip shapes — know which you're spawning:**
+- **Red-team bolt-on** (what `regression` and `survival` got): the module was already
+  validated/frozen, so the chip ADDS red-team evidence (R10/R12/R13/R15…) + any priority
+  upgrades on top of existing frozen numbers. Historical — both are now done.
+- **Full run + red-team in ONE chip** (every NEW module from `multivariate` onward): there
+  is **no baseline** — the chip does the complete first-time validation **and** the
+  red-team in a single pass. Do not split into baseline-now / red-team-later. A new module
+  is not "done" until it has been red-teamed.
+
 Each module chip is self-contained (the spawned session has no prior context) and:
 1. Points at `ARCHITECTURE.md`, `RIGOR.md`, `CONVENTIONS.md`, and the completed
-   examples (`reports/regression-v4.2.3.md`, `survival-v4.2.3.md`, mvnmle, mice) +
-   the harness `pystatsval` API + the salvageable R refs in `_archive/`.
+   examples (`reports/regression-v4.3.2.md` — the current rigor bar, plus
+   `survival-v4.2.4.md`, mvnmle, mice) + the harness `pystatsval` API + the salvageable
+   R refs in `_archive/`.
 2. States the module, its R reference (the R package/function), the canonical
-   dataset(s), and the target version (current PyPI release — **4.2.4**).
-3. Mandates the full `RIGOR.md` deliverables — correctness vs R **incl. the R10
-   hard-case grid (match R's failures/warnings)**, the **R1/R3 complexity+scaling
-   study across n/p with R11 precision-vs-hardware isolation**, the **R4
-   constitutional audit**, **R12 no-silent-wrong proof for any relaxed fail-loud
-   path**, and an honest perf story (R2: document any justified slowdown; never sweep).
+   dataset(s), and the target version (current PyPI release — **4.3.2**).
+3. Mandates the full `RIGOR.md` deliverables, worked in **priority order** (the lead
+   section): **(1) correctness** vs the promised tolerance, **incl. the R10 hard-case
+   grid matching R's failures/warnings and the R15 default-invocation check**; **(2)**
+   the hard-problem red-team; **(3) the mandatory CPU-vs-R speed study ACROSS SIZES**
+   (small-n overhead → large-n; CPU must never lag R); **(4) GPU at its bar** — must be
+   faster than CPU in its regime (R11 precision-vs-hardware isolation), never silently
+   wrong (R12 no-silent-wrong proof; R13 don't inherit a guarantee — re-prove it on this
+   module's regime; R14 guarantee on the version-independent layer). Plus the **R4
+   constitutional audit** and an honest perf story (R2: document any justified slowdown;
+   never sweep).
 4. Repeats the current **release-hold** status and the Forge standing-CUDA-testing
    allowance (only if a GPU path is warranted per the constitution).
-5. Deliverables: `drivers/<m>/`, `artifacts/<m>/v4.2.4/`, `subsystems/<m>/meta.json`,
-   `reports/<m>-v4.2.4.md`; commit to validation `main` and push.
+5. Deliverables: `drivers/<m>/`, `artifacts/<m>/v4.3.2/`, `subsystems/<m>/meta.json`,
+   `reports/<m>-v4.3.2.md`; commit to validation `main` and push.
 6. Opens with discuss-before-acting: understanding + plan first.
 
-(The `survival` and `regression` chips are the worked examples of this template.)
+(The `regression` v4.3.2 chip is the worked example of the full rigor bar; the
+`survival` v4.3.2 chip is the worked example of the red-team bolt-on.)
