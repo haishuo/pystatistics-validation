@@ -1,0 +1,11 @@
+dataset,person_period_n,cols,n_intervals,backend,precision,gate_result,coef_max_rel,forced_max_rel,faithfulness_rel,note
+flchain_5yr,19690,10,3,gpu,fp32,accepted,1.453279556077498e-05,,0.0,
+flchain_5yr,19690,10,3,gpu_fp64,fp64,accepted,1.2022419399937445e-13,,0.0,
+flchain_2_5yr,36018,13,6,gpu,fp32,accepted,1.9091043962287845e-05,,0.0,
+flchain_2_5yr,36018,13,6,gpu_fp64,fp64,accepted,7.833688511857201e-14,,0.0,
+flchain_yearly,82919,21,14,gpu,fp32,accepted,8.861498252553862e-06,,0.0,
+flchain_yearly,82919,21,14,gpu_fp64,fp64,accepted,3.926818309675631e-14,,0.0,
+flchain_half_yr,162408,35,28,gpu,fp32,accepted,3.326246182135044e-05,,0.0,
+flchain_half_yr,162408,35,28,gpu_fp64,fp64,accepted,4.4725254772194646e-14,,0.0,
+flchain_quarterly,319508,62,55,gpu,fp32,accepted,6.177144433530869e-05,,0.0,
+flchain_quarterly,319508,62,55,gpu_fp64,fp64,accepted,3.460962952731398e-13,,0.0,

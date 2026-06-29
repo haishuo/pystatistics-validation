@@ -1,0 +1,4 @@
+dataset,person_period_n,cols,engine,wall_r_s,status
+flchain_yearly,82919,21,r:glm,0.2650000000000001,ok
+flchain_quarterly,319508,62,r:glm,2.8499999999999996,ok
+flchain_monthly,951967,172,r:glm,70.168,ok

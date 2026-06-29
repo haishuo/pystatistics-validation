@@ -1,0 +1,11 @@
+dataset,n,cols,engine,device,precision,wall_median_s,peak_mem_mb,converged,error
+flchain_5yr,19690,10,pystatistics:gpu,mps,fp32,0.05534966685809195,8.8,True,
+flchain_2_5yr,36018,13,pystatistics:gpu,mps,fp32,0.10459999996237457,42.4,True,
+flchain_yearly,82919,21,pystatistics:gpu,mps,fp32,0.24971775012090802,42.3,True,
+flchain_quarterly,319508,62,pystatistics:gpu,mps,fp32,0.8817754171323031,1082.5,True,
+flchain_monthly,951967,172,pystatistics:gpu,mps,fp32,8.330151041969657,698.7,True,
+synth_pp_n130000,130000,68,pystatistics:gpu,mps,fp32,0.27510783285833895,1082.5,True,
+synth_pp_n260000,260000,68,pystatistics:gpu,mps,fp32,0.4148897922132164,1090.9,True,
+synth_pp_n520000,520000,68,pystatistics:gpu,mps,fp32,0.7567971660755575,1082.5,True,
+synth_pp_n1040000,1040000,68,pystatistics:gpu,mps,fp32,1.3713359581306577,1082.5,True,
+synth_pp_n2080000,2080000,68,pystatistics:gpu,mps,fp32,2.546683457912877,642.1,True,

@@ -1,0 +1,11 @@
+dataset,n,cols,engine,device,precision,wall_median_s,peak_mem_mb,converged,error
+flchain_5yr,19690,10,pystatistics:cpu,cpu,fp64,0.01725028594955802,10.9,True,
+flchain_2_5yr,36018,13,pystatistics:cpu,cpu,fp64,0.028775834944099188,16.6,True,
+flchain_yearly,82919,21,pystatistics:cpu,cpu,fp64,0.08842454757541418,65.1,True,
+flchain_quarterly,319508,62,pystatistics:cpu,cpu,fp64,1.5777055146172643,615.1,True,
+flchain_monthly,951967,172,pystatistics:cpu,cpu,fp64,38.37077576993033,5066.5,True,
+synth_pp_n130000,130000,68,pystatistics:cpu,cpu,fp64,0.5388088575564325,,True,
+synth_pp_n260000,260000,68,pystatistics:cpu,cpu,fp64,1.0874209771864116,,True,
+synth_pp_n520000,520000,68,pystatistics:cpu,cpu,fp64,2.87858026009053,,True,
+synth_pp_n1040000,1040000,68,pystatistics:cpu,cpu,fp64,7.313913016580045,,True,
+synth_pp_n2080000,2080000,68,pystatistics:cpu,cpu,fp64,16.13897318020463,,True,
