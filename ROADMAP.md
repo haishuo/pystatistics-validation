@@ -45,10 +45,15 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
   loud at quarterly-cold; survival MPS prose shifts to "converges via gated CG; refuses
   loud → CPU at the genuine precision floor." Prior reports (v4.2.3/4.2.1/4.2.0) stay
   frozen. **This is the next chip**, ahead of any new module.
-- **Regression red-team follow-up (after the 4.2.4 re-render).** A second regression
-  pass may be warranted to close the R10/R11/R12 gaps the red-team surfaced (hard-case
-  grid, precision-vs-hardware isolation, fp32 no-silent-wrong stress test). Discuss
-  scope with the user before spawning.
+- **Regression red-team hardening — CHIP SPAWNED (combined R10/R11/R12).** Closes the
+  three red-team gaps at v4.2.4 by ADDING evidence (existing v4.2.4 numbers stay
+  frozen): R10 hard-case grid matching R's failures/warnings; R11 precision-vs-hardware
+  isolation (`gpu_fp64` vs `cpu_fp64` on CUDA) + reference BLAS; R12 adversarial
+  no-silent-wrong boundary stress test on the fp32 GPU GLM relaxation (MPS + CUDA).
+  Forge/CUDA allowance granted for this task. Deliverables augment
+  `drivers/regression`, `artifacts/regression/v4.2.4/`, and re-render
+  `reports/regression-v4.2.4.md`. If R12 finds a silent-wrong band → R6 library fix on
+  a branch, held, surfaced to the user.
 
 ## Standing coordination constraints
 
