@@ -45,15 +45,18 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
   loud at quarterly-cold; survival MPS prose shifts to "converges via gated CG; refuses
   loud → CPU at the genuine precision floor." Prior reports (v4.2.3/4.2.1/4.2.0) stay
   frozen. **This is the next chip**, ahead of any new module.
-- **Regression red-team hardening — CHIP SPAWNED (combined R10/R11/R12).** Closes the
-  three red-team gaps at v4.2.4 by ADDING evidence (existing v4.2.4 numbers stay
-  frozen): R10 hard-case grid matching R's failures/warnings; R11 precision-vs-hardware
-  isolation (`gpu_fp64` vs `cpu_fp64` on CUDA) + reference BLAS; R12 adversarial
-  no-silent-wrong boundary stress test on the fp32 GPU GLM relaxation (MPS + CUDA).
-  Forge/CUDA allowance granted for this task. Deliverables augment
-  `drivers/regression`, `artifacts/regression/v4.2.4/`, and re-render
-  `reports/regression-v4.2.4.md`. If R12 finds a silent-wrong band → R6 library fix on
-  a branch, held, surfaced to the user.
+- **Regression red-team hardening — CHIP RUNNING (combined, v4.2.4).** Closes the
+  red-team gaps at v4.2.4 by ADDING evidence (existing v4.2.4 numbers stay frozen),
+  ordered by the new RIGOR priority hierarchy: **(1) correctness** vs promised
+  tolerance; **(2) R10 hard-case grid** matching R's failures/warnings; **(3) the
+  mandatory CPU-vs-R speed study ACROSS SIZES** (small-n overhead → large-n) — the
+  biggest addition, since the report only had 5 CPU-vs-R points; **(4) GPU at the weak
+  bar** — R12 no-silent-wrong boundary stress test (correctness, stays high), R11
+  precision-isolation + reference BLAS framed as "GPU meets its weak bar," not GPU
+  superiority. Forge/CUDA allowance granted. NOTE: the chip launched just before the
+  priority section landed (9772b49) — it was told to `git pull` + re-read RIGOR and
+  reorder. If R12 finds a silent-wrong band → R6 library fix on a branch, held,
+  surfaced to the user.
 
 ## Standing coordination constraints
 
