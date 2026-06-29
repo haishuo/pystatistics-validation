@@ -12,12 +12,19 @@
 #     Rscript survival_run.R logrank  <lung_km_csv>    <out_json> [reps]
 #     Rscript survival_run.R coxph    <lung_coxph_csv> <out_json> [reps]
 #     Rscript survival_run.R glmfit   <x_csv> <y_csv>  <out_json> [reps]
+#     Rscript survival_run.R glmdiag  <x_csv> <y_csv>  <out_json> [reps]
 #
 # - km/logrank read lung_km.csv (columns time, event, sex).
 # - coxph reads lung_coxph.csv (columns time, event, age, sex, ph.ecog).
 # - glmfit fits glm(y ~ 0 + ., binomial) on a headered design WITHOUT an
 #   intercept (the person-period interval dummies ARE the intercept). It is the
 #   reference for the discrete-time model; Python selects the covariate columns.
+# - glmdiag is glmfit PLUS the reference's BEHAVIOUR diagnostics — R's own
+#   convergence flag, iteration count, any glm warnings (e.g. "fitted
+#   probabilities numerically 0 or 1 occurred"), and the maximum |coefficient|.
+#   It is the reference for the RIGOR R15 default-degeneracy behaviour-match
+#   study (does pystatistics' default match R's behaviour, including R's own
+#   warnings?). Untimed (a single fit); the standard glmfit carries timing.
 
 options(digits = 22)
 suppressPackageStartupMessages({
@@ -170,6 +177,45 @@ if (mode == "km") {
     p_values        = as.numeric(cm[, 4]),
     deviance        = as.numeric(fit$deviance),
     aic             = as.numeric(fit$aic),
+    n_rows          = as.integer(nrow(df)),
+    r_version       = r_version
+  )
+
+} else if (mode == "glmdiag") {
+  # glmfit + behaviour diagnostics for the R15 default-degeneracy study. Captures
+  # R's OWN convergence flag, iteration count, and any glm warnings (so the
+  # head-to-head can claim pystatistics matches R's BEHAVIOUR, not just numbers),
+  # plus the maximum |coefficient| (the separated-baseline blow-up, if any).
+  x_csv <- args[[2]]; y_csv <- args[[3]]; out_json <- args[[4]]
+  X <- as.matrix(read.csv(x_csv, check.names = FALSE))
+  y <- as.numeric(readLines(y_csv))
+  df <- data.frame(.y = y, X, check.names = FALSE)
+  cols <- colnames(X)
+  fml <- as.formula(paste0("`.y` ~ 0 + ", paste(sprintf("`%s`", cols), collapse = " + ")))
+  warn_msgs <- character(0)
+  fit <- withCallingHandlers(
+    glm(fml, data = df, family = binomial()),
+    warning = function(w) {
+      warn_msgs <<- c(warn_msgs, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    })
+  s <- summary(fit)
+  cm <- s$coefficients   # cols: Estimate, Std. Error, z value, Pr(>|z|)
+  cf <- coef(fit)
+  out <- list(
+    procedure       = "discrete_time_default",
+    coef_names      = rownames(cm),
+    coefficients    = as.numeric(cm[, 1]),
+    standard_errors = as.numeric(cm[, 2]),
+    z_values        = as.numeric(cm[, 3]),
+    p_values        = as.numeric(cm[, 4]),
+    deviance        = as.numeric(fit$deviance),
+    aic             = as.numeric(fit$aic),
+    converged       = isTRUE(fit$converged),
+    n_iter          = as.integer(fit$iter),
+    n_warnings      = length(unique(warn_msgs)),
+    warnings        = unique(warn_msgs),
+    max_abs_coef    = as.numeric(max(abs(cf), na.rm = TRUE)),
     n_rows          = as.integer(nrow(df)),
     r_version       = r_version
   )

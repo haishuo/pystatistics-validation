@@ -153,3 +153,47 @@ def run_r_discrete(X_pp: NDArray, y_pp: NDArray, *, n_intervals: int,
                "covariate_names": covariate_names,
                "r_version": raw.get("r_version")})
     return rec, raw
+
+
+def run_r_glmdiag(X_pp: NDArray, y_pp: NDArray, *, n_intervals: int,
+                  covariate_names: list[str]) -> dict[str, Any]:
+    """R glm(binomial) BEHAVIOUR diagnostics on a person-period design (R15).
+
+    Returns R's own convergence flag, iteration count, glm warnings, max
+    |coefficient|, deviance/AIC, and the covariate-tail coef/SE/z/p — the
+    reference BEHAVIOUR the default ``discrete_time(intervals=None)`` must match.
+    Untimed (a single fit); the standard ``run_r_discrete`` carries timing.
+    """
+    X_pp = np.asarray(X_pp, dtype=np.float64)
+    y_pp = np.asarray(y_pp, dtype=np.float64).ravel()
+    p_total = X_pp.shape[1]
+    col_names = [f"I{j}" for j in range(n_intervals)] + list(covariate_names)
+    if len(col_names) != p_total:
+        raise ValueError(f"col-name count {len(col_names)} != design cols {p_total}")
+
+    tmp = Path(tempfile.mkdtemp(prefix="rsurv_glmdiag_"))
+    x_csv, y_csv = tmp / "x.csv", tmp / "y.csv"
+    np.savetxt(x_csv, X_pp, delimiter=",", header=",".join(col_names),
+               comments="", fmt="%.17g")
+    np.savetxt(y_csv, y_pp, fmt="%.17g")
+
+    raw = _run_worker("glmdiag", [str(x_csv), str(y_csv)], reps=1)
+    n_cov = len(covariate_names)
+    warns = raw.get("warnings") or []
+    if not isinstance(warns, (list, tuple)):
+        warns = [warns]
+    return {
+        "coefficients": [float(x) for x in raw["coefficients"][-n_cov:]],
+        "standard_errors": [float(x) for x in raw["standard_errors"][-n_cov:]],
+        "z_values": [float(x) for x in raw["z_values"][-n_cov:]],
+        "p_values": [float(x) for x in raw["p_values"][-n_cov:]],
+        "deviance": float(raw["deviance"]),
+        "aic": float(raw["aic"]),
+        "converged": bool(raw["converged"]),
+        "n_iter": int(raw["n_iter"]),
+        "n_warnings": int(raw["n_warnings"]),
+        "warnings": [str(w) for w in warns],
+        "max_abs_coef": float(raw["max_abs_coef"]),
+        "n_rows": int(raw["n_rows"]),
+        "r_version": raw.get("r_version"),
+    }
