@@ -5,19 +5,24 @@ a time**, each to the rigor of `RIGOR.md` (treat as if publishing). The
 **coordinator chip** owns this file: it advances the program one module at a time
 and keeps the status table current.
 
-**Current library version:** pystatistics **4.3.2** (on PyPI). Lineage: 4.0
+**Current library version:** pystatistics **4.3.3** (on PyPI). Lineage: 4.0
 standardized the API to `CONVENTIONS.md`; **4.1.0** consistency sweep (R8); **4.2.0**
 survival optimizations (coxph O(n²)→O(n), R1); **4.2.3** plain-fp32 GPU GLM convergence
 fix (R9); **4.2.4** MPS fp32 GLM gated matrix-free CG (squaring-free, host-fp64 gate);
 **4.3.0** added `weights=`/`offset=` support + Gamma AIC (and briefly regressed GPU-OLS
 SEs); **4.3.1** exposed negbin `theta` + AIC/BIC counting it; **4.3.2** fixed three
 correctness defects the 4.3.1 re-validation surfaced (Gamma/Gaussian BIC, binomial
-deviance/AIC/BIC machine-eps clamp, and the 4.3.0 GPU-OLS-SE understatement).
+deviance/AIC/BIC machine-eps clamp, and the 4.3.0 GPU-OLS-SE understatement); **4.3.3**
+exposed `DiscreteTimeSolution.converged/.n_iter` (C5, additive — IRLS untouched, all
+discrete_time numbers bit-identical).
 
-**Regression is DONE and red-teamed at 4.3.2** — the combined R10/R11/R12 + priority-3
-CPU-vs-R-across-sizes + priority-4 GPU-value pass landed, finding and fixing three
-defects (→ 4.3.2). **Survival is validated through 4.2.4 but NOT yet red-teamed** — the
-red-team-enhanced survival pass is the next chip (see "Open work").
+**Regression is DONE and red-teamed at 4.3.2.** **Survival is DONE and red-teamed at
+4.3.3** — R15 found the `intervals=None` default is actually CORRECT (matches R to
+~1e-15, even at separation extreme — not the presumed footgun); R13 re-proved the fp32
+no-silent-wrong gate on discrete-time's own person-period regime (MPS + CUDA, no
+silent-wrong band, inference-SE extension); R8 confirmed discrete_time bit-identical
+4.2.4→4.3.3; the red-team surfaced C5 (missing convergence accessors), fixed additively
+in 4.3.3. **Next NEW module: multivariate (full run + red-team in one chip).**
 
 ## Order + status
 
@@ -27,7 +32,7 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 | # | Module | Status | Notes |
 |---|---|---|---|
 | 1 | regression (OLS + GLM families) | ✅ done + red-teamed (v4.3.2) | v3.18.0 → v3.20.0 → v4.2.x → hardened/red-teamed **v4.3.2**: R10 hard cases (weights/offset now supported), R11 precision/hardware isolation + BLAS, R12 extended to inference SEs, priority-3 CPU-vs-R across sizes (meets/beats R at every n incl. n=50), priority-4 GPU value (~18×/10×). Found+fixed 3 correctness defects (→4.3.2). |
-| 2 | survival (KM / log-rank / coxph) | 🔄 done-but-red-team IN PROGRESS | validated v4.0.0 → v4.2.0 (coxph O(n²)→O(n)) → v4.2.1 (GPU/flchain) → v4.2.3 → v4.2.4 re-render. **Red-team-enhanced pass is the next chip** (target: current PyPI **4.3.2**): R15 default-degeneracy footgun, R13 discrete-time-specific R12 boundary, stratified-Cox gap. |
+| 2 | survival (KM / log-rank / coxph) | ✅ done + red-teamed (v4.3.3) | v4.0.0 → v4.2.x → red-teamed **v4.3.2/v4.3.3**: R15 default validated CORRECT (matches R ~1e-15, not a footgun), R13 fp32 no-silent-wrong gate re-proven on discrete-time's person-period regime (MPS+CUDA, +inference SEs), R8 bit-identical, C5 convergence accessors added (4.3.3). Stratified Cox = known gap (fail-loud, NotImplementedFeatureError). OWED: prior-art trawl before publication (novelty path). |
 | 3 | multivariate (PCA + factor analysis) | ⬜ next NEW module — FULL run + red-team in ONE chip | SVD/eigendecomposition; the most GPU-amenable op; TCGA large-matrix scaling; self-contained. No baseline exists → first-time validation AND red-team together (not done until red-teamed). Starts after the survival red-team lands AND user says go. |
 | 4 | mixed (LMM) | ⬜ pending | biggest optimization headroom (least GPU-touched); REML over variance components |
 | 5 | gam | ⬜ pending | penalized IRLS + REML smoothing selection; rides the kernel |
@@ -40,29 +45,25 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-- **Survival red-team-enhanced pass — CHIP SPAWNED.** Validates survival against current
-  PyPI **4.3.2** (`require_pypi`), ADDING red-team evidence (prior survival reports stay
-  frozen), ordered by the RIGOR priority hierarchy. Targeted (not a full re-sweep of the
-  bit-faithful classical core):
-  - **R15 default-degeneracy footgun (priority 1):** what does `discrete_time(intervals=None)`
-    do on continuous data (→ unique-event-time bins → perfect separation)? Must fail loud
-    or warn — never silently return separated garbage. If it's silent garbage → R6 library
-    fix (fail-loud), surfaced to the user.
-  - **R13 discrete-time-specific R12 boundary (priority 2/4):** re-prove the fp32
-    no-silent-wrong gate on person-period designs with heavy low-weight interval dummies —
-    the adversarial axis the well-behaved flchain sweep never stressed. Inherited guarantees
-    do NOT globalize.
-  - **R8 check:** confirm whether any 4.3.x regression-GLM fix (binomial deviance clamp,
-    GPU-OLS-SE) changes `discrete_time` outputs (it forwards to the GLM).
-  - **Stratified Cox:** log as a known gap (unimplemented; fail-loud is correct), do not fix.
-  - Priority-3 CPU-vs-R-across-sizes + priority-4 GPU value where survival has those paths.
-  Forge/CUDA allowance granted. Novelty path ("first discrete-time survival on GPU at
-  scale") gets the most scrutiny + a prior-art trawl before any paper (R13).
+- **Multivariate (#3) — next NEW module, FULL run + red-team in ONE chip.** No baseline
+  exists → first-time validation AND red-team together, worked in priority order. PCA +
+  factor analysis (SVD/eigendecomposition), the most GPU-amenable op. R refs:
+  `stats::prcomp`/`princomp` (PCA), `stats::factanal` (factor analysis). Datasets: small
+  textbook (e.g. iris/USArrests) for correctness + a large matrix (TCGA-like, wide `p`)
+  for scaling. Target current PyPI **4.3.3**. Forge/CUDA allowance if a GPU path is
+  warranted per CONVENTIONS. Awaiting user go.
+- **Owed (cross-program, before any paper):** prior-art trawl (arXiv/PyPI/GitHub) for the
+  survival novelty claim "first discrete-time survival on GPU at scale" (R13). Not blocking
+  the validation corpus; required before publication.
+- **Minor (survival, non-blocking):** the 4.3.3 changelog's illustrative convergence
+  examples ("all-censored → n_iter=0" / "separated → converged=False") describe narrower
+  code paths than the validated behaviour (which tracks R bit-for-bit); a doc-wording
+  tidy for a future release, not a defect.
 
 ## Standing coordination constraints
 
 - **Release-hold: CLEARED.** The `pystatsbio`/`sgcbio` consistency releases have
-  landed and pystatistics has since shipped through **4.3.2**. No active hold. Re-check
+  landed and pystatistics has since shipped through **4.3.3**. No active hold. Re-check
   before any new library release; reinstate this line if a downstream consistency
   release is mid-flight again.
 - **One at a time.** Do not spawn the next module chip until the current one is done
