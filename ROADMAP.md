@@ -68,6 +68,15 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
   release is mid-flight again.
 - **One at a time.** Do not spawn the next module chip until the current one is done
   AND the user says go. The coordinator confirms before spawning.
+- **Cross-module issues: fix-now-or-log; the whole library is in scope (RIGOR R8 +
+  `CARRY_FORWARD.md`).** A shared-code fix that affects >1 module is R8 — fix it
+  library-wide, or if it can't be done now, log it in `CARRY_FORWARD.md` so the affected
+  module's chip clears it. Modules are not silos; the Rule-8 boundary is *sibling repos*,
+  not intra-library modules. Open: **CF-1** (fp64-Gram GPU fix → PCA).
+- **Datasets: centralized HDF5 only (RIGOR R17).** One store (`Dev/datasets` /
+  `/mnt/data/pystatistics-datasets` via `MVNMLE_DATA_DIR`), HDF5 via `dataset_writer.py` +
+  `SCHEMA.md` + `MANIFEST.sha256`. No new CSVs in drivers. Cleanup owed: migrate the
+  existing `drivers/{regression,survival}/data/*.csv` stragglers into the store.
 - **GPU must EARN its existence (RIGOR priority 4 / R1).** The GPU trades accuracy for
   speed, so it must be FASTER than the CPU in its intended large-`n` regime — a GPU that
   ties/loses to the CPU there is a finding, not an acceptable result. Not miracles; just
@@ -121,10 +130,11 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
   is not "done" until it has been red-teamed.
 
 Each module chip is self-contained (the spawned session has no prior context) and:
-1. Points at `ARCHITECTURE.md`, `RIGOR.md`, `CONVENTIONS.md`, and the completed
-   examples (`reports/regression-v4.3.2.md` — the current rigor bar, plus
-   `survival-v4.2.4.md`, mvnmle, mice) + the harness `pystatsval` API + the salvageable
-   R refs in `_archive/`.
+1. Points at `ARCHITECTURE.md`, `RIGOR.md`, `CONVENTIONS.md`, **`CARRY_FORWARD.md`**, and
+   the completed examples (`reports/regression-v4.3.2.md` — the current rigor bar, plus
+   `survival-v4.3.3.md`, mvnmle, mice) + the harness `pystatsval` API + the salvageable
+   R refs in `_archive/`. **Reads `CARRY_FORWARD.md` and clears any item targeting this
+   module** (e.g. CF-1: the fp64-Gram GPU fix for PCA).
 2. States the module, its R reference (the R package/function), the canonical
    dataset(s), and the target version (current PyPI release — **4.3.2**).
 3. Mandates the full `RIGOR.md` deliverables, worked in **priority order** (the lead
@@ -144,7 +154,9 @@ Each module chip is self-contained (the spawned session has no prior context) an
    version; do not validate on past a known-broken version.
 5. Deliverables: `drivers/<m>/`, `artifacts/<m>/v<current>/`, `subsystems/<m>/meta.json`,
    `reports/<m>-v<current>.md` (current PyPI version, which may advance mid-run under
-   R16); commit to validation `main` and push.
+   R16); commit to validation `main` and push. **Any new dataset → centralized HDF5 in
+   `Dev/datasets` (writer + SCHEMA + MANIFEST), loaded via `MVNMLE_DATA_DIR` — no CSVs in
+   `drivers/*/data/` (R17).**
 6. Opens with discuss-before-acting: understanding + plan first.
 
 (The `regression` v4.3.2 chip is the worked example of the full rigor bar; the

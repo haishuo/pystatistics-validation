@@ -170,6 +170,22 @@ affect **more than one module**. When that happens:
 - A defect local to the single module under validation is handled in-module (R1/R6),
   not via a library-wide release.
 
+**The whole library is in scope — modules are not silos.** The "this is the *X*
+session, I shouldn't touch module *Y*" instinct confuses the **sibling-repo** boundary
+(Coding Bible Rule 8 — *other projects*) with **intra-library modules**, which are all
+fair game during any validation. A fix in shared code (`core/compute`, a GPU precision
+pattern, a convention) that affects more than one module is **R8** — do not quietly fix
+it in only the current module.
+
+**Fix-now-or-log — never forget a cross-module implication.** When a fix is applied in
+one module's context but the underlying defect is in shared code affecting others:
+1. **Preferred: fix it library-wide now** (this rule).
+2. **If it genuinely cannot be done now** (e.g. the affected module isn't validated yet
+   and the fix needs its test bed), **record it in `CARRY_FORWARD.md` immediately.** Every
+   new module's chip MUST read that ledger and clear any item targeting it. The canonical
+   example: the 4.3.2 fp64-Gram GPU-SE fix landed in regression but PCA (eigendecomposition
+   of the same Gram) likely needs it too — logged as CF-1.
+
 This keeps module work from silently absorbing cross-cutting fixes, and keeps the
 library coherent (one standard, applied everywhere) rather than patched per-module.
 
@@ -346,6 +362,25 @@ showstopper likely forces the issue — surface the conflict; the user decides. 
 **severity** trigger; R8 is the **breadth** (multi-module) trigger; both can fire at
 once. R6 is the routine baseline→optimize→re-validate flow; **R16 is its emergency-stop,
 correctness-driven sibling.**
+
+## R17 — Datasets: one centralized store, HDF5 only
+
+Validation datasets live in **one place, in one format**: the centralized store
+`Dev/datasets/` (Forge mirror `/mnt/data/pystatistics-datasets`), reached via
+`MVNMLE_DATA_DIR`, as **HDF5 (`.h5`)** files written by `dataset_writer.py` and
+documented in `SCHEMA.md`, with checksums in `MANIFEST.sha256`. Drivers **load from the
+central store** — they do not carry their own copies.
+
+- **No new CSV/parquet/ad-hoc copies in `drivers/*/data/`.** Any dataset a module needs
+  is added to the central store as HDF5 (writer + SCHEMA entry + MANIFEST), then loaded
+  from there. "Datasets spread across a dozen formats and directories" is the failure
+  mode this rule exists to prevent.
+- **Real reference data is curated, deterministic, and checksummed** (R6/determinism):
+  the same bytes feed pystatistics, R, and every host.
+- **Known stragglers to migrate (cleanup):** `drivers/regression/data/*.csv` and
+  `drivers/survival/data/*.csv` predate this rule and duplicate `.h5` files already in the
+  central store — fold them into the store and load from `MVNMLE_DATA_DIR` when those
+  modules are next touched.
 
 ## R7 — The seven questions
 
