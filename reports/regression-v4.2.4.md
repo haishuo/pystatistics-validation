@@ -87,6 +87,7 @@ R's lm() (OLS via pivoted QR) and glm() (GLM via IRLS) are the established refer
 - **precision_isolation_r11:** The headline device speedups bundle two effects (float32-vs-float64 and GPU-vs-CPU). The same-precision isolation (gpu_fp64 vs cpu_fp64 on CUDA) measures the hardware effect alone; gpu_fp64 is numerically exact vs CPU (~1e-13..1e-15), so the comparison is on equivalent computation. At scale the bundled GPU win is roughly half hardware, half precision; at small n the fp64 GPU is slower than CPU (kernel/transfer overhead). The reference BLAS each host's R links is recorded (Apple Accelerate on powerhouse, reference netlib BLAS on forge) so the CPU-vs-R gap is interpretable (RIGOR R11).
 - **fp32_boundary_r12:** The plain (unpenalized) float32 log-link GLM was relaxed from fail-loud to 'converges' at 4.2.3/4.2.4; RIGOR R12 (the complement of R9) requires proof that the accept/refuse gate never accepts a wrong fit. On an adversarial grid straddling the float32 floor (near-collinear conditioning, large coefficients, heavy low-weight blocks) on BOTH the MPS gated-CG path and the CUDA Cholesky path, every accepted float32 fit reached the float64 optimum (deviance to the float32 tier, <=~1e-6); every refusal is fail-loud and is dominated by true positives (the forced fit is genuinely wrong or overflows), with a few conservative refusals that force=True still recovers correctly. NO design was accepted-but-wrong — there is no silent-wrong band. (As in the OLS case, accepted coefficients can be non-identifiable at high conditioning even when the deviance/optimum is correct; the inference_se study shows the reported SEs flag exactly those cases.)
 - **inference_se_r12:** R12 extended from the optimum to the INFERENCE outputs (the differentiator). On a near-collinear design the coefficients are non-identifiable even at the correct optimum — coef_rel can reach ~1.0 — so the question that matters for a user reaching for coefficients and SEs is whether the float32 standard errors blow up to flag the instability (as R does via large SEs) or understate it (a coefficient wrong yet looking precise). Across OLS and the log-link Poisson/Gamma families over a conditioning sweep, on BOTH MPS and CUDA, EVERY accepted float32 GPU fit is inference-warned: the SEs agree with the fp64 CPU fit to the documented Tier-2 contract (rtol <= 1e-2; observed <= ~4e-4) and with R (the gamma rows carry the documented ~1e-2 dispersion gap), and the SE on the least-identified coefficient grows in lockstep with conditioning. No accepted fit understates its SE — including CUDA rows accepted with coefficients ~100% off, whose SEs have correctly blown up by 3-4 orders of magnitude and match R. This is mathematically necessary (the SE is the square root of the diagonal of the same near-singular (XtWX)^-1 that drives the instability) and is confirmed empirically in float32: the float32 GPU path never returns a coefficient that is wrong AND looks precise.
+- **cpu_speed_r1:** CPU speed is a first-class deliverable (RIGOR priority 3 / R1): the CPU path is the R-equivalent path and must NEVER lag R. Measured across n from 50 to 500k for OLS and every GLM family against R linked to Apple Accelerate (a fast vendor BLAS -- the honest test), pystatistics CPU meets or beats R at EVERY size and family: speedup_vs_r >= ~1.3x throughout, including the small-n regime where fixed Python-dispatch overhead is largest (n=50: OLS ~9.8x, GLMs ~1.5-2.6x). The empirical complexity classes match R (~O(n) at fixed p), so the lead is a constant-factor win that does not reverse at scale -- there is no complexity-class gap. The earlier framing that small designs are too dispatch-bound to carry a speed claim is superseded: the CPU-vs-R sweep shows pystatistics ahead there too.
 
 ## Constitutional compliance & GPU backend reconciliation
 
@@ -101,6 +102,55 @@ R4 constitutional-compliance note for the public surface exercised by this harde
 - **terms — Contrast coding** _(conforms)_: regression.terms.build_terms_design with C(name, ref) produces treatment (dummy) contrasts with the first sorted level as baseline — matching R's default factor contrasts column-for-column (verified by design-matrix bijection in the R10 grid).
 
 ## 5. What benchmarks were run?
+
+### CPU vs R across problem sizes — Powerhouse (priority 3: CPU must never lag R)
+_claim: speed · device: cpu · host: powerhouse+r_
+
+| model_key | family | n | p | reps | wall_pystat_s | wall_r_s | speedup_vs_r | pystat_lags_r |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| ols | gaussian | 50 | 8 | 300 | 3.996e-05 | 0.00039 | 9.7602 | False |
+| ols | gaussian | 200 | 8 | 300 | 4.706e-05 | 0.0004167 | 8.8535 | False |
+| ols | gaussian | 1000 | 8 | 100 | 0.0001175 | 0.00059 | 5.0222 | False |
+| ols | gaussian | 1e+04 | 8 | 30 | 0.0007812 | 0.0023 | 2.9015 | False |
+| ols | gaussian | 1e+05 | 8 | 8 | 0.0075 | 0.0231 | 3.076 | False |
+| ols | gaussian | 5e+05 | 8 | 4 | 0.0387 | 0.0867 | 2.2431 | False |
+| glm_binomial | binomial | 50 | 8 | 300 | 0.0002694 | 0.00059 | 2.1897 | False |
+| glm_binomial | binomial | 200 | 8 | 300 | 0.0003281 | 0.0007667 | 2.3367 | False |
+| glm_binomial | binomial | 1000 | 8 | 100 | 0.0008245 | 0.0017 | 2.0133 | False |
+| glm_binomial | binomial | 1e+04 | 8 | 30 | 0.0061 | 0.011 | 1.7881 | False |
+| glm_binomial | binomial | 1e+05 | 8 | 8 | 0.0558 | 0.11 | 1.9702 | False |
+| glm_binomial | binomial | 5e+05 | 8 | 4 | 0.2888 | 0.509 | 1.7625 | False |
+| glm_poisson | poisson | 50 | 8 | 300 | 0.0002857 | 0.00074 | 2.5899 | False |
+| glm_poisson | poisson | 200 | 8 | 300 | 0.0003128 | 0.0009333 | 2.9841 | False |
+| glm_poisson | poisson | 1000 | 8 | 100 | 0.0012 | 0.0019 | 1.6233 | False |
+| glm_poisson | poisson | 1e+04 | 8 | 30 | 0.0079 | 0.0134 | 1.703 | False |
+| glm_poisson | poisson | 1e+05 | 8 | 8 | 0.0631 | 0.1401 | 2.2204 | False |
+| glm_poisson | poisson | 5e+05 | 8 | 4 | 0.3094 | 0.5948 | 1.922 | False |
+| glm_gamma | gamma | 50 | 8 | 300 | 0.0004171 | 0.0009 | 2.1576 | False |
+| glm_gamma | gamma | 200 | 8 | 300 | 0.0003856 | 0.0012 | 2.9911 | False |
+| glm_gamma | gamma | 1000 | 8 | 100 | 0.0019 | 0.0025 | 1.3015 | False |
+| glm_gamma | gamma | 1e+04 | 8 | 30 | 0.0076 | 0.0153 | 2.0026 | False |
+| glm_gamma | gamma | 1e+05 | 8 | 8 | 0.0608 | 0.1585 | 2.6053 | False |
+| glm_gamma | gamma | 5e+05 | 8 | 4 | 0.301 | 0.7538 | 2.5038 | False |
+| glm_negbin | negative.binomial | 50 | 8 | 300 | 0.0009493 | 0.0015 | 1.5449 | False |
+| glm_negbin | negative.binomial | 200 | 8 | 300 | 0.0025 | 0.0056 | 2.2596 | False |
+| glm_negbin | negative.binomial | 1000 | 8 | 100 | 0.0079 | 0.0166 | 2.0996 | False |
+| glm_negbin | negative.binomial | 1e+04 | 8 | 30 | 0.0488 | 0.1315 | 2.6961 | False |
+
+> The first-class CPU-speed deliverable (RIGOR priority 3 / R1): the CPU path is the R-equivalent path and must NEVER lag R. Wall-clock for pystatistics CPU vs R across n from 50 (where fixed Python-dispatch overhead bites hardest) to 500k, for OLS and every GLM family (negbin capped at 1e4 -- glm.nb theta-profiling is slow), p=8. Both sides timed as the full user-facing call (pystatistics fit(X,y) building its design; R lm/glm/glm.nb from a formula building the model matrix), averaged over many repeats so small-n fits are resolved. Result: pystatistics CPU MEETS-OR-BEATS R at EVERY size and family -- speedup_vs_r >= 1.3x throughout, including the small-n regime (n=50: OLS 9.8x, GLMs 1.5-2.6x), so pystat_lags_r is false for all 28 points. Host R links Apple Accelerate (a fast vendor BLAS), so this is the honest test, not a slow-BLAS flatter. Per the slopes study the empirical complexity classes match (both ~O(n) at fixed p); there is no complexity-class gap (R1).
+
+### CPU vs R empirical complexity (log-log slope of wall vs n) — Powerhouse
+_claim: speed · device: cpu · host: powerhouse+r_
+
+| model_key | family | slope_pystat | slope_r | n_points_for_slope |
+| --- | --- | --- | --- | --- |
+| ols | gaussian | 0.9358 | 0.8236 | 4 |
+| glm_binomial | binomial | 0.9424 | 0.9287 | 4 |
+| glm_poisson | poisson | 0.8966 | 0.9358 | 4 |
+| glm_gamma | gamma | 0.8196 | 0.9291 | 4 |
+| glm_negbin | negative.binomial | 0.7902 | 0.8988 | 2 |
+
+> Empirical complexity exponent (slope of log10 wall vs log10 n, fitted over n>=1000 to skip the fixed-overhead floor) for each engine. pystatistics and R land in the SAME complexity class for every family (~O(n) at fixed p; slopes ~0.8-0.95), so pystatistics' CPU lead is a constant-factor win, not a slope that will reverse at larger n -- the R1 complexity-class check passes.
 
 ### Device scaling — Powerhouse: CPU (fp64) vs MPS (fp32)
 _claim: speed · device: cpu, mps · host: powerhouse_
@@ -156,7 +206,7 @@ _claim: speed · device: cpu, mps · host: powerhouse_
 | ols_n500000 | 32 | 5e+05 | 0.3147 | 0.0527 | 6.0x | 0 | 1131 |
 | ols_n500000 | 128 | 5e+05 | 1.2925 | 0.0727 | 17.8x | 8 | 1131 |
 
-> OLS + GLM device scaling, CPU (fp64) vs MPS (fp32). As of 4.2.4 the MPS float32 GLM inner solve is a gated matrix-free conjugate gradient (squaring-free); convergence and timing on this grid match 4.2.3. The CPU baseline reflects the 4.2.2 Core-QR; the GPU is faster where float32 is stable.
+> PRIORITY 4 (GPU, weak bar): this table is evidence that the MPS path is NOT grossly inefficient relative to CPU -- not a claim that the GPU beats R or is the recommended path. The R-equivalent speed claim is the CPU-vs-R study above (priority 3). OLS + GLM device scaling, CPU (fp64) vs MPS (fp32). As of 4.2.4 the MPS float32 GLM inner solve is a gated matrix-free conjugate gradient (squaring-free); convergence and timing on this grid match 4.2.3. The MPS GPU is competitive-to-faster than CPU at large n where float32 is stable and slower than CPU at small n (dispatch/transfer overhead) -- acceptable under the weak bar; for the R-equivalent path use the CPU.
 
 ### Device scaling — Forge: CPU (fp64) vs CUDA (fp32)
 _claim: speed · device: cpu, cuda · host: forge_
@@ -212,7 +262,7 @@ _claim: speed · device: cpu, cuda · host: forge_
 | ols_n500000 | 32 | 5e+05 | 0.1164 | 0.0138 | 8.4x | 0 | 84.5 |
 | ols_n500000 | 128 | 5e+05 | 0.7742 | 0.052 | 14.9x | 0.1 | 276.7 |
 
-> OLS + GLM device scaling, CPU (fp64) vs CUDA (fp32).
+> PRIORITY 4 (GPU, weak bar): evidence the CUDA path is not grossly inefficient vs CPU, not a GPU-beats-R claim (the R-equivalent speed claim is the CPU-vs-R study above). OLS + GLM device scaling, CPU (fp64) vs CUDA (fp32).
 
 ### GPU GLM stability at scale — Powerhouse (MPS): plain converges, ridge holds
 _claim: stability · device: mps · host: powerhouse_
@@ -260,7 +310,7 @@ _claim: speed · device: cpu, cuda · host: forge_
 | glm_poisson | 5e+05 | 32 | 0.7105 | 0.2919 | 0.2028 | 2.4341 | 3.5027 | 1.058e-14 |
 | glm_poisson | 5e+05 | 128 | 4.1934 | 0.7111 | 0.5457 | 5.897 | 7.6844 | 1.712e-13 |
 
-> Isolates the HARDWARE effect from the PRECISION effect in the GPU speed claim (RIGOR R11). speedup_fp32_vs_cpu is the BUNDLED headline (hardware + float32); speedup_fp64_vs_cpu is the same-precision, hardware-ONLY win (both float64). gpu_fp64 agrees with the CPU fit to ~1e-13..1e-15 (the numerically-exact path), so the isolated timing compares equivalent computation. The bundled GPU win is roughly half hardware, half precision at scale; at small n the fp64 GPU is slower than CPU (kernel/transfer overhead) — the hardware win emerges only at large n. CUDA only: Apple Silicon has no float64.
+> PRIORITY 4 (GPU, weak bar) -- framed as 'the GPU speedup is attributable and the gpu_fp64 path is correct', NOT as 'GPU beats R/CPU'. Isolates the HARDWARE effect from the PRECISION effect in the GPU speed number (RIGOR R11). speedup_fp32_vs_cpu is the BUNDLED headline (hardware + float32); speedup_fp64_vs_cpu is the same-precision, hardware-ONLY win (both float64). gpu_fp64 agrees with the CPU fit to ~1e-13..1e-15 (the numerically-exact path), so the isolated timing compares equivalent computation. The bundled GPU win is roughly half hardware, half precision at scale; at small n the fp64 GPU is slower than CPU (kernel/transfer overhead) — the hardware win emerges only at large n. CUDA only: Apple Silicon has no float64.
 
 ### Reference BLAS provenance (R11)
 _claim: provenance · device: cpu · host: powerhouse+forge_
@@ -424,7 +474,7 @@ _claim: inference · device: cuda · host: forge+r_
 - Plain (unpenalized) GLM with a log link (Poisson/Gamma) was ill-conditioned in float32 at large n and used to FAIL LOUD on the GPU (remedy: ridge, backend='cpu', or backend='gpu_fp64'). As of 4.2.3 the float32 GPU IRLS uses a Newton-decrement stop plus descent step-halving, and the plain log-link fit now CONVERGES across the validated stability grid (n up to 500k, p up to 128) on both MPS and CUDA, matching the CPU fit to ~1e-6. Ridge and gpu_fp64 remain available and exact; the fail-loud guarantee still holds for genuinely float32-infeasible conditioning -- never silently-wrong numbers. As of 4.2.4 the MPS float32 inner solve is a gated matrix-free conjugate gradient (squaring-free), which removes the fp32 Cholesky-breakdown failure mode on Apple Silicon; the convergence outcomes on the validated grid are unchanged.
 - GPU fp32 is the speed path; for double precision use backend='cpu' anywhere, or backend='gpu_fp64' on CUDA. Apple Silicon (Metal/MPS) has no float64 at all, so gpu_fp64 is CUDA-only.
 - The negative-binomial solution object does not expose the auto-estimated theta, so the NB validation compares coefficients (and SEs) rather than theta directly.
-- Tiny designs (n in the low hundreds) are dominated by fixed Python dispatch overhead and sit near R's timer resolution; the scaling study, not the small real datasets, carries the rigorous speed claim.
+- Tiny designs (n in the low hundreds) sit near R's timer resolution and carry a larger fixed Python-dispatch component; the CPU-vs-R speed study therefore averages many repeats per point to resolve them. Even so, pystatistics CPU meets-or-beats R at these small sizes (see the cpu_speed study), so the small-n regime is reported directly rather than excluded from the speed claim.
 - FUNCTIONAL GAP — prior weights (weights=) and an offset term (offset=) are not exposed by fit() at 4.2.4. These are core GLM features for the target audience (offsets for Poisson rate/exposure models; prior weights for survey and biostatistics work), so this is a real completeness gap, not a corner case, and is prioritized for a future release. A call passing them fails loud with a TypeError rather than silently ignoring them, so the current behaviour is safe (never a silent divergence from R) — but the feature is missing, and that is the honest framing.
 - GPU fp32 Cholesky OLS keeps the FIT correct (predictions and RSS track CPU); its per-coefficient estimates become non-identifiable as conditioning rises in float32 — exactly as the fp64 CPU and R coefficients do on the same design — and the reported standard errors blow up to flag this (matching CPU and R; see the inference_se study), so a large SE warns the inference user rather than a precise-looking wrong coefficient. For a definitive double-precision answer use backend='cpu' (fp64 QR). Beyond what float32 Cholesky can factor the GPU fails loud rather than returning a wrong fit.
 - The float32 GPU GLM accept/refuse gate is conservative in places: on some boundary-straddling designs the default fp32 fit is refused (fail-loud) even though force=True would recover a correct fit. This errs on the safe side — it never accepts a wrong fit — but means a small band of force-recoverable designs are refused by default.
@@ -438,4 +488,4 @@ _claim: inference · device: cuda · host: forge+r_
 - **Provenance:** Generated by drivers/regression on the pystatsval harness against a PyPI-installed pystatistics==4.2.4. The 4.2.4 change is the Apple Silicon (MPS) float32 GLM IRLS inner solve: it moves from a Cholesky of XtWX to a gated matrix-free conjugate gradient on H v = Xt(W(X v)) (squaring-free; the host float64 Newton-decrement acceptance gate is unchanged). On the GPU GLM stability grid (Poisson/Gamma, n up to 500k, p up to 128) the convergence OUTCOMES are unchanged from 4.2.3 -- the plain (unpenalized) float32 log-link fit converges and ridge holds on both MPS and CUDA -- because the 4.2.3 Newton-decrement stop already cleared the premature-stop false negative; 4.2.4 changes HOW the MPS float32 inner solve is computed (gated CG, squaring-free) so it no longer relies on a positive-definite float32 Cholesky. CUDA and CPU paths are UNCHANGED and match 4.2.3 exactly. Correctness vs R is unchanged (round-off). MPS rows produced on torch 2.12.1 (version-sensitive solver envelope; the host float64 gate is the version-independent fail-loud guarantee). Hosts: powerhouse (Apple Silicon, CPU fp64 + Metal/MPS fp32, R 4.5.2) and forge (NVIDIA CUDA, CPU fp64 + CUDA fp32/fp64, R 4.3.3).
 
 ---
-_Rendered 2026-06-29 05:07 UTC from `artifacts/regression/v4.2.4/manifest.json`._
+_Rendered 2026-06-29 05:17 UTC from `artifacts/regression/v4.2.4/manifest.json`._
