@@ -14,6 +14,10 @@ enforces it) and the R reference on the shared `pystatsval` harness.
 | `_r/prep_datasets.R` | emit `data/airquality.csv` + `data/quine_mm.csv` from R (committed). |
 | `generate_correctness.py` | OLS + 5 GLM families, pystatistics vs R, on real data → `correctness_<device>_<host>.{json,csv}`. |
 | `generate_scaling.py` | synthetic (n × p) sweep per device → `scaling_<device>_<host>.{json,csv}` for the device pivots. |
+| `generate_hardcases.py` + `_r/hardcase_run.R` | RIGOR R10 adversarial grid: collinear/GPU-refusal boundary, logistic separation, factor/contrast coding, weights/offset, rank-deficient — match R's *behaviour* (failures + warnings), not just coefficients → `hardcases_<host>.json` + `hardcases_behavior_*`/`hardcases_collinear_*` CSVs. |
+| `generate_precision_isolation.py` | RIGOR R11: same-precision `gpu_fp64` vs `cpu_fp64` (CUDA) alongside the bundled fp32 numbers → `precision_isolation_cuda_<host>.{json,csv}`. |
+| `_r/blas_info.R` | RIGOR R11: record the BLAS/LAPACK R linked against per host → `blas_<host>.json` (combined into `blas_provenance_summary.csv`). |
+| `generate_fp32_boundary.py` | RIGOR R12: adversarial no-silent-wrong proof for the relaxed fp32 GPU GLM — straddle the float32 floor on MPS + CUDA, classify each accept/refuse against the fp64 optimum → `fp32_boundary_<device>_<host>.{json,csv}`. |
 
 ## Reproduce
 

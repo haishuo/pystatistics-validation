@@ -161,6 +161,82 @@
         "fp64_rel_vs_cpu"
       ],
       "note": "GPU GLM stability at scale (CUDA). Plain float32 log-link now CONVERGES (~1e-6 vs CPU, was fail-loud at 3.20.0); ridge converges; gpu_fp64 is exact (~1e-15). The 4.2.3 fp32 stop-rule fix resolved the plain-log-link failure on CUDA as well as MPS."
+    },
+    {
+      "id": "hardcases_behavior",
+      "title": "Hard-case correctness — behaviour match vs R (R10)",
+      "device": ["cpu", "mps"],
+      "summary": "runs/hardcases_behavior_powerhouse_summary.csv",
+      "run": "runs/hardcases_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": ["case", "pystat_behavior", "r_behavior", "match",
+                       "coef_max_rel", "detail"],
+      "note": "Adversarial grid (RIGOR R10): pystatistics is checked against R's BEHAVIOUR, not just its coefficients. Logistic separation (complete + quasi) — both diverge and flag non-convergence (pystatistics via converged=False at the iteration cap; R via converged=False and the 'fitted probabilities numerically 0 or 1' warning). Factor + interaction contrast coding — pystatistics' own treatment-contrast term builder produces the identical model matrix to R's default contrasts (design bijection) and the identical fit. Rank-deficient/aliased designs — pystatistics drops the aliased column to NaN in the SAME position as R's NA. Prior weights / offsets are not exposed in fit() at 4.2.4: the call fails loud with a TypeError (a documented scope limitation per CONVENTIONS A6, never a silently-different answer)."
+    },
+    {
+      "id": "hardcases_collinear",
+      "title": "Hard-case correctness — ill-conditioned / GPU refusal boundary (R10)",
+      "device": ["cpu", "mps"],
+      "summary": "runs/hardcases_collinear_powerhouse_summary.csv",
+      "run": "runs/hardcases_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": ["np_cond", "lib_cond_fp32", "cpu_coef_max_rel_vs_r",
+                       "gpu_status", "gpu_refuse_reason", "gpu_coef_rel_vs_cpu",
+                       "gpu_fitted_rel_vs_cpu", "gpu_rss_rel_vs_cpu",
+                       "gpu_force_status"],
+      "note": "Condition-number sweep (RIGOR R10). The CPU QR path agrees with R to round-off at EVERY conditioning (cpu_coef_max_rel_vs_r). The GPU fp32 Cholesky path is a true classifier: where it ACCEPTS, it matches the CPU fit in predictions (gpu_fitted_rel_vs_cpu) and residual sum of squares (gpu_rss_rel_vs_cpu) — the growing per-coefficient gap (gpu_coef_rel_vs_cpu) is the inherent non-identifiability of an ill-conditioned design in float32, NOT a wrong fit; the fit itself tracks CPU. Where float32 cannot represent the solve (the fp32-Gram condition gate exceeds 1e6, or the fp32 Cholesky loses positive-definiteness) it FAILS LOUD (gpu_status=refused), never a silently-wrong answer; force=True overrides the gate. The decision variable is the backend's own fp32-Gram condition (lib_cond_fp32), conservative relative to the true fp64 condition (np_cond); rows are sorted by it so the boundary reads monotonically."
+    },
+    {
+      "id": "precision_isolation_forge",
+      "title": "Precision-vs-hardware isolation — Forge (CUDA): gpu_fp64 vs cpu_fp64 (R11)",
+      "device": ["cpu", "cuda"],
+      "summary": "runs/precision_isolation_cuda_forge_summary.csv",
+      "run": "runs/precision_isolation_cuda_forge.json",
+      "claim": "speed",
+      "host": "forge",
+      "summary_cols": ["model_key", "n", "p", "wall_cpu_fp64_s", "wall_gpu_fp32_s",
+                       "wall_gpu_fp64_s", "speedup_fp32_vs_cpu",
+                       "speedup_fp64_vs_cpu", "gpu_fp64_coef_rel_vs_cpu"],
+      "note": "Isolates the HARDWARE effect from the PRECISION effect in the GPU speed claim (RIGOR R11). speedup_fp32_vs_cpu is the BUNDLED headline (hardware + float32); speedup_fp64_vs_cpu is the same-precision, hardware-ONLY win (both float64). gpu_fp64 agrees with the CPU fit to ~1e-13..1e-15 (the numerically-exact path), so the isolated timing compares equivalent computation. The bundled GPU win is roughly half hardware, half precision at scale; at small n the fp64 GPU is slower than CPU (kernel/transfer overhead) — the hardware win emerges only at large n. CUDA only: Apple Silicon has no float64."
+    },
+    {
+      "id": "blas_provenance",
+      "title": "Reference BLAS provenance (R11)",
+      "device": ["cpu"],
+      "summary": "runs/blas_provenance_summary.csv",
+      "claim": "provenance",
+      "host": "powerhouse+forge",
+      "summary_cols": ["host", "r_version", "blas", "lapack_ver", "platform"],
+      "note": "Which BLAS each host's R linked against (RIGOR R11) — without it the CPU-vs-R gap is uninterpretable. Powerhouse R uses Apple Accelerate (a fast vendor BLAS); Forge R uses the reference (netlib) BLAS (single-threaded, unoptimised). The CPU-vs-R speedups in the correctness study are therefore against DIFFERENT R baselines: beating Accelerate-backed R (powerhouse) is the stronger result; the larger Forge margins partly reflect R's slow reference BLAS there."
+    },
+    {
+      "id": "fp32_boundary_powerhouse",
+      "title": "fp32 GPU GLM no-silent-wrong boundary — Powerhouse (MPS) (R12)",
+      "device": ["mps"],
+      "summary": "runs/fp32_boundary_mps_powerhouse_summary.csv",
+      "run": "runs/fp32_boundary_mps_powerhouse.json",
+      "claim": "boundary",
+      "host": "powerhouse",
+      "summary_cols": ["family", "mechanism", "severity", "np_cond", "plain_status",
+                       "accepted_coef_rel_vs_fp64", "accepted_dev_rel_vs_fp64",
+                       "forced_dev_rel_vs_fp64", "classification"],
+      "note": "Adversarial no-silent-wrong proof (RIGOR R12, the complement of R9) for the relaxed plain float32 log-link GLM, on the MPS gated matrix-free CG path. Designs straddle the float32 floor along three axes (near-collinear conditioning, large coefficients, heavy low-weight blocks — the discrete-time baseline-hazard pathology). For every ACCEPTED fit the deviance is compared to the float64 reference: accepted_dev_rel_vs_fp64 stays at the float32 tier (<=5e-7 here), i.e. the accepted fit reached the SAME optimum. For every REFUSED fit the fit is FORCED and checked against float64 (forced_dev_rel_vs_fp64): a true positive forces to a genuinely-wrong / overflowing fit, while 'refused-force-recovers' rows are a conservative gate where force=True still recovers a correct fit. NO row is classified SILENT-WRONG — the accept/refuse gate never accepts a wrong fit. (accepted_coef_rel can exceed the deviance tier on ill-conditioned designs: non-identifiable coefficients, not a wrong optimum — cf. the collinear OLS study.)"
+    },
+    {
+      "id": "fp32_boundary_forge",
+      "title": "fp32 GPU GLM no-silent-wrong boundary — Forge (CUDA) (R12)",
+      "device": ["cuda"],
+      "summary": "runs/fp32_boundary_cuda_forge_summary.csv",
+      "run": "runs/fp32_boundary_cuda_forge.json",
+      "claim": "boundary",
+      "host": "forge",
+      "summary_cols": ["family", "mechanism", "severity", "np_cond", "plain_status",
+                       "accepted_coef_rel_vs_fp64", "accepted_dev_rel_vs_fp64",
+                       "forced_dev_rel_vs_fp64", "fp64_dev_rel_vs_cpu",
+                       "classification"],
+      "note": "The same R12 no-silent-wrong proof on the CUDA Cholesky path. Every ACCEPTED float32 fit reached the float64 optimum (accepted_dev_rel_vs_fp64 <= ~1e-6); gpu_fp64 is exact vs CPU (fp64_dev_rel_vs_cpu ~ round-off). REFUSED fits are dominated by true positives (forced fit wrong/overflowing). NO row is SILENT-WRONG. The CUDA Cholesky and MPS gated-CG paths have DIFFERENT accept envelopes (CUDA accepts some large-coefficient designs MPS refuses, and vice versa) but share the same guarantee: never accept a wrong fit, never return a silently-wrong number."
     }
   ],
   "record_fields": {

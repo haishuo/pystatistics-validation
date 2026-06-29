@@ -1,0 +1,7 @@
+case,n,p,pystat_behavior,r_behavior,match,coef_max_rel,detail
+separation_complete,60,2,"diverges (max|β|=277), converged=False@25","diverges (max|β|=353), converged=False, 2 warning(s)",behaviour-match,8.193627061388463,glm.fit: algorithm did not converge
+separation_quasi,60,2,"diverges (max|β|=277), converged=False@25","diverges (max|β|=353), converged=False, 2 warning(s)",behaviour-match,0.21421852788050713,glm.fit: algorithm did not converge
+factor_interaction,400,9,build_terms_design treatment contrasts (9 cols),model.matrix default contrasts (9 cols),yes,1.9409587203649252e-15,"design bijection=yes, se_max_rel=5.24e-16"
+weights,100,2,fail-loud (unsupported in fit() 4.2.4),supported via weights=,documented-gap,,TypeError: fit() got an unexpected keyword argument 'weights'
+offset,100,2,fail-loud (unsupported in fit() 4.2.4),supported via offset=,documented-gap,,TypeError: fit() got an unexpected keyword argument 'offset'
+rank_deficient,200,4,drops aliased col→NaN at index [3],drops aliased col→NA at index [3],yes,3.682838825166275e-16,aliased-position match=yes

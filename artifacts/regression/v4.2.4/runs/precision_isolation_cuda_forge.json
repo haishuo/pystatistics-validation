@@ -1,0 +1,197 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.2.4",
+    "install_source": "pypi",
+    "python": "3.11.14",
+    "numpy": "2.3.5",
+    "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+    "cpu": "x86_64",
+    "device": "cuda",
+    "torch": "2.11.0.dev20251226+cu128",
+    "available_devices": [
+      "cuda",
+      "cpu"
+    ],
+    "gpu_name": "NVIDIA GeForce RTX 5070 Ti",
+    "cuda_version": "12.8",
+    "host": "forge"
+  },
+  "config": {
+    "study": "precision_isolation_r11",
+    "device": "cuda",
+    "n_grid": [
+      10000,
+      100000,
+      500000
+    ],
+    "p_grid": [
+      32,
+      128
+    ],
+    "models": [
+      "ols",
+      "glm_poisson"
+    ],
+    "repeats": 5,
+    "warmup": 1
+  },
+  "records": [
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 10000,
+      "p": 32,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.001962936483323574,
+      "wall_gpu_fp32_s": 0.001180971972644329,
+      "wall_gpu_fp64_s": 0.005833428353071213,
+      "speedup_fp32_vs_cpu": 1.6621363832439973,
+      "speedup_fp64_vs_cpu": 0.3364979158936815,
+      "gpu_fp64_coef_rel_vs_cpu": 2.1720818416394905e-15
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 10000,
+      "p": 128,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.007561267353594303,
+      "wall_gpu_fp32_s": 0.0034663164988160133,
+      "wall_gpu_fp64_s": 0.03595416061580181,
+      "speedup_fp32_vs_cpu": 2.18135515212676,
+      "speedup_fp64_vs_cpu": 0.21030298647192266,
+      "gpu_fp64_coef_rel_vs_cpu": 2.863891009153434e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 100000,
+      "p": 32,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.01601299922913313,
+      "wall_gpu_fp32_s": 0.002201944589614868,
+      "wall_gpu_fp64_s": 0.00830359198153019,
+      "speedup_fp32_vs_cpu": 7.272208076740881,
+      "speedup_fp64_vs_cpu": 1.9284424457212126,
+      "gpu_fp64_coef_rel_vs_cpu": 4.018631683117243e-15
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 100000,
+      "p": 128,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.0977614177390933,
+      "wall_gpu_fp32_s": 0.013014459051191807,
+      "wall_gpu_fp64_s": 0.0489836186170578,
+      "speedup_fp32_vs_cpu": 7.511754223095484,
+      "speedup_fp64_vs_cpu": 1.995798197421237,
+      "gpu_fp64_coef_rel_vs_cpu": 2.096325733912748e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 500000,
+      "p": 32,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.11562726274132729,
+      "wall_gpu_fp32_s": 0.014296959154307842,
+      "wall_gpu_fp64_s": 0.018871888518333435,
+      "speedup_fp32_vs_cpu": 8.087542357319208,
+      "speedup_fp64_vs_cpu": 6.126957703729497,
+      "gpu_fp64_coef_rel_vs_cpu": 1.4028714697667535e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 500000,
+      "p": 128,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.7714675767347217,
+      "wall_gpu_fp32_s": 0.05247214436531067,
+      "wall_gpu_fp64_s": 0.10559751279652119,
+      "speedup_fp32_vs_cpu": 14.702421371685713,
+      "speedup_fp64_vs_cpu": 7.305736246092123,
+      "gpu_fp64_coef_rel_vs_cpu": 1.5889121174454197e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 10000,
+      "p": 32,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 0.005279514007270336,
+      "wall_gpu_fp32_s": 0.003997622057795525,
+      "wall_gpu_fp64_s": 0.0042524393647909164,
+      "speedup_fp32_vs_cpu": 1.320663617255931,
+      "speedup_fp64_vs_cpu": 1.2415259935234653,
+      "gpu_fp64_coef_rel_vs_cpu": 8.451438167519915e-15
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 10000,
+      "p": 128,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 0.03967949282377958,
+      "wall_gpu_fp32_s": 0.009276485070586205,
+      "wall_gpu_fp64_s": 0.011684718541800976,
+      "speedup_fp32_vs_cpu": 4.277427551691423,
+      "speedup_fp64_vs_cpu": 3.395844981787961,
+      "gpu_fp64_coef_rel_vs_cpu": 1.7589851537253794e-13
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 100000,
+      "p": 32,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 0.09907178767025471,
+      "wall_gpu_fp32_s": 0.0394626846536994,
+      "wall_gpu_fp64_s": 0.03261792194098234,
+      "speedup_fp32_vs_cpu": 2.51051819052983,
+      "speedup_fp64_vs_cpu": 3.037342104426871,
+      "gpu_fp64_coef_rel_vs_cpu": 9.257349403209327e-15
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 100000,
+      "p": 128,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 0.5620591389015317,
+      "wall_gpu_fp32_s": 0.1421703975647688,
+      "wall_gpu_fp64_s": 0.11022391077131033,
+      "speedup_fp32_vs_cpu": 3.9534189151118717,
+      "speedup_fp64_vs_cpu": 5.099248747104221,
+      "gpu_fp64_coef_rel_vs_cpu": 1.7603512198664052e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 500000,
+      "p": 32,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 0.710481982678175,
+      "wall_gpu_fp32_s": 0.2918886123225093,
+      "wall_gpu_fp64_s": 0.20283846464008093,
+      "speedup_fp32_vs_cpu": 2.4340859926839475,
+      "speedup_fp64_vs_cpu": 3.502698484426329,
+      "gpu_fp64_coef_rel_vs_cpu": 1.0575980597357722e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 500000,
+      "p": 128,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 4.193403431214392,
+      "wall_gpu_fp32_s": 0.7111047180369496,
+      "wall_gpu_fp64_s": 0.5457029826939106,
+      "speedup_fp32_vs_cpu": 5.8970265909507,
+      "speedup_fp64_vs_cpu": 7.684406287305392,
+      "gpu_fp64_coef_rel_vs_cpu": 1.711674709213945e-13
+    }
+  ]
+}
