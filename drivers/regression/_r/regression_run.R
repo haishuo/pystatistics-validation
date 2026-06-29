@@ -78,6 +78,7 @@ if (family == "lm") {
   out$deviance      <- as.numeric(fit$deviance)
   out$null_deviance <- as.numeric(fit$null.deviance)
   out$aic           <- as.numeric(fit$aic)
+  out$bic           <- as.numeric(BIC(fit))
   out$dispersion    <- as.numeric(s$dispersion)
   if (family == "negbin") out$theta <- as.numeric(fit$theta)
 }

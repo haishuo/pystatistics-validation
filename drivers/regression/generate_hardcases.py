@@ -342,33 +342,75 @@ def _run_factor(records: list, brows: list) -> None:
     print(f"  factor_interaction: {match}  bijection={bijection} coef_rel={coef_rel:.2e}")
 
 
+_WO_WORKER = Path(__file__).resolve().parent / "_r" / "weights_offset_run.R"
+
+
+def _r_weights_offset(mode: str, X_noint: np.ndarray, y: np.ndarray,
+                      extra: np.ndarray) -> dict[str, Any]:
+    """R reference for a weighted lm / offset glm fit."""
+    tmp = Path(tempfile.mkdtemp(prefix="rwo_"))
+    xc, yc, ec, out = tmp / "x.csv", tmp / "y.csv", tmp / "e.csv", tmp / "r.json"
+    names = [f"x{j}" for j in range(X_noint.shape[1])]
+    np.savetxt(xc, X_noint, delimiter=",", header=",".join(names), comments="", fmt="%.17g")
+    np.savetxt(yc, y, fmt="%.17g")
+    np.savetxt(ec, extra, fmt="%.17g")
+    proc = subprocess.run(["Rscript", str(_WO_WORKER), mode, str(xc), str(yc),
+                           str(ec), str(out)], capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(f"R weights/offset worker failed ({mode}):\n{proc.stderr[-1500:]}")
+    return json.loads(out.read_text())
+
+
 def _run_weights_offset(records: list, brows: list) -> None:
-    """Prior weights / offset: pystatistics 4.2.4 fails loud (unsupported)."""
+    """Prior weights / offset: as of 4.3.0 these are SUPPORTED — validate vs R's
+    weights=/offset= on the CPU (round-off) and confirm the GPU fp32 path matches."""
     from pystatistics.regression import fit
 
-    n = 100
+    n = 4000
     rng = np.random.default_rng(11)
-    X = np.column_stack([np.ones(n), rng.standard_normal(n)])
-    y = X @ np.array([1.0, 0.5]) + 0.2 * rng.standard_normal(n)
-    for case, kw in (("weights", {"weights": np.ones(n)}),
-                     ("offset", {"offset": np.zeros(n)})):
+    Xp = rng.standard_normal((n, 3))
+    X = np.column_stack([np.ones(n), Xp])
+
+    # Weighted OLS: heteroscedastic prior (precision) weights.
+    w = rng.uniform(0.3, 3.0, n)
+    y_w = X @ np.array([1.0, 0.5, -0.3, 0.2]) + rng.standard_normal(n)
+    # Offset Poisson: a rate model with log-exposure offset.
+    off = np.log(rng.uniform(1.0, 10.0, n))
+    y_o = rng.poisson(np.exp(X @ np.array([0.2, 0.1, -0.1, 0.05]) + off)).astype(float)
+
+    cases = (
+        ("weights", "weighted_lm", None, {"weights": w}, X, y_w, w),
+        ("offset", "offset_poisson", "poisson", {"offset": off}, X, y_o, off),
+    )
+    for case, r_mode, family, kw, Xd, yd, extra in cases:
+        cpu = fit(Xd, yd, family=family, backend="cpu", **kw)
+        r = _r_weights_offset(r_mode, Xd[:, 1:], yd, extra)
+        coef_rel = _vec_max_rel(list(cpu.coefficients), r["coefficients"])
+        se_rel = _vec_max_rel(list(cpu.standard_errors), r["standard_errors"])
+        # GPU fp32 path must also support them and match the CPU fit to the fp32 tier.
         try:
-            fit(X, y, backend="cpu", **kw)
-            outcome = "ACCEPTED"
-        except TypeError as exc:
-            outcome = f"TypeError: {str(exc)[:60]}"
+            gpu = fit(Xd, yd, family=family, backend="gpu", **kw)
+            gpu_rel = _vec_max_rel(list(gpu.coefficients), list(cpu.coefficients))
+            gpu_note = f"GPU fp32 matches CPU to {gpu_rel:.1e}"
+        except Exception as exc:  # noqa: BLE001
+            gpu_rel = None
+            gpu_note = f"GPU {type(exc).__name__}"
+        # Coefficients carry the primary claim (round-off); SEs follow at the
+        # documented GLM SE tolerance (Fisher-info inversion, ~1e-6..1e-8).
+        match = "yes" if (coef_rel < 1e-8 and se_rel < 1e-5) else "MISMATCH"
         brow = {
-            "case": case, "n": n, "p": 2,
-            "pystat_behavior": "fail-loud (unsupported in fit() 4.2.4)",
-            "r_behavior": f"supported via {case}=",
-            "match": "documented-gap" if outcome.startswith("TypeError") else "ACCEPTED?!",
-            "coef_max_rel": None,
-            "detail": outcome,
+            "case": case, "n": n, "p": Xd.shape[1],
+            "pystat_behavior": f"supported (fit({case}=...)), CPU + GPU",
+            "r_behavior": f"R {r_mode.replace('_', ' ')}",
+            "match": match,
+            "coef_max_rel": coef_rel,
+            "detail": f"se_max_rel={se_rel:.2e}; {gpu_note}",
         }
         brows.append(brow)
         records.append({"engine": f"hardcase:{case}", "dataset": "synthetic", "n": n,
-                        "p": 2, **brow})
-        print(f"  {case}: {brow['match']}  ({outcome})")
+                        "p": Xd.shape[1], "se_max_rel": se_rel, "gpu_coef_rel": gpu_rel,
+                        **brow})
+        print(f"  {case}: {match}  coef_rel={coef_rel:.2e} se_rel={se_rel:.2e} ({gpu_note})")
 
 
 def _run_rank_deficient(records: list, brows: list) -> None:

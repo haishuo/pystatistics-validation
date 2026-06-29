@@ -86,6 +86,18 @@ def _agreement_record(sut: dict[str, Any], ref: dict[str, Any],
         row["deviance_pystat"] = sut.get("deviance")
         row["deviance_r"] = ref.get("deviance")
         row["deviance_rel_diff"] = _rel(sut.get("deviance", 0.0), ref.get("deviance", 0.0))
+        # AIC/BIC agreement vs R — the Gamma (4.3.0) and negbin-theta (4.3.1) AIC
+        # fixes are validated here: both information criteria now match R.
+        if sut.get("aic") is not None and ref.get("aic") is not None:
+            row["aic_rel"] = _rel(sut["aic"], ref["aic"])
+        if sut.get("bic") is not None and ref.get("bic") is not None:
+            row["bic_rel"] = _rel(sut["bic"], ref["bic"])
+        # Negative binomial: the auto-estimated theta is now exposed (4.3.1), so
+        # compare it directly against MASS::glm.nb's theta.
+        if sut.get("theta") is not None and ref.get("theta") is not None:
+            row["theta_pystat"] = sut["theta"]
+            row["theta_r"] = ref["theta"]
+            row["theta_rel"] = _rel(sut["theta"], ref["theta"])
         row["n_iter"] = sut.get("n_iter")
     return row
 

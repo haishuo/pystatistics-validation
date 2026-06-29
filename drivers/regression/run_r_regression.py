@@ -86,7 +86,7 @@ def run_r_regression_record(
         "coef_names": raw.get("coef_names"),
     }
     for k in ("r_squared", "adjusted_r_squared", "residual_std_error",
-              "deviance", "null_deviance", "aic", "dispersion", "theta"):
+              "deviance", "null_deviance", "aic", "bic", "dispersion", "theta"):
         if k in raw:
             summary[k] = float(raw[k])
 

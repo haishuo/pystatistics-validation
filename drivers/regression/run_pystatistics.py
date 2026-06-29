@@ -106,8 +106,14 @@ def run_regression_record(
             deviance=float(sol.deviance),
             null_deviance=float(sol.null_deviance),
             aic=float(sol.aic),
+            bic=float(sol.bic),
             dispersion=float(sol.dispersion),
         )
+        # Negative binomial exposes the auto-estimated dispersion theta (4.3.1+).
+        info = getattr(sol, "info", None) or {}
+        if info.get("theta") is not None:
+            summary["theta"] = float(info["theta"])
+            summary["theta_estimated"] = bool(info.get("theta_estimated", True))
 
     peak = wall.get("peak_mem_bytes")
     extra: dict[str, Any] = {
