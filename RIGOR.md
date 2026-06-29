@@ -7,12 +7,56 @@ validation (and the chip that performs it) MUST follow these. Companion to
 publishing a paper on it** — that discipline is what surfaces the defects that
 "just getting it written" hides.
 
+## What we validate — priorities, in strict order
+
+Every module report answers four questions, in this order of importance. **A failure
+high in this list is not bought off by success lower down.** R1–R12 are the *methods*;
+this is the *intent* they serve.
+
+**1. Correctness — does pystatistics match R to the accuracy we promised?**
+Paramount. pystatistics makes the user a promise: agreement with the R reference to a
+*stated tolerance* (the per-module `tolerances` contract). If a produced answer does
+not meet its promised tolerance, **that is a bug in pystatistics** — full stop, not a
+footnote. "Looks close" is not the bar; meeting the stated level is.
+
+**2. Hard problems — does it hold off the happy path? (the red-team)**
+Matching R on well-behaved textbook data proves little. The red-team probes the hard
+regime — ill-conditioning, separation, factor coding, weights/offsets, rank deficiency
+(R10) — and demands pystatistics **match R's behaviour, including R's own failures and
+warnings**. Where pystatistics deliberately differs, the difference needs a
+**defensible, documented reason** (e.g. the Gamma ML-vs-Pearson dispersion).
+Undocumented or indefensible deviation is a defect.
+
+**3. CPU speed — pystatistics on the CPU path must NEVER lag R.**
+A hard requirement, not an aspiration. The CPU path is the R-equivalent path. If R
+fits an LM in 0.01 ms and pystatistics takes 0.1 ms, that 10× gap **must be explained:
+what is the user buying for it?** — a more robust algorithm, quantities R does not
+compute, a correctness guarantee. **If the answer is "nothing," it is a defect and
+pystatistics must be changed** (R1/R6). This requires a **CPU-vs-R speed comparison
+across problem sizes** — small `n` (where fixed overhead bites) through large `n` —
+not a single point. A complexity-class gap (R1) is the most severe form.
+
+**4. GPU — last, held to a far weaker bar.**
+We make far fewer guarantees here. The demands are only: **(a) it must not crash**
+(fail loud, never silently wrong — A6/R9/R12); **(b) it must reach the accuracy we
+claim** (the fp32 tier); and **(c) it must not be grossly inefficient** (e.g. MPS
+1000× slower than CPU). Many of these paths have never run on a GPU, so squeezing
+optimization is **low priority unless it is low-hanging fruit**. A respectable GPU
+result can simply be "correct, doesn't crash, not absurdly slow." Do not manufacture a
+GPU speed showcase to pad a report; an honest "no GPU path, and why" (or "GPU present,
+modest") is a correct result.
+
 ## R1 — Parity with the reference means SPEED too, not just numbers
 
 Numerical agreement with R/SAS is necessary but **not sufficient**. Every module
 must also compare its **performance and asymptotic complexity** against the
 reference across a **range of problem sizes** — never a single size, which hides
 the slope.
+
+**Scope: this strict mandate is the CPU path (priority 3) — pystatistics on CPU must
+never lag R.** The GPU is priority 4 and held to the far weaker bar (no crash, claimed
+accuracy, not grossly inefficient); a GPU that is merely "not slower than CPU" is fine
+and need not beat R. Read the rest of R1 as the CPU contract.
 
 - **Measure the empirical complexity.** Run the fit across a spread of `n` (and
   `p` where relevant) wide enough to reveal the scaling slope; observe/estimate
@@ -46,15 +90,26 @@ accept, why we are slower?* If not, it's R1 (a defect), not R2 (a justified cost
 
 ## R3 — Scaling study is mandatory, calibrated to the module
 
-Each report includes a scaling study sized to reveal R1:
+Each report includes a scaling study sized to reveal R1.
 
-- **GPU-warranted modules** (per `CONVENTIONS.md`'s "when to add a GPU backend"):
-  CPU vs MPS vs CUDA device pivots across `n`/`p`, plus pystatistics-vs-R.
+**The CPU-vs-R-across-sizes study is MANDATORY for every module** (priority 3): fit
+across a spread of `n` (and `p` where relevant), from small `n` (where fixed Python
+dispatch overhead bites — the place pystatistics is most likely to lag) through large
+`n`, comparing **pystatistics CPU vs R**. A single-point speed comparison does not
+satisfy this. Any size at which pystatistics lags R must be explained per priority 3 /
+R2 (what is the user buying?) or fixed.
+
+- **GPU-warranted modules** (per `CONVENTIONS.md`'s "when to add a GPU backend"): add
+  CPU vs MPS vs CUDA device pivots across `n`/`p` **on top of** the mandatory CPU-vs-R
+  study. The GPU pivots exist to show the priority-4 bar (no crash, claimed accuracy,
+  not grossly inefficient) — **not** to prove the GPU beats R or the CPU. When you
+  compare a GPU number against R, isolate precision from hardware (R11). Do not let a
+  GPU speedup headline stand in for the CPU-vs-R evidence priority 3 requires.
 - **CPU-only modules** (the constitution deliberately gives some none — e.g.
-  `coxph`, `anova`, `timeseries.ets`): the scaling study is **pystatistics CPU vs
-  R across `n`** — this is precisely where complexity gaps like the coxph one
-  surface. Do **not** manufacture a GPU showcase where the constitution says there
-  is no GPU path; an honest "no GPU path, and why" is the correct result.
+  `coxph`, `anova`, `timeseries.ets`): the CPU-vs-R study **is** the scaling study —
+  this is precisely where complexity gaps like the coxph one surface. Do **not**
+  manufacture a GPU showcase where the constitution says there is no GPU path; an
+  honest "no GPU path, and why" is the correct result.
 
 ## R4 — Constitutional-compliance audit
 
