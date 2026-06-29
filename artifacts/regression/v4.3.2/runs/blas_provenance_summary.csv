@@ -1,0 +1,3 @@
+host,r_version,blas,lapack_ver,platform,blas_path
+powerhouse,4.5.2,Apple Accelerate (vecLib),3.12.1,aarch64-apple-darwin20,/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+forge,4.3.3,reference (netlib) BLAS,3.12.0,x86_64-pc-linux-gnu (64-bit),/usr/lib/x86_64-linux-gnu/blas/libblas.so.3.12.0

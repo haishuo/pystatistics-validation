@@ -1,0 +1,124 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.3.2",
+    "install_source": "pypi",
+    "python": "3.11.14",
+    "numpy": "2.3.5",
+    "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+    "cpu": "x86_64",
+    "device": "cuda",
+    "torch": "2.11.0.dev20251226+cu128",
+    "available_devices": [
+      "cuda",
+      "cpu"
+    ],
+    "gpu_name": "NVIDIA GeForce RTX 5070 Ti",
+    "cuda_version": "12.8",
+    "host": "forge"
+  },
+  "config": {
+    "study": "gpu_glm_stability",
+    "lam": 100.0,
+    "grid": [
+      [
+        100000,
+        64
+      ],
+      [
+        200000,
+        128
+      ],
+      [
+        500000,
+        128
+      ]
+    ]
+  },
+  "records": [
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_poisson",
+      "n": 100000,
+      "p": 64,
+      "model_key": "glm_poisson",
+      "lam": 100.0,
+      "plain_status": "converged",
+      "plain_rel_vs_cpu": 2.3402515610589086e-07,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 3.070403338713554e-05,
+      "fp64_status": "converged",
+      "fp64_rel_vs_cpu": 1.8083314267885832e-15
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_poisson",
+      "n": 200000,
+      "p": 128,
+      "model_key": "glm_poisson",
+      "lam": 100.0,
+      "plain_status": "converged",
+      "plain_rel_vs_cpu": 1.6922889008224646e-06,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 3.482734318838781e-05,
+      "fp64_status": "converged",
+      "fp64_rel_vs_cpu": 3.1285288633472167e-15
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_poisson",
+      "n": 500000,
+      "p": 128,
+      "model_key": "glm_poisson",
+      "lam": 100.0,
+      "plain_status": "converged",
+      "plain_rel_vs_cpu": 1.2973053126023042e-06,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 3.438652630738444e-05,
+      "fp64_status": "converged",
+      "fp64_rel_vs_cpu": 4.295647897232636e-15
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_gamma",
+      "n": 100000,
+      "p": 64,
+      "model_key": "glm_gamma",
+      "lam": 100.0,
+      "plain_status": "converged",
+      "plain_rel_vs_cpu": 2.8502758100198303e-07,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 6.4032152968400775e-06,
+      "fp64_status": "converged",
+      "fp64_rel_vs_cpu": 1.2226460591969183e-15
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_gamma",
+      "n": 200000,
+      "p": 128,
+      "model_key": "glm_gamma",
+      "lam": 100.0,
+      "plain_status": "converged",
+      "plain_rel_vs_cpu": 1.2706304483228859e-06,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 5.048619787679114e-06,
+      "fp64_status": "converged",
+      "fp64_rel_vs_cpu": 2.6686376413876895e-15
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "glm_gamma",
+      "n": 500000,
+      "p": 128,
+      "model_key": "glm_gamma",
+      "lam": 100.0,
+      "plain_status": "converged",
+      "plain_rel_vs_cpu": 9.954057690934793e-07,
+      "ridge_status": "converged",
+      "ridge_rel_vs_cpu_ridge": 2.876648192525521e-06,
+      "fp64_status": "converged",
+      "fp64_rel_vs_cpu": 4.554049199193355e-15
+    }
+  ]
+}

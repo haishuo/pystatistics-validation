@@ -1,0 +1,10 @@
+{
+  "host": "powerhouse",
+  "r_version": "4.5.2",
+  "blas": "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib",
+  "lapack": "/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib",
+  "lapack_ver": "3.12.1",
+  "blas_si": "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib",
+  "lapack_si": "/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib",
+  "platform": "aarch64-apple-darwin20"
+}
