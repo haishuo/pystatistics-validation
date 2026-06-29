@@ -126,6 +126,66 @@ non-convergence.
 hypothesis to test against the fp64 reference first, not a conclusion. This is GPU
 GLM convergence logic in general — not specific to any one module or model type.
 
+## R10 — Correctness grids must include the hard cases, and match R's failures and warnings
+
+A grid of well-behaved textbook datasets (a handful of coefficients, no degeneracy)
+proves only "matches R when things are easy" — which is exactly what a skeptic or an
+auditor will not probe. The claim worth earning is **"matches R when things are
+hard, including matching R's own failures and warnings."** Every module's correctness
+grid must therefore reach into the adversarial regime where R-agreement is most likely
+to break *and* where R itself changes behaviour:
+
+- **Near-collinear / ill-conditioned designs** — agree with R right up to the
+  documented refusal boundary (e.g. the condition-number cutoff), then refuse loudly.
+- **Degenerate likelihoods** (e.g. logistic separation) — replicate R's *behaviour*:
+  the divergence **and** the warning it emits, not just the coefficients.
+- **Factor / contrast coding** — tested in isolation, not entangled with another gap.
+- **Weights and offsets.**
+- **Rank-deficient / aliased designs** — match R's handling (column-drop → `NA`
+  aliasing), not a different silent answer.
+
+Matching R's *numbers* on easy data and matching R's *failures and warnings* on hard
+data are two different claims. The report must make — and substantiate — the second.
+
+## R11 — GPU benchmarks must isolate precision from hardware, and name the reference BLAS
+
+A headline speedup that compares fp64-CPU-R against fp32-GPU-pystatistics confounds
+two independent effects: the fp32-vs-fp64 win and the GPU-vs-CPU win. Such a number is
+not wrong, but it is **not attributable** — and a reviewer will discount it.
+
+- **Isolate the hardware effect** with a same-precision pivot: `gpu_fp64` vs
+  `cpu_fp64` (on CUDA) measures hardware alone. Report it alongside the bundled number,
+  not instead of it.
+- **The CPU-vs-R column is already same-precision** (both fp64) — keep it as the clean
+  comparison.
+- **Name the BLAS R was linked against** (reference vs OpenBLAS/MKL). It moves the CPU
+  baseline materially; an unstated BLAS makes the CPU-vs-R gap uninterpretable.
+
+## R12 — Relaxing a fail-loud guarantee into a convergence claim demands a no-silent-wrong proof
+
+This is the **complement to R9**. R9 guards against the *false negative* — refusing a
+correct fp32 fit. The opposite failure is worse: a relaxed gate that **accepts a
+biased fp32 fit** — a silently-wrong answer. fp32 can converge to a wrong optimum that
+still passes a loose Newton-decrement / tolerance test, and **"converges on the tested
+grid" does not prove "never converges-wrong-without-failing-loud" off it.**
+
+Whenever a path is changed from fail-loud to "converges to ~X" (as the plain fp32
+log-link was at 4.2.3), the report must carry a **dedicated adversarial stress test
+that the accept/refuse boundary is principled — that there is no silent-wrong zone in
+the gap:**
+
+- Probe designs straddling the precision floor (ill-conditioned, near-separation,
+  large-coefficient) where the gate must decide.
+- **Force the accepted fit and verify against fp64** — an accepted fit must be correct
+  to the fp32 tier.
+- **Confirm refusal fires *before* accuracy degrades** — there must be no band of
+  inputs that are accepted yet wrong.
+
+R9 and R12 together require the gate to be a **true classifier in both directions**:
+never refuse a correct fit (R9), never accept a wrong one (R12). A speed win that
+relaxes a guarantee is the single most likely place a correctness regression hides —
+treat it as such.
+
 ## R7 — The seven questions
 
 Every report answers them (see `ARCHITECTURE.md` / the template): procedure,

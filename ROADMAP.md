@@ -5,15 +5,17 @@ a time**, each to the rigor of `RIGOR.md` (treat as if publishing). The
 **coordinator chip** owns this file: it advances the program one module at a time
 and keeps the status table current.
 
-**Current library version:** pystatistics **4.1.0** (on PyPI) — a **consistency-only**
-release. While working on survival we found a consistency issue that touched multiple
-modules, so it was spun out and shipped library-wide as 4.1.0 (it is NOT survival's
-validation result). 4.0 standardized the API to `CONVENTIONS.md`; 4.1.0 swept the
-multi-module inconsistency that survival surfaced.
+**Current library version:** pystatistics **4.2.4** (on PyPI). Lineage: 4.0
+standardized the API to `CONVENTIONS.md`; **4.1.0** was a consistency-only sweep of a
+multi-module inconsistency survival surfaced (R8); **4.2.0** landed survival's
+optimizations (incl. the coxph O(n²)→O(n) fix, R1); **4.2.3** shipped the plain-fp32
+GPU GLM convergence fix (R9) re-validated across survival + regression; **4.2.4**
+made the MPS fp32 GLM path a gated matrix-free CG solver (squaring-free, host-fp64
+acceptance gate kept).
 
-**Survival is still IN PROGRESS and lands as 4.2.0** — the coxph O(n²)→O(n) fix is
-just one of several inefficiencies being fixed there. Only **regression, mvnmle, mice**
-are truly done.
+**Survival is DONE** (validated at 4.2.0 → GPU/real-flchain 4.2.1 → 4.2.3).
+**Regression re-validated at 4.2.3.** The **one open item** is a re-render of survival +
+regression against **4.2.4** — see "Open work" below.
 
 ## Order + status
 
@@ -22,9 +24,9 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 
 | # | Module | Status | Notes |
 |---|---|---|---|
-| 1 | regression (OLS + GLM families) | ✅ done | baseline v3.18.0 → optimized v3.20.0 |
-| 2 | survival (KM / log-rank / coxph) | 🔄 IN PROGRESS → lands **v4.2.0** | fixing several inefficiencies (coxph O(n²)→O(n) is one — the R1 incident). The v4.0.0 report is an earlier baseline, NOT the final; final lands at 4.2.0 with the complexity fix documented (R6). |
-| 3 | multivariate (PCA + factor analysis) | ⬜ next NEW module (after survival lands) | SVD/eigendecomposition; the most GPU-amenable op; TCGA large-matrix scaling; self-contained |
+| 1 | regression (OLS + GLM families) | ✅ done (re-validated v4.2.3) | baseline v3.18.0 → optimized v3.20.0 → re-validated v4.2.3 (CPU-beats-R + fp32 GLM fix). Pending 4.2.4 re-render (Open work). Red-team gaps to close on next re-validation: R10 hard-case grid, R11 precision/hardware isolation, R12 fp32 no-silent-wrong stress test. |
+| 2 | survival (KM / log-rank / coxph) | ✅ done | v4.0.0 baseline → v4.2.0 (coxph O(n²)→O(n), R1) → v4.2.1 (GPU on real flchain) → v4.2.3 (fp32 GLM fix). Pending 4.2.4 re-render (Open work). |
+| 3 | multivariate (PCA + factor analysis) | ⬜ next NEW module | SVD/eigendecomposition; the most GPU-amenable op; TCGA large-matrix scaling; self-contained. Starts after the 4.2.4 re-render AND user says go. |
 | 4 | mixed (LMM) | ⬜ pending | biggest optimization headroom (least GPU-touched); REML over variance components |
 | 5 | gam | ⬜ pending | penalized IRLS + REML smoothing selection; rides the kernel |
 | 6 | timeseries (ARIMA/ETS/STL) | ⬜ pending | largest module; Kalman/state-space + optimizer loops |
@@ -34,15 +36,39 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 
 Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
+## Open work
+
+- **4.2.4 re-render (survival + regression).** Spec'd in `DELETE-ME-revalidate-4.2.4.md`
+  (repo root). Re-validate both modules against PyPI **4.2.4** (`require_pypi`),
+  regenerate artifacts (Mac CPU+MPS; Forge CUDA), render reports, commit+push, delete
+  the hand-off note. Expected change: MPS now CONVERGES via gated CG where it failed
+  loud at quarterly-cold; survival MPS prose shifts to "converges via gated CG; refuses
+  loud → CPU at the genuine precision floor." Prior reports (v4.2.3/4.2.1/4.2.0) stay
+  frozen. **This is the next chip**, ahead of any new module.
+- **Regression red-team follow-up (after the 4.2.4 re-render).** A second regression
+  pass may be warranted to close the R10/R11/R12 gaps the red-team surfaced (hard-case
+  grid, precision-vs-hardware isolation, fp32 no-silent-wrong stress test). Discuss
+  scope with the user before spawning.
+
 ## Standing coordination constraints
 
-- **Release-hold (active):** `pystatsbio` and `sgcbio` are mid-consistency-release,
-  pinning pystatistics 4.1.0. **Do NOT cut a new pystatistics release** (which moves
-  the dependency under them) until those land. Validate 4.1.0 as-is; if a module
-  finds a fix worth shipping (R6), implement on a branch and **hold the release**,
-  surfacing it to the user to schedule. Re-check this constraint each module.
+- **Release-hold: CLEARED.** The `pystatsbio`/`sgcbio` consistency releases have
+  landed and pystatistics has since shipped through **4.2.4**. No active hold. Re-check
+  before any new library release; reinstate this line if a downstream consistency
+  release is mid-flight again.
 - **One at a time.** Do not spawn the next module chip until the current one is done
   AND the user says go. The coordinator confirms before spawning.
+- **Hard cases + match R's failures/warnings (RIGOR R10).** Correctness grids must
+  reach the adversarial regime (collinearity to the refusal boundary, separation,
+  factor coding, weights/offsets, rank-deficiency) and match R's failures and warnings
+  — not just easy-data numbers.
+- **Isolate precision from hardware in GPU benchmarks (RIGOR R11).** Report `gpu_fp64`
+  vs `cpu_fp64` (hardware alone) alongside any bundled fp32-GPU-vs-fp64-CPU-R number,
+  and name the BLAS R linked against.
+- **Relaxing fail-loud → convergence needs a no-silent-wrong proof (RIGOR R12, the
+  complement to R9).** Any fail-loud→"converges" relaxation must carry an adversarial
+  stress test that the accept/refuse boundary is principled (no accepted-but-wrong
+  band). R9 + R12: the gate must be a true classifier both directions.
 - **fp32 GPU non-convergence is a false-negative until proven otherwise (RIGOR R9).**
   CPU is fp64; MPS/CUDA fp32 cannot meet R's absolute `|Δβ| < 1e-8`. Before recording
   any MPS/CUDA path as failing/unstable, compare its coefficients to the fp64 fit —
@@ -60,17 +86,19 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 Each module chip is self-contained (the spawned session has no prior context) and:
 1. Points at `ARCHITECTURE.md`, `RIGOR.md`, `CONVENTIONS.md`, and the completed
-   examples (`reports/regression-v3.20.0.md`, `survival-v4.0.0.md`, mvnmle, mice) +
+   examples (`reports/regression-v4.2.3.md`, `survival-v4.2.3.md`, mvnmle, mice) +
    the harness `pystatsval` API + the salvageable R refs in `_archive/`.
 2. States the module, its R reference (the R package/function), the canonical
-   dataset(s), and the target version (**4.1.0**).
-3. Mandates the full `RIGOR.md` deliverables — correctness vs R, the **R1/R3
-   complexity+scaling study across n/p**, the **R4 constitutional audit**, and an
-   honest perf story (R2: document any justified slowdown; never sweep).
-4. Repeats the **release-hold** constraint and the Forge standing-CUDA-testing
+   dataset(s), and the target version (current PyPI release — **4.2.4**).
+3. Mandates the full `RIGOR.md` deliverables — correctness vs R **incl. the R10
+   hard-case grid (match R's failures/warnings)**, the **R1/R3 complexity+scaling
+   study across n/p with R11 precision-vs-hardware isolation**, the **R4
+   constitutional audit**, **R12 no-silent-wrong proof for any relaxed fail-loud
+   path**, and an honest perf story (R2: document any justified slowdown; never sweep).
+4. Repeats the current **release-hold** status and the Forge standing-CUDA-testing
    allowance (only if a GPU path is warranted per the constitution).
-5. Deliverables: `drivers/<m>/`, `artifacts/<m>/v4.1.0/`, `subsystems/<m>/meta.json`,
-   `reports/<m>-v4.1.0.md`; commit to validation `main` and push.
+5. Deliverables: `drivers/<m>/`, `artifacts/<m>/v4.2.4/`, `subsystems/<m>/meta.json`,
+   `reports/<m>-v4.2.4.md`; commit to validation `main` and push.
 6. Opens with discuss-before-acting: understanding + plan first.
 
 (The `survival` and `regression` chips are the worked examples of this template.)
