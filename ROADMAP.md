@@ -5,17 +5,19 @@ a time**, each to the rigor of `RIGOR.md` (treat as if publishing). The
 **coordinator chip** owns this file: it advances the program one module at a time
 and keeps the status table current.
 
-**Current library version:** pystatistics **4.2.4** (on PyPI). Lineage: 4.0
-standardized the API to `CONVENTIONS.md`; **4.1.0** was a consistency-only sweep of a
-multi-module inconsistency survival surfaced (R8); **4.2.0** landed survival's
-optimizations (incl. the coxph O(n²)→O(n) fix, R1); **4.2.3** shipped the plain-fp32
-GPU GLM convergence fix (R9) re-validated across survival + regression; **4.2.4**
-made the MPS fp32 GLM path a gated matrix-free CG solver (squaring-free, host-fp64
-acceptance gate kept).
+**Current library version:** pystatistics **4.3.2** (on PyPI). Lineage: 4.0
+standardized the API to `CONVENTIONS.md`; **4.1.0** consistency sweep (R8); **4.2.0**
+survival optimizations (coxph O(n²)→O(n), R1); **4.2.3** plain-fp32 GPU GLM convergence
+fix (R9); **4.2.4** MPS fp32 GLM gated matrix-free CG (squaring-free, host-fp64 gate);
+**4.3.0** added `weights=`/`offset=` support + Gamma AIC (and briefly regressed GPU-OLS
+SEs); **4.3.1** exposed negbin `theta` + AIC/BIC counting it; **4.3.2** fixed three
+correctness defects the 4.3.1 re-validation surfaced (Gamma/Gaussian BIC, binomial
+deviance/AIC/BIC machine-eps clamp, and the 4.3.0 GPU-OLS-SE understatement).
 
-**Survival is DONE** (validated at 4.2.0 → GPU/real-flchain 4.2.1 → 4.2.3).
-**Regression re-validated at 4.2.3.** The **one open item** is a re-render of survival +
-regression against **4.2.4** — see "Open work" below.
+**Regression is DONE and red-teamed at 4.3.2** — the combined R10/R11/R12 + priority-3
+CPU-vs-R-across-sizes + priority-4 GPU-value pass landed, finding and fixing three
+defects (→ 4.3.2). **Survival is validated through 4.2.4 but NOT yet red-teamed** — the
+red-team-enhanced survival pass is the next chip (see "Open work").
 
 ## Order + status
 
@@ -24,9 +26,9 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 
 | # | Module | Status | Notes |
 |---|---|---|---|
-| 1 | regression (OLS + GLM families) | ✅ done (re-validated v4.2.3) | baseline v3.18.0 → optimized v3.20.0 → re-validated v4.2.3 (CPU-beats-R + fp32 GLM fix). Pending 4.2.4 re-render (Open work). Red-team gaps to close on next re-validation: R10 hard-case grid, R11 precision/hardware isolation, R12 fp32 no-silent-wrong stress test. |
-| 2 | survival (KM / log-rank / coxph) | ✅ done | v4.0.0 baseline → v4.2.0 (coxph O(n²)→O(n), R1) → v4.2.1 (GPU on real flchain) → v4.2.3 (fp32 GLM fix). Pending 4.2.4 re-render (Open work). |
-| 3 | multivariate (PCA + factor analysis) | ⬜ next NEW module | SVD/eigendecomposition; the most GPU-amenable op; TCGA large-matrix scaling; self-contained. Starts after the 4.2.4 re-render AND user says go. |
+| 1 | regression (OLS + GLM families) | ✅ done + red-teamed (v4.3.2) | v3.18.0 → v3.20.0 → v4.2.x → hardened/red-teamed **v4.3.2**: R10 hard cases (weights/offset now supported), R11 precision/hardware isolation + BLAS, R12 extended to inference SEs, priority-3 CPU-vs-R across sizes (meets/beats R at every n incl. n=50), priority-4 GPU value (~18×/10×). Found+fixed 3 correctness defects (→4.3.2). |
+| 2 | survival (KM / log-rank / coxph) | 🔄 done-but-red-team IN PROGRESS | validated v4.0.0 → v4.2.0 (coxph O(n²)→O(n)) → v4.2.1 (GPU/flchain) → v4.2.3 → v4.2.4 re-render. **Red-team-enhanced pass is the next chip** (target: current PyPI **4.3.2**): R15 default-degeneracy footgun, R13 discrete-time-specific R12 boundary, stratified-Cox gap. |
+| 3 | multivariate (PCA + factor analysis) | ⬜ next NEW module | SVD/eigendecomposition; the most GPU-amenable op; TCGA large-matrix scaling; self-contained. Starts after the survival red-team lands AND user says go. |
 | 4 | mixed (LMM) | ⬜ pending | biggest optimization headroom (least GPU-touched); REML over variance components |
 | 5 | gam | ⬜ pending | penalized IRLS + REML smoothing selection; rides the kernel |
 | 6 | timeseries (ARIMA/ETS/STL) | ⬜ pending | largest module; Kalman/state-space + optimizer loops |
@@ -38,34 +40,42 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-- **4.2.4 re-render (survival + regression).** Spec'd in `DELETE-ME-revalidate-4.2.4.md`
-  (repo root). Re-validate both modules against PyPI **4.2.4** (`require_pypi`),
-  regenerate artifacts (Mac CPU+MPS; Forge CUDA), render reports, commit+push, delete
-  the hand-off note. Expected change: MPS now CONVERGES via gated CG where it failed
-  loud at quarterly-cold; survival MPS prose shifts to "converges via gated CG; refuses
-  loud → CPU at the genuine precision floor." Prior reports (v4.2.3/4.2.1/4.2.0) stay
-  frozen. **This is the next chip**, ahead of any new module.
-- **Regression red-team hardening — CHIP RUNNING (combined, v4.2.4).** Closes the
-  red-team gaps at v4.2.4 by ADDING evidence (existing v4.2.4 numbers stay frozen),
-  ordered by the new RIGOR priority hierarchy: **(1) correctness** vs promised
-  tolerance; **(2) R10 hard-case grid** matching R's failures/warnings; **(3) the
-  mandatory CPU-vs-R speed study ACROSS SIZES** (small-n overhead → large-n) — the
-  biggest addition, since the report only had 5 CPU-vs-R points; **(4) GPU at the weak
-  bar** — R12 no-silent-wrong boundary stress test (correctness, stays high), R11
-  precision-isolation + reference BLAS framed as "GPU meets its weak bar," not GPU
-  superiority. Forge/CUDA allowance granted. NOTE: the chip launched just before the
-  priority section landed (9772b49) — it was told to `git pull` + re-read RIGOR and
-  reorder. If R12 finds a silent-wrong band → R6 library fix on a branch, held,
-  surfaced to the user.
+- **Survival red-team-enhanced pass — CHIP SPAWNED.** Validates survival against current
+  PyPI **4.3.2** (`require_pypi`), ADDING red-team evidence (prior survival reports stay
+  frozen), ordered by the RIGOR priority hierarchy. Targeted (not a full re-sweep of the
+  bit-faithful classical core):
+  - **R15 default-degeneracy footgun (priority 1):** what does `discrete_time(intervals=None)`
+    do on continuous data (→ unique-event-time bins → perfect separation)? Must fail loud
+    or warn — never silently return separated garbage. If it's silent garbage → R6 library
+    fix (fail-loud), surfaced to the user.
+  - **R13 discrete-time-specific R12 boundary (priority 2/4):** re-prove the fp32
+    no-silent-wrong gate on person-period designs with heavy low-weight interval dummies —
+    the adversarial axis the well-behaved flchain sweep never stressed. Inherited guarantees
+    do NOT globalize.
+  - **R8 check:** confirm whether any 4.3.x regression-GLM fix (binomial deviance clamp,
+    GPU-OLS-SE) changes `discrete_time` outputs (it forwards to the GLM).
+  - **Stratified Cox:** log as a known gap (unimplemented; fail-loud is correct), do not fix.
+  - Priority-3 CPU-vs-R-across-sizes + priority-4 GPU value where survival has those paths.
+  Forge/CUDA allowance granted. Novelty path ("first discrete-time survival on GPU at
+  scale") gets the most scrutiny + a prior-art trawl before any paper (R13).
 
 ## Standing coordination constraints
 
 - **Release-hold: CLEARED.** The `pystatsbio`/`sgcbio` consistency releases have
-  landed and pystatistics has since shipped through **4.2.4**. No active hold. Re-check
+  landed and pystatistics has since shipped through **4.3.2**. No active hold. Re-check
   before any new library release; reinstate this line if a downstream consistency
   release is mid-flight again.
 - **One at a time.** Do not spawn the next module chip until the current one is done
   AND the user says go. The coordinator confirms before spawning.
+- **GPU must EARN its existence (RIGOR priority 4 / R1).** The GPU trades accuracy for
+  speed, so it must be FASTER than the CPU in its intended large-`n` regime — a GPU that
+  ties/loses to the CPU there is a finding, not an acceptable result. Not miracles; just
+  no embarrassment. Small-`n`/narrow-`p` parity is expected and fine.
+- **Regime-conditional guarantees; validate the default (RIGOR R13/R14/R15).** Inherited
+  guarantees (a forwarding module riding another's gate) must be RE-PROVEN on the new
+  regime; the guarantee lives on the version-independent layer (host fp64 gate, not the
+  torch-sensitive solver — name the torch version); validate the DEFAULT invocation a
+  naive user triggers, not just the expert case. Novelty claims get the most scrutiny.
 - **Hard cases + match R's failures/warnings (RIGOR R10).** Correctness grids must
   reach the adversarial regime (collinearity to the refusal boundary, separation,
   factor coding, weights/offsets, rank-deficiency) and match R's failures and warnings

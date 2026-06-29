@@ -36,15 +36,27 @@ pystatistics must be changed** (R1/R6). This requires a **CPU-vs-R speed compari
 across problem sizes** — small `n` (where fixed overhead bites) through large `n` —
 not a single point. A complexity-class gap (R1) is the most severe form.
 
-**4. GPU — last, held to a far weaker bar.**
-We make far fewer guarantees here. The demands are only: **(a) it must not crash**
-(fail loud, never silently wrong — A6/R9/R12); **(b) it must reach the accuracy we
-claim** (the fp32 tier); and **(c) it must not be grossly inefficient** (e.g. MPS
-1000× slower than CPU). Many of these paths have never run on a GPU, so squeezing
-optimization is **low priority unless it is low-hanging fruit**. A respectable GPU
-result can simply be "correct, doesn't crash, not absurdly slow." Do not manufacture a
-GPU speed showcase to pad a report; an honest "no GPU path, and why" (or "GPU present,
-modest") is a correct result.
+**4. GPU — last, weaker bar than CPU, but it must EARN its existence.**
+The GPU exists for one reason: **speed**. It already gives up accuracy (fp32), so if it
+is not faster than the CPU it buys the user *nothing* — a slower, less-accurate path is
+pointless and should not ship. The demands:
+- **(a) Must not crash** — fail loud, never silently wrong (A6/R9/R12).
+- **(b) Must reach the accuracy we claim** — the fp32 tier.
+- **(c) Must actually be faster than the CPU in the regime it is meant for** (large
+  `n`/`p`). We are not asking for miracles or any fixed multiple — but a GPU path that
+  ties or loses to the CPU where it should win has no reason to exist. Flag it: either
+  there is a defensible reason (the op genuinely does not parallelize — then question
+  why it has a GPU backend at all, per `CONVENTIONS.md`'s "when to add a GPU backend")
+  or it must be fixed/removed. Grossly inefficient (e.g. MPS 1000× slower than CPU) is
+  an outright failure.
+- **Small-`n` is exempt:** at tiny problem sizes GPU dispatch/transfer overhead
+  dominates and the CPU wins — expected and fine; nobody should reach for the GPU
+  there. The claim is about the GPU's *intended large-scale regime*.
+
+Optimization beyond "clearly beats CPU where it should" stays low priority unless it is
+low-hanging fruit — we are not chasing peak FLOPs, just a non-embarrassing, genuinely
+useful speedup. Do not manufacture a showcase; equally, do not ship a GPU path that
+never wins. An honest "no GPU path, and why" is a correct result.
 
 ## R1 — Parity with the reference means SPEED too, not just numbers
 
@@ -54,9 +66,11 @@ reference across a **range of problem sizes** — never a single size, which hid
 the slope.
 
 **Scope: this strict mandate is the CPU path (priority 3) — pystatistics on CPU must
-never lag R.** The GPU is priority 4 and held to the far weaker bar (no crash, claimed
-accuracy, not grossly inefficient); a GPU that is merely "not slower than CPU" is fine
-and need not beat R. Read the rest of R1 as the CPU contract.
+never lag R.** The GPU is priority 4, held to its own bar: it need not beat R, but it
+**must beat the CPU in its intended large-`n` regime** (a GPU that ties or loses to the
+CPU has no reason to exist — it already gave up accuracy for speed), must reach claimed
+fp32 accuracy, and must never be silently wrong. Read the rest of R1 as the CPU
+contract.
 
 - **Measure the empirical complexity.** Run the fit across a spread of `n` (and
   `p` where relevant) wide enough to reveal the scaling slope; observe/estimate
@@ -101,10 +115,12 @@ R2 (what is the user buying?) or fixed.
 
 - **GPU-warranted modules** (per `CONVENTIONS.md`'s "when to add a GPU backend"): add
   CPU vs MPS vs CUDA device pivots across `n`/`p` **on top of** the mandatory CPU-vs-R
-  study. The GPU pivots exist to show the priority-4 bar (no crash, claimed accuracy,
-  not grossly inefficient) — **not** to prove the GPU beats R or the CPU. When you
-  compare a GPU number against R, isolate precision from hardware (R11). Do not let a
-  GPU speedup headline stand in for the CPU-vs-R evidence priority 3 requires.
+  study. The GPU pivots exist to show the priority-4 bar: no crash, claimed accuracy,
+  **and a genuine speedup over the CPU in the intended large-`n` regime** (a GPU that
+  ties/loses to the CPU there is a finding, not an acceptable result) — but **not** to
+  prove the GPU beats R. When you compare a GPU number against R, isolate precision from
+  hardware (R11). Do not let a GPU speedup headline stand in for the CPU-vs-R evidence
+  priority 3 requires.
 - **CPU-only modules** (the constitution deliberately gives some none — e.g.
   `coxph`, `anova`, `timeseries.ets`): the CPU-vs-R study **is** the scaling study —
   this is precisely where complexity gaps like the coxph one surface. Do **not**
@@ -181,6 +197,12 @@ non-convergence.
 hypothesis to test against the fp64 reference first, not a conclusion. This is GPU
 GLM convergence logic in general — not specific to any one module or model type.
 
+> **Debugging heuristic (G3):** a *math* error and a *stop-criterion* error present
+> **identically** (non-convergence / wrong-looking output) but have **opposite** fixes
+> — one corrects the arithmetic, the other corrects/relaxes the convergence test.
+> Diagnose which before fixing: the coxph/discrete-time false-negative was a
+> stop-criterion bug masquerading as numerical instability.
+
 ## R10 — Correctness grids must include the hard cases, and match R's failures and warnings
 
 A grid of well-behaved textbook datasets (a handful of coefficients, no degeneracy)
@@ -240,6 +262,48 @@ R9 and R12 together require the gate to be a **true classifier in both direction
 never refuse a correct fit (R9), never accept a wrong one (R12). A speed win that
 relaxes a guarantee is the single most likely place a correctness regression hides —
 treat it as such.
+
+## R13 — Guarantees are regime-conditional; do not globalize an inherited guarantee
+
+A correctness guarantee (e.g. the R12 fp32 no-silent-wrong gate) is proven for the
+*input regime* it was tested on — it is **not** a property of the code in the abstract.
+
+- **Forwarded / inherited guarantees must be re-proven on the new regime.** When module
+  A forwards to module B (`survival.discrete_time` → `regression` GLM), A does **not**
+  inherit B's guarantee for free. discrete-time's regime — heavy low-weight
+  interval-dummy blocks, a separation-prone default — is adversarial in ways B's generic
+  validation never stressed. Re-run the R12-style boundary on A's *own* regime.
+- **A novelty claim earns MORE scrutiny, not less.** "First discrete-time survival on
+  GPU at scale" is the path to stress hardest, plus a prior-art trawl (arXiv / PyPI /
+  GitHub) before it appears in a paper.
+- What **does** generalize is the *methodology* — the correctness taxonomy, the
+  debugging heuristics (G3), the principles — not the specific numeric guarantee. Be
+  careful which lessons you globalize.
+
+## R14 — Put the guarantee on the stable, version-independent layer
+
+Separate the version-*sensitive* implementation from the version-*independent*
+guarantee. The fp32/MPS solver is torch-version-sensitive; the host-fp64 acceptance
+gate is not. The guarantee must live on the stable layer so it **survives a dependency
+upgrade — your guarantee must not break when torch updates.** Every report must:
+
+- **name the validated dependency version** (e.g. torch 2.12.1) for the
+  version-sensitive path, and
+- **state the invariant that holds across versions** (the fp64 gate keeps a wrong answer
+  loud regardless of the torch build).
+
+This is directly load-bearing for the regulated-buyer trust story: a guarantee that
+silently lapses on a dependency bump is not a guarantee.
+
+## R15 — Validate the DEFAULT invocation, not just the expert case
+
+Validate the call a naive user actually makes — the **defaults** — not only the tuned
+case you know is meaningful. A known-degenerate default (e.g.
+`discrete_time(intervals=None)` → every unique event time → perfect separation on
+continuous data) must **fail loud or warn**, never silently return separated garbage
+with huge coefficients. "We validated the meaningful 5-bin case" does not cover the
+footgun a user triggers on day one. The default's behaviour on the regime it will
+actually meet is a first-class correctness claim (priority 1).
 
 ## R7 — The seven questions
 
