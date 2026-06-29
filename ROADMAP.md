@@ -99,6 +99,14 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
   multi-module fix surfaced by survival, spun out so survival could continue). **If
   the fix is breaking, STOP and discuss with the user** (a breaking change is not a
   quiet minor release).
+- **Severe (showstopper) bug mid-run → STOP, fix, release, restart (RIGOR R16).** A
+  quiet-wrong result / wrong-but-precise-looking output / bypassed fail-loud guarantee
+  means the version under test is dead — do NOT continue validating it under the
+  "frozen/immutable" doctrine. Slam the brakes, surface to the user, fix as top
+  priority, cut a patch release (e.g. 4.3.2 → 4.3.3) + publish to PyPI (user authorizes,
+  never silent), discard the doomed version's partial artifacts, and RESTART validation
+  from the new version. A bug that already fails loud is NOT a showstopper → log + R6
+  next cycle. When in doubt, treat as severe.
 
 ## Per-module chip template (the coordinator fills `<<…>>` and embeds the rules)
 
@@ -128,10 +136,14 @@ Each module chip is self-contained (the spawned session has no prior context) an
    module's regime; R14 guarantee on the version-independent layer). Plus the **R4
    constitutional audit** and an honest perf story (R2: document any justified slowdown;
    never sweep).
-4. Repeats the current **release-hold** status and the Forge standing-CUDA-testing
-   allowance (only if a GPU path is warranted per the constitution).
-5. Deliverables: `drivers/<m>/`, `artifacts/<m>/v4.3.2/`, `subsystems/<m>/meta.json`,
-   `reports/<m>-v4.3.2.md`; commit to validation `main` and push.
+4. Repeats the current **release-hold** status, the Forge standing-CUDA-testing
+   allowance (only if a GPU path is warranted per the constitution), and the **R16
+   stop-fix-release-restart** rule: a severe (showstopper / quiet-wrong) bug halts the
+   run — surface to the user, fix, cut+publish a patch release, restart from the new
+   version; do not validate on past a known-broken version.
+5. Deliverables: `drivers/<m>/`, `artifacts/<m>/v<current>/`, `subsystems/<m>/meta.json`,
+   `reports/<m>-v<current>.md` (current PyPI version, which may advance mid-run under
+   R16); commit to validation `main` and push.
 6. Opens with discuss-before-acting: understanding + plan first.
 
 (The `regression` v4.3.2 chip is the worked example of the full rigor bar; the

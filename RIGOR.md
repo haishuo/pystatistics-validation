@@ -140,7 +140,9 @@ consistency standard.
 
 Validate the **PyPI-released** version (never a local checkout; `require_pypi`
 enforces). Numbers come only from frozen artifacts via `render_report.py` — never
-hand-typed. A report is immutable per library version.
+hand-typed. A report is immutable per library version. **"Immutable per version"
+governs how we record an *accepted* version's numbers — it is NOT licence to keep
+validating a version you have found to be broken; see R16.**
 
 ## R6 — Baseline → optimize → re-validate
 
@@ -304,6 +306,46 @@ continuous data) must **fail loud or warn**, never silently return separated gar
 with huge coefficients. "We validated the meaningful 5-bin case" does not cover the
 footgun a user triggers on day one. The default's behaviour on the regime it will
 actually meet is a first-class correctness claim (priority 1).
+
+## R16 — A severe (showstopper) bug found mid-run: STOP, fix, release, restart
+
+Validation exists to protect the user from wrong answers; **completing a run is never
+more important than that.** When a run surfaces a **severe** bug — by best judgement, a
+correctness/showstopper defect: a silently-wrong ("quiet-wrong") result, numbers a user
+would trust but shouldn't, a violated fail-loud guarantee (A6), data corruption — the
+version under test is **dead on arrival.** Do not rationalize continuing; "the report
+is frozen / immutable / PyPI-pinned" governs an *accepted* version (R5) and is never a
+reason to bless a known-broken one.
+
+**The procedure (slam the brakes):**
+1. **STOP the validation run immediately** — no further validation proceeds on the
+   doomed version.
+2. **Surface it to the user at once** — the stop, the diagnosis, the severity call.
+3. **Fix it as the top priority,** on a branch, with whatever testing the fix demands
+   (library changes obey `CONVENTIONS.md` + the Coding Bible + `.release/UNRELEASED.md`).
+4. **Cut a patch release** (e.g. 4.3.2 → **4.3.3**) and **publish to PyPI** — through the
+   normal release authorization (publishing is outward/irreversible; the user authorizes
+   it per `OPERATIONS.md`; never silent).
+5. **Discard / mark superseded** the doomed version's partial artifacts — never commit a
+   report that blesses a version you know is broken.
+6. **RESTART validation from the new version.**
+
+**Severity is a judgement call:**
+- **Showstopper → stop-fix-release-restart:** anything in priority-1 correctness that
+  misleads a user (quiet-wrong, wrong-but-precise-looking, fail-loud bypassed). A
+  complexity-class regression bad enough to make a path unusable also qualifies.
+- **Not a showstopper → log + handle in the normal R6 cycle, continue:** a defect that
+  already **fails loud** (no silent wrong), a performance nit with no correctness impact,
+  missing-but-fails-loud functionality (e.g. unimplemented stratified Cox), cosmetics/docs.
+- **When in doubt, treat it as severe and surface to the user.** A false stop costs
+  time; a false continue ships wrong answers.
+
+**Interactions:** if the fix is **breaking**, STOP and discuss — a breaking change is a
+deliberate decision, not a quiet patch (cf. R8). If a **release-hold** is active, a
+showstopper likely forces the issue — surface the conflict; the user decides. R16 is the
+**severity** trigger; R8 is the **breadth** (multi-module) trigger; both can fire at
+once. R6 is the routine baseline→optimize→re-validate flow; **R16 is its emergency-stop,
+correctness-driven sibling.**
 
 ## R7 — The seven questions
 
