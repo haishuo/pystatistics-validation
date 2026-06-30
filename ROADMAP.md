@@ -69,6 +69,25 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
   release is mid-flight again.
 - **One at a time.** Do not spawn the next module chip until the current one is done
   AND the user says go. The coordinator confirms before spawning.
+  - **Why (the real rationale, not just caution).** The validation *output* barely
+    conflicts — each run writes disjoint `drivers/<m>/`, `artifacts/<m>/`,
+    `reports/<m>-*.md`, `subsystems/<m>/`. What forces serialization is **shared mutable
+    state**: (1) **library source** — the moment a run finds a defect (CF-1, an R6/R8 fix,
+    an R16 showstopper) it mutates `../pystatistics`, and the most-likely-touched code is
+    the shared `core/compute` kernel where cross-module bugs live; (2) **the version line
+    and releases** — pystatistics has ONE version lineage (… → 4.3.3 → 4.4.0 …) and two
+    chips cannot both cut a PyPI release or race the version number (R5 version-pinning and
+    R16 stop-fix-release-restart both assume a single coherent version at any instant);
+    (3) **coordinator-owned shared files** — `ROADMAP.md`, `RIGOR.md`, `CARRY_FORWARD.md`,
+    and the central `Dev/datasets` store. So sequential buys **a single, coherent,
+    releasable library state** — not merely tidy merges. Every run is simultaneously a
+    *consumer* and a potential *mutator* of the trunk; a large org parallelizes features
+    against a stable trunk, which this is not.
+  - **Only sanctioned parallel exception:** a batch of **pure-correctness validations on
+    modules judged unlikely to need a library fix** (e.g. the correctness-dominant tail —
+    anova / descriptive / hypothesis), under a HARD rule: **no library mutation; anything
+    that finds a real defect STOPS and re-serializes.** Since you cannot predict which run
+    trips a fix, even this is a gamble — default remains sequential.
 - **Cross-module issues: fix-now-or-log; the whole library is in scope (RIGOR R8 +
   `CARRY_FORWARD.md`).** A shared-code fix that affects >1 module is R8 — fix it
   library-wide, or if it can't be done now, log it in `CARRY_FORWARD.md` so the affected
