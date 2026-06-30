@@ -7,56 +7,59 @@ validation (and the chip that performs it) MUST follow these. Companion to
 publishing a paper on it** — that discipline is what surfaces the defects that
 "just getting it written" hides.
 
-## What we validate — priorities, in strict order
+## What we validate — the three foundational guarantees, in strict order
 
-Every module report answers four questions, in this order of importance. **A failure
-high in this list is not bought off by success lower down.** R1–R12 are the *methods*;
-this is the *intent* they serve.
+PyStatistics makes the user three promises, in this order of importance. **A failure
+high in this list is not bought off by success lower down.** Everything else in this
+document (the red-team, the scaling studies, the GPU bar, R1–R18) is *method* — the
+machinery that proves or enforces these three.
 
-**1. Correctness — does pystatistics match R to the accuracy we promised?**
-Paramount. pystatistics makes the user a promise: agreement with the R reference to a
-*stated tolerance* (the per-module `tolerances` contract). If a produced answer does
-not meet its promised tolerance, **that is a bug in pystatistics** — full stop, not a
-footnote. "Looks close" is not the bar; meeting the stated level is.
+### Guarantee 1 — Correctness is absolute. PyStatistics must NEVER give an incorrect answer. Ever.
+The mathematical reference is R; an answer is correct when it matches R's result to the
+module's *stated tolerance* (the per-module `tolerances` contract). A produced answer
+that is wrong — outside the documented tolerance, or wrong while looking right — is the
+gravest failure there is, and nothing below buys it off. "Looks close" is not the bar;
+meeting the stated level is. A wrong answer that reaches a user is a showstopper (R16):
+stop everything, fix, re-release, restart. The red-team (R10) and the no-silent-wrong
+proofs (R9/R12/R13) exist to stress this guarantee where it is most likely to break.
 
-**2. Hard problems — does it hold off the happy path? (the red-team)**
-Matching R on well-behaved textbook data proves little. The red-team probes the hard
-regime — ill-conditioning, separation, factor coding, weights/offsets, rank deficiency
-(R10) — and demands pystatistics **match R's behaviour, including R's own failures and
-warnings**. Where pystatistics deliberately differs, the difference needs a
-**defensible, documented reason** (e.g. the Gamma ML-vs-Pearson dispersion).
-Undocumented or indefensible deviation is a defect.
+### Guarantee 2 — Never answer a different question than the one asked. No silent substitution.
+If the user asks for a specific backend, precision, algorithm, or option, PyStatistics
+delivers **exactly that**, or it **fails loud explaining why it cannot** — it must never
+silently swap in a different backend, drop to a different precision, or substitute a
+different algorithm to manufacture an answer. Getting "the right number" by quietly
+changing the computation the user requested is a violation, not a convenience (the A6
+"PyStatistics does not help" amendment, elevated here to a foundational guarantee).
+What IS allowed: when the user expresses no preference (a bare default call),
+auto-selecting the best available *validated-equivalent* path — provided the choice is
+**disclosed** (e.g. `solution.backend_name`) and produces the same answer to tolerance.
+Silent ≠ default-selection; silent = overriding or substituting what was explicitly
+requested, or changing the question without telling the user.
 
-**3. CPU speed — pystatistics on the CPU path must NEVER lag R.**
-A hard requirement, not an aspiration. The CPU path is the R-equivalent path. If R
-fits an LM in 0.01 ms and pystatistics takes 0.1 ms, that 10× gap **must be explained:
-what is the user buying for it?** — a more robust algorithm, quantities R does not
-compute, a correctness guarantee. **If the answer is "nothing," it is a defect and
-pystatistics must be changed** (R1/R6). This requires a **CPU-vs-R speed comparison
-across problem sizes** — small `n` (where fixed overhead bites) through large `n` —
-not a single point. A complexity-class gap (R1) is the most severe form.
+### Guarantee 3 — Subject to 1 and 2, do not be slower than R on the same hardware with the same algorithm.
+Make every effort not to lag R like-for-like. If R fits an LM in 0.01 ms and
+PyStatistics takes 0.1 ms on the same hardware running the same algorithm, that 10× gap
+**must be justified by a material benefit** — a more accurate or more robust result,
+quantities R does not compute, a correctness/stability guarantee. **If the benefit is
+"nothing," it is a defect and PyStatistics must be changed** (R1/R2/R6). This is proven
+with a **speed comparison across problem sizes** — small `n` (where fixed overhead
+bites) through large `n` — not a single point; a complexity-class gap (R1) is its most
+severe form. "Same hardware, same algorithm" is the apples-to-apples frame: a *different*
+(faster) algorithm or *different* hardware (GPU) is a separate, legitimate win, not a
+violation — and a faster validated implementation (even one on a heavier dependency, per
+`CONVENTIONS.md`'s dependency-tiering amendment) is preferred over a slower one, never
+the reverse "for packaging reasons."
 
-**4. GPU — last, weaker bar than CPU, but it must EARN its existence.**
-The GPU exists for one reason: **speed**. It already gives up accuracy (fp32), so if it
-is not faster than the CPU it buys the user *nothing* — a slower, less-accurate path is
-pointless and should not ship. The demands:
-- **(a) Must not crash** — fail loud, never silently wrong (A6/R9/R12).
-- **(b) Must reach the accuracy we claim** — the fp32 tier.
-- **(c) Must actually be faster than the CPU in the regime it is meant for** (large
-  `n`/`p`). We are not asking for miracles or any fixed multiple — but a GPU path that
-  ties or loses to the CPU where it should win has no reason to exist. Flag it: either
-  there is a defensible reason (the op genuinely does not parallelize — then question
-  why it has a GPU backend at all, per `CONVENTIONS.md`'s "when to add a GPU backend")
-  or it must be fixed/removed. Grossly inefficient (e.g. MPS 1000× slower than CPU) is
-  an outright failure.
-- **Small-`n` is exempt:** at tiny problem sizes GPU dispatch/transfer overhead
-  dominates and the CPU wins — expected and fine; nobody should reach for the GPU
-  there. The claim is about the GPU's *intended large-scale regime*.
-
-Optimization beyond "clearly beats CPU where it should" stays low priority unless it is
-low-hanging fruit — we are not chasing peak FLOPs, just a non-embarrassing, genuinely
-useful speedup. Do not manufacture a showcase; equally, do not ship a GPU path that
-never wins. An honest "no GPU path, and why" is a correct result.
+### The GPU corollary to Guarantee 3
+The GPU is an instance of Guarantee 3, held to its own bar: it exists for **speed**, and
+it already gives up accuracy (fp32), so it must (a) never crash and never be silently
+wrong — Guarantees 1 & 2 still bind absolutely (A6/R9/R12); (b) reach the claimed fp32
+tier; and (c) actually be **faster than the CPU in its intended large-`n`/`p` regime** —
+a GPU that ties or loses to the CPU there has no reason to exist (flag it; fix or remove
+it). Small-`n`/narrow-`p` parity is expected (dispatch overhead) and fine. We are not
+chasing peak FLOPs — just a non-embarrassing, genuinely useful speedup; an honest "no
+GPU path, and why" is a correct result. Do not manufacture a showcase, and do not ship a
+GPU path that never wins.
 
 ## R1 — Parity with the reference means SPEED too, not just numbers
 
@@ -65,8 +68,8 @@ must also compare its **performance and asymptotic complexity** against the
 reference across a **range of problem sizes** — never a single size, which hides
 the slope.
 
-**Scope: this strict mandate is the CPU path (priority 3) — pystatistics on CPU must
-never lag R.** The GPU is priority 4, held to its own bar: it need not beat R, but it
+**Scope: this strict mandate is the CPU path (Guarantee 3) — pystatistics on CPU must
+never lag R.** The GPU (the Guarantee-3 corollary) is held to its own bar: it need not beat R, but it
 **must beat the CPU in its intended large-`n` regime** (a GPU that ties or loses to the
 CPU has no reason to exist — it already gave up accuracy for speed), must reach claimed
 fp32 accuracy, and must never be silently wrong. Read the rest of R1 as the CPU
@@ -106,21 +109,21 @@ accept, why we are slower?* If not, it's R1 (a defect), not R2 (a justified cost
 
 Each report includes a scaling study sized to reveal R1.
 
-**The CPU-vs-R-across-sizes study is MANDATORY for every module** (priority 3): fit
+**The CPU-vs-R-across-sizes study is MANDATORY for every module** (Guarantee 3): fit
 across a spread of `n` (and `p` where relevant), from small `n` (where fixed Python
 dispatch overhead bites — the place pystatistics is most likely to lag) through large
 `n`, comparing **pystatistics CPU vs R**. A single-point speed comparison does not
-satisfy this. Any size at which pystatistics lags R must be explained per priority 3 /
+satisfy this. Any size at which pystatistics lags R must be explained per Guarantee 3 /
 R2 (what is the user buying?) or fixed.
 
 - **GPU-warranted modules** (per `CONVENTIONS.md`'s "when to add a GPU backend"): add
   CPU vs MPS vs CUDA device pivots across `n`/`p` **on top of** the mandatory CPU-vs-R
-  study. The GPU pivots exist to show the priority-4 bar: no crash, claimed accuracy,
+  study. The GPU pivots exist to show the GPU bar (Guarantee-3 corollary): no crash, claimed accuracy,
   **and a genuine speedup over the CPU in the intended large-`n` regime** (a GPU that
   ties/loses to the CPU there is a finding, not an acceptable result) — but **not** to
   prove the GPU beats R. When you compare a GPU number against R, isolate precision from
   hardware (R11). Do not let a GPU speedup headline stand in for the CPU-vs-R evidence
-  priority 3 requires.
+  Guarantee 3 requires.
 - **CPU-only modules** (the constitution deliberately gives some none — e.g.
   `coxph`, `anova`, `timeseries.ets`): the CPU-vs-R study **is** the scaling study —
   this is precisely where complexity gaps like the coxph one surface. Do **not**
@@ -321,7 +324,7 @@ case you know is meaningful. A known-degenerate default (e.g.
 continuous data) must **fail loud or warn**, never silently return separated garbage
 with huge coefficients. "We validated the meaningful 5-bin case" does not cover the
 footgun a user triggers on day one. The default's behaviour on the regime it will
-actually meet is a first-class correctness claim (priority 1).
+actually meet is a first-class correctness claim (Guarantee 1).
 
 ## R16 — A severe (showstopper) bug found mid-run: STOP, fix, release, restart
 
@@ -347,7 +350,7 @@ reason to bless a known-broken one.
 6. **RESTART validation from the new version.**
 
 **Severity is a judgement call:**
-- **Showstopper → stop-fix-release-restart:** anything in priority-1 correctness that
+- **Showstopper → stop-fix-release-restart:** anything in Guarantee-1 correctness that
   misleads a user (quiet-wrong, wrong-but-precise-looking, fail-loud bypassed). A
   complexity-class regression bad enough to make a path unusable also qualifies.
 - **Not a showstopper → log + handle in the normal R6 cycle, continue:** a defect that
