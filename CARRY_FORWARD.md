@@ -22,6 +22,35 @@ affects · what to verify/do · status.
 
 ## Open
 
+_(none)_
+
+---
+
+## Cleared
+
+### CF-1 — fp64 Gram/covariance on the fp32 GPU path → CLEARED at multivariate 4.4.0
+- **Cleared 2026-06-30** by the multivariate validation. The original fear — that
+  PCA's GPU path forms an fp32 Gram and silently loses trailing eigenvalues — does
+  **not** materialise:
+  - **Default paths form no big fp32 Gram:** CPU PCA uses SVD-of-X (no Gram, immune
+    by construction — the near-collinear cond~1e8 hard case recovers the 7e-9
+    smallest singular value to machine precision); default CUDA = SVD-of-X; MPS
+    routes to randomized SVD (only a tiny gated l×l sketch Gram).
+  - **The opt-in `solver='gram'` fp32 path is gated LOUD, never silently wrong.**
+    On CUDA the CF-1 boundary sweep (cond straddling the fp32 threshold) gave
+    **silent_wrong_count = 0**: every accepted fp32 fit was correct vs fp64
+    (subspace ~0°, sdev ~3e-6); every design past the fp32-safe boundary REFUSED
+    (NumericalError) with force=True the documented override. The randomized gate
+    behaves identically (R13 re-proven on CUDA + MPS). The gate is a true
+    classifier — accept⟹correct, refuse⟹loud.
+  - Evidence: `artifacts/multivariate/v4.4.0/runs/cuda_forge.json` (CF-1 gate
+    study) + `gpu_mac_powerhouse.json` (MPS gate). Reported in
+    `reports/multivariate-v4.4.0.md`.
+
+---
+
+## Superseded entry (kept for history)
+
 ### CF-1 — fp64 Gram/covariance on the fp32 GPU path (regression → PCA / multivariate)
 - **Issue:** On `backend='gpu'` (fp32), forming the Gram/covariance matrix in single
   precision loses the **smallest eigenvalue(s)**. In regression this understated GPU OLS
@@ -40,7 +69,21 @@ affects · what to verify/do · status.
   library-wide (R8) or, if a showstopper silent-wrong, R16 (stop-fix-release-restart).
   Build an ill-conditioned correctness case (R10) that would expose a lost smallest
   eigenvalue, on both MPS and CUDA.
-- **Status:** OPEN — to be cleared by the multivariate chip.
+- **Source-read finding (4.4.0, to be confirmed on PyPI + CUDA):** the **default** paths
+  do **not** form a big fp32 Gram, so the original silent-wrong fear does not reach a
+  default user. CPU PCA uses SVD of X directly (no Gram). Default CUDA path is SVD of X.
+  MPS now routes to randomized SVD (CholeskyQR2; only a tiny gated l×l Gram of the
+  sketch). The **only** fp32-Gram exposure is the **opt-in `solver='gram'`** path, which
+  is **gated loud** (`NumericalError` via `_MIN_EIG_RATIO`) unless `force=True`. The
+  sharp residual (R12/R13): the gate judges conditioning from eigenvalues of the
+  **already-fp32-corrupted** Gram — prove on CUDA whether a silent-wrong band exists
+  where corruption yields a plausible-but-wrong λ that passes the gate.
+- **R18 classification:** because the exposure is a **gated, opt-in, off-default** path,
+  any imperfection found is **gather-level** (candidate for a bundled 4.4.1), **not** a
+  brakes-slam — UNLESS the CUDA test shows a **default-reachable uncaught wrong answer**,
+  which would be a showstopper (R16). Clear or downgrade during the 4.4.0 restart.
+- **Status:** OPEN — to be cleared/downgraded during the 4.4.0 multivariate validation
+  (CUDA boundary test on the gated Gram path).
 
 ---
 

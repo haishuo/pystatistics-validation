@@ -1,0 +1,11 @@
+case,outcome,scaling,n,p,k_compared,k_pystat,k_r,sdev_max_abs,sdev_max_rel_resolvable,rotation_max_abs_resolvable,n_nullspace_components,nullspace_eigvec_disagreement_expected,smallest_sdev_pystat,smallest_sdev_r,pystat_refused,r_refused,matched,pystat_error,r_error
+near-collinear (cond~1e8),agreement,covariance,200,5,5,5,5,8.881784197001252e-16,5.932991247679759e-16,1.2212453270876722e-15,1,1.1102230246251565e-16,7.1297172851674555e-09,7.1297172996000135e-09,,,,,
+rank-deficient (exact dependency),agreement,covariance,200,5,5,5,5,8.881784197001252e-16,8.68237376186984e-16,6.411537967210279e-15,1,1.1102230246251565e-16,1.898137372421964e-16,1.912906952547015e-16,,,,,
+"wide p>>n (n=20, p=50)",agreement,covariance,20,50,20,20,20,2.4424906541753444e-15,1.3767571240277045e-15,1.4585554986012994e-14,1,0.2769630380350806,3.642527370981336e-16,2.9790491541511076e-16,,,,,
+constant column + scale=TRUE,matched_refusal,correlation,,,,,,,,,,,,,True,True,True,ValidationError: X: columns [1] have zero variance; cannot scale constant columns,"pca_run.R failed (exit 1):
+Error in prcomp.default(X, center = do_center, scale. = do_scale) : 
+  cannot rescale a constant/zero column to unit variance
+Calls: fit_once -> prcomp -> prcomp.default
+Execution halted
+"
+constant column + scale=FALSE,agreement,covariance,100,4,4,4,4,2.220446049250313e-16,2.1332219339448416e-16,1.9984014443252818e-15,1,1.5499424204104483e-15,1.2526021005873738e-17,3.277324874029139e-17,,,,,

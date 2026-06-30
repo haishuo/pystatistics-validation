@@ -1,0 +1,2 @@
+analysis,dataset,n_factors,n,p,uniq_max_abs,loadings_max_abs,objective_rel,chi_sq_rel,py_converged,r_warning,note
+factor_analysis,iris,1,150,4,0.005426584247956501,0.0063786651006431105,0.03220364773843227,0.03220364773843243,True,,F2: Heywood uniqueness-floor convention differs (py ~0 vs R lower=0.005); see findings_ledger. Gathered for 4.4.1.

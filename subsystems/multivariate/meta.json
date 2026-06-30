@@ -1,0 +1,88 @@
+{
+  "schema": "validation-subsystem-meta/v1",
+  "subsystem": "multivariate",
+  "title": "Multivariate analysis — principal component analysis + maximum-likelihood factor analysis",
+  "module": "pystatistics.multivariate",
+  "procedure": "Two unsupervised multivariate methods under one module. Principal component analysis (PCA) decomposes a centred (optionally scaled) data matrix into orthogonal components ordered by variance, reporting the component standard deviations (sdev), the loadings/rotation matrix, the scores, and the explained-variance proportions — the eigendecomposition of the covariance (scale=False) or correlation (scale=True) matrix, computed by SVD of the data matrix so the condition number is never squared. Maximum-likelihood factor analysis (FA) fits the model Sigma = Lambda Lambda' + Psi: a low-rank common-factor structure (loadings Lambda) plus per-variable uniquenesses Psi, estimated by maximising the ML objective over the uniquenesses and reporting loadings (up to rotation), uniquenesses, communalities, the ML objective and a chi-squared goodness-of-fit test. pystatistics matches R's stats::prcomp for PCA and stats::factanal for FA.",
+  "algorithms": [
+    "PCA, CPU (reference path): thin SVD of the centred/scaled data matrix X (numpy LAPACK gesdd), sdev = singular values / sqrt(n-1), rotation = right singular vectors with R's sign convention (largest-magnitude loading per component made positive), scores = X_centred @ rotation. SVD of X — NOT eigendecomposition of X'X — so the condition number is never squared and the smallest components survive; agrees with prcomp to floating-point round-off. fp64, deterministic.",
+    "PCA, GPU randomized (the 4.4.0 path): Halko-Martinsson-Tropp randomized truncated SVD for the top-k components, built entirely from GPU-native primitives (matmul + Cholesky): a random sketch Omega, Y = X Omega, CholeskyQR2 orthonormalisation, n_iter power iterations, B = Q'X, and a small (k+oversample)x(k+oversample) eigendecomposition. This is the path that runs on Apple Silicon/MPS, where torch.linalg.svd silently falls back to CPU and torch.linalg.eigh has no Metal kernel — randomized SVD needs neither. fp32; the random sketch is controlled by an injectable seed (default 0). Accuracy improves with n_iter / oversample (defaults 4 / 10).",
+    "PCA, GPU exact paths (CUDA): solver='svd' (SVD of X on the GPU) and solver='gram' (eigendecomposition of the fp32 X'X — a big GEMM plus a pxp symmetric eigendecomposition, fast on tall-skinny well-conditioned data but it squares the condition number). gpu_fp64 (CUDA only) runs either at double precision for CPU-matching exactness.",
+    "PCA condition-number gate (the no-silent-wrong guarantee): the gram and randomized paths form a Gram/CholeskyQR factor in single precision, which squares the condition number. The backend computes the eigenvalue ratio of the retained subspace and REFUSES (core.exceptions.NumericalError) when fp32 cannot recover the small directions (cond(X) beyond ~1e3 for fp32, ~1e6 for fp64), rather than returning a silently-wrong spectrum; force=True is the documented override. The gate keys on the RETAINED top-k subspace (the components PCA actually returns), so an ill-conditioned full matrix whose top-k subspace is well-conditioned is correctly accepted.",
+    "Factor analysis, CPU: the ML objective (Joreskog's profiled negative log-likelihood over the uniquenesses, parameterised in log(psi) so psi>0) is minimised by L-BFGS-B with an analytic gradient; loadings are recovered from the eigendecomposition of Psi^{-1/2} S Psi^{-1/2} on the sample correlation matrix S, then varimax- (or promax-) rotated. Reports loadings, uniquenesses, communalities, the ML objective, and the chi-squared statistic with ((p-m)^2-(p+m))/2 degrees of freedom. CPU-only (no GPU path).",
+    "Backends, named as backend='<device>[_<precision>]': cpu (fp64, the R-reference path); gpu (fp32 — randomized on Apple Silicon/MPS, svd/gram/randomized on CUDA); gpu_fp64 (fp64, CUDA-only; Metal has no fp64 and raises). solver in {svd, gram, randomized, auto} selects the GPU algorithm; on MPS the default/auto route to randomized (the only genuinely on-device path) and an explicit svd/gram raises rather than silently running on the CPU."
+  ],
+  "reference": {
+    "name": "R stats::prcomp / stats::factanal",
+    "kind": "cran-builtin",
+    "what": "R's prcomp() (PCA via SVD of the centred/scaled data matrix) is the PCA reference; stats::factanal() (maximum-likelihood factor analysis) is the FA reference. Agreement is measured on eigenvalues/sdev and explained variance, sign-aligned loadings, and scores for PCA; and on uniquenesses, the ML objective, the chi-squared test, and loadings (up to rotation/sign) for FA. Eigenvector signs are arbitrary (LAPACK-dependent), so loadings/scores are sign-aligned per component before comparison; near-degenerate or null-space directions are compared by the rotation-invariant subspace angle, since individual vectors there are mathematically undefined.",
+    "also_compared": []
+  },
+  "tolerances": {
+    "pca_vs_prcomp": "CPU PCA agrees with R prcomp() to floating-point round-off on the canonical datasets (iris, USArrests; covariance and correlation scaling): sdev to <=1.2e-15 relative, sign-aligned rotation to <=6.1e-16, scores to <=2.7e-12, explained-variance ratio to <=4.4e-16. Both use SVD of the same centred/scaled matrix, so agreement is at the level of LAPACK round-off.",
+    "pca_hardcases_r10": "On the adversarial grid pystatistics matches R's BEHAVIOUR, not only its easy-data numbers (RIGOR R10). Near-collinear (cond~1e8), rank-deficient (exact dependency), and wide p>>n designs: sdev agrees to <=2.4e-15 and the resolvable eigenvectors to <=1.5e-14; the smallest singular value of the near-collinear design (7e-9) is recovered to machine precision (the CPU SVD-of-X path never squares the condition number, so it does not lose small components). Null-space directions (one per degenerate design) are correctly identified as ambiguous and excluded from the eigenvector comparison — numpy and R legitimately pick different basis vectors there. A constant (zero-variance) column under scale=True is REFUSED by both engines (matched failure); under scale=False both succeed to round-off. The default invocation pca(X) (center=True, scale=False, all components) is validated directly (R15).",
+    "fa_vs_factanal": "Factor analysis carries two GATHERED non-showstopper findings (RIGOR R18) scheduled for a 4.4.1 bundle, so the multi-factor FA-vs-factanal correctness claim is DEFERRED to the 4.4.1 re-validation. The FA ML core is sound (the 1-factor iris fit converges and the objective/uniquenesses are recorded vs factanal). Finding F1: the DEFAULT call factor_analysis(X, n_factors>=2) (rotation defaults to varimax) raises ConvergenceError on clean, well-fitting data because the varimax stop test is ABSOLUTE (|d_new-d_old|<1e-6) rather than RELATIVE like R's stats::varimax (d < dpast*(1+tol)) — it fails loud, never returns a wrong number. Finding F2: the uniqueness Heywood floor differs (pystatistics ~0 vs R factanal's default lower=0.005), so on a Heywood-prone model (iris 1-factor) pystatistics lands at a different, lower-objective constrained optimum (uniqueness gap ~5e-3, objective gap ~3%). Both are convention/loud-failure issues, not silent-wrong; see artifacts/.../findings_ledger.md.",
+    "cpu_speed_r1": "CPU speed is a first-class deliverable (RIGOR priority 3 / R1): the CPU path is the R-equivalent path and must never lag R. PCA: pystatistics CPU MEETS-OR-BEATS R prcomp at every size (speedup_vs_r 1.17-1.45x) across n from 1e3 to 1e5 and p from 10 to 500, with matching empirical complexity (~O(n^0.9) both). FA: pystatistics beats factanal by 1.7-3.3x at n>=2000; the single small-n point (n=500, 0.53x) is the only lag and is explained (R2) — the ML optimiser takes ~38 iterations on the noisier small-sample correlation vs ~10 at larger n, a data-dependent iteration count, not a complexity-class or per-iteration deficit (R's sub-5ms times are also timer-quantised). Logged as minor finding F3 for the 4.4.1 FA work.",
+    "gpu_mac_value_r1": "The MPS randomized PCA path that 4.4.0 ADDED (the library previously refused PCA on Apple Silicon outright) earns its place (RIGOR priority 4): it is materially faster than the fp64 CPU in its intended large regime — 3.5x at 100kx100, 9.3x at 500kx200, 31x at the wide 2000x5000 — while small-n (5000x100) is near parity (1.4x), the expected dispatch-overhead regime. CUDA randomized: 5.0x (100kx100), 9.0x (500kx200), 109x (wide 2000x5000).",
+    "gpu_randomized_accuracy": "Randomized SVD is an approximate top-k method; correctness is measured by the rotation-invariant subspace angle (the right metric, immune to the eigenvector ambiguity that arises when singular values are near-degenerate). On gapped (well-separated top-k) spectra the MPS path recovers the top-k subspace to <=0.022 degrees (sdev to 1e-7..2.4e-4 depending on the spectral gap and n_iter) and the CUDA path to ~0 degrees, both inside the GPU_FP32 statistical-equivalence tier. The seed controls the random sketch; GPU fp32 matmul reductions are not bit-deterministic across calls, so same-seed agreement is to the fp32 tier (~5.6e-9), not bit-exact — different seeds also stay within tier.",
+    "cf1_gate_r12": "CARRY-FORWARD CF-1 (the fp32-Gram trailing-eigenvalue loss that understated regression GPU OLS SEs) is CLEARED for multivariate. The default paths form no large fp32 Gram (CPU/CUDA default = SVD-of-X; MPS = randomized). The opt-in solver='gram' fp32 path is GATED LOUD: the CUDA boundary sweep (cond straddling the fp32 threshold) returns silent_wrong_count=0 — every accepted fp32 fit is correct vs fp64 (subspace ~0 deg, sdev ~3e-6), every design past the fp32-safe boundary REFUSES (NumericalError) with force=True the documented override. The randomized gate behaves identically (R13 re-proven on CUDA and MPS). The gate is a true classifier in both directions: never accepts a wrong fit (R12), never refuses a recoverable well-conditioned top-k.",
+    "r11_isolation": "GPU speedup attribution (RIGOR R11). On CUDA the same-precision pivot gpu_fp64 vs cpu_fp64 isolates the hardware effect: gpu_fp64 is numerically EXACT vs CPU (sdev to ~5e-14..2e-13) but SLOWER than the CPU (hardware-only 0.06-0.65x) because the consumer RTX 5070 Ti runs fp64 at ~1/64 fp32 — so gpu_fp64 is a correctness option, not a speed one. The fp32 GPU win (bundled 2.2-7.3x) is therefore driven by the fp32 precision and the randomized algorithm, not raw double-precision hardware throughput; reported honestly rather than as a bundled headline. BLAS provenance: numpy and R both link Apple Accelerate BLAS on Powerhouse; R uses reference LAPACK (libRlapack), numpy uses Accelerate LAPACK.",
+    "version_sensitivity_r14": "The MPS/CUDA randomized solver is torch-version-sensitive (validated on torch 2.12.1 on Apple Silicon and torch 2.11.0.dev+cu128 on the RTX 5070 Ti); the version-INDEPENDENT guarantee is the host-fp64 acceptance gate — the condition-number gate that keeps a fp32-unrecoverable decomposition loud regardless of the torch build. The fp64 CPU reference is the version-independent correctness anchor."
+  },
+  "limitations": [
+    "Factor analysis multi-factor correctness is DEFERRED to the 4.4.1 re-validation. The default factor_analysis(X, n_factors>=2) currently raises ConvergenceError (varimax absolute-convergence stop test, finding F1) and the uniqueness Heywood floor differs from R (finding F2). Both fail loud / return a defensible constrained optimum — neither is silently wrong (RIGOR R18: gathered, not a showstopper). Use rotation='none' for a multi-factor fit until 4.4.1; the FA ML core is validated.",
+    "PCA on GPU is fp32 (randomized/svd/gram) or fp64 (gpu_fp64, CUDA only). Apple Silicon/MPS has no fp64 and no on-device SVD/eigh, so the MPS PCA path is randomized truncated SVD only; an explicit solver='svd'/'gram' on MPS fails loud (it would silently fall back to CPU / has no Metal kernel) rather than running on the CPU under a 'gpu' label.",
+    "The randomized GPU path is approximate (top-k only) and its accuracy depends on the spectral gap and the n_iter/oversample knobs (defaults 4/10): on well-separated spectra it reaches the fp32 tier (subspace <0.03 deg), but a near-degenerate top-k cluster has mathematically ambiguous individual vectors (the subspace is still recovered). For an exact full decomposition use backend='cpu' (fp64 SVD) or backend='gpu_fp64' on CUDA.",
+    "The fp32 GPU condition gate is conservative: on designs whose retained top-k straddles the fp32 floor it refuses (fail-loud) some fits that force=True would recover. This errs on the safe side — it never accepts a silently-wrong decomposition — but means a band of force-recoverable designs are refused by default. Use backend='cpu' for ill-conditioned decompositions.",
+    "gpu_fp64 PCA is numerically exact but slower than the CPU on consumer NVIDIA hardware (fp64 ~1/64 fp32 throughput); it is a CPU-parity correctness option, not a speed path. The fp32 randomized path is the GPU speed path."
+  ],
+  "audit": {
+    "intro": "R4 constitutional-compliance note for the multivariate public surface (pca, factor_analysis, PCASolution, FactorSolution). All selectors and error types conform to CONVENTIONS.md; no deviations found. The 4.4.0 release added the randomized GPU path and the MPS routing audited below.",
+    "findings": [
+      {
+        "id": "backend",
+        "title": "backend= device+precision encoding",
+        "status": "conforms",
+        "detail": "pca() takes backend in {cpu (fp64), gpu (fp32), gpu_fp64 (CUDA-only fp64), auto} — the constitutional device+precision encoding, with no use_fp64 flag. gpu_fp64 raises a clear RuntimeError on Apple Silicon (Metal has no fp64). factor_analysis is CPU-only (no GPU path manufactured where the method does not warrant one)."
+      },
+      {
+        "id": "solver",
+        "title": "solver selector taxonomy",
+        "status": "conforms",
+        "detail": "The GPU algorithm is chosen by solver in {svd, gram, randomized, auto} — a method/solver selector consistent with the taxonomy, distinct from the backend device/precision axis. On MPS the default/auto resolve to randomized; an explicit svd/gram raises (fail-loud, no silent CPU fallback)."
+      },
+      {
+        "id": "A6",
+        "title": "Fail-loud, never silently wrong",
+        "status": "conforms",
+        "detail": "Ill-conditioned fp32 decompositions raise core.exceptions.NumericalError (force=True overrides); zero-variance columns under scale=True raise ValidationError on both pystatistics and R; the varimax non-convergence (F1) raises ConvergenceError. The CF-1 gate study confirms zero silent-wrong fits on the fp32 Gram/randomized paths (R12)."
+      },
+      {
+        "id": "solution_accessors",
+        "title": "Solution objects + uniform accessors",
+        "status": "conforms",
+        "detail": "pca returns PCASolution (.sdev, .rotation, .x scores, .center, .scale, .explained_variance_ratio, .cumulative_variance_ratio) mirroring prcomp's $sdev/$rotation/$x naming; factor_analysis returns FactorSolution (.loadings, .uniquenesses, .communalities, .chi_sq, .p_value, .dof, .converged). Both wrap the standard Result envelope with backend_name/warnings."
+      },
+      {
+        "id": "determinism",
+        "title": "Injectable seed for the randomized path (Rule 6)",
+        "status": "conforms",
+        "detail": "The randomized GPU path's only nondeterminism is the random sketch, controlled by an injectable seed (default 0, so the default invocation is deterministic up to GPU fp32 reduction order). oversample/n_iter are explicit accuracy knobs. NON-DETERMINISTIC GPU fp32 reductions keep same-seed agreement to the fp32 tier, not bit-exact — documented."
+      }
+    ]
+  },
+  "datasets": [
+    {
+      "name": "iris",
+      "what": "datasets::iris — 150 flowers x 4 correlated measurements (Species factor dropped). The canonical PCA teaching set (prcomp(iris[,1:4])) and the 1-factor FA target. Curated to the central HDF5 store (R17)."
+    },
+    {
+      "name": "USArrests",
+      "what": "datasets::USArrests — 50 US states x 4 violent-crime statistics on mixed scales (Assault counts dwarf the per-100k rates). R's prcomp help-page example and the covariance-vs-correlation scaling case (R10/R15). Curated to the central HDF5 store (R17)."
+    },
+    {
+      "name": "synthetic spectrum designs",
+      "what": "Deterministic, seeded designs with controlled singular-value spectra (orthonormal factors x a chosen spectrum) for the hard-case grid (near-collinear, rank-deficient, wide p>>n, constant column), the CPU/GPU scaling sweeps, and the CF-1 condition-gate boundary sweep. Generated in-driver (not stored), matching the regression scaling-grid precedent."
+    }
+  ]
+}

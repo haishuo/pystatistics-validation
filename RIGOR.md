@@ -382,6 +382,40 @@ central store** — they do not carry their own copies.
   central store — fold them into the store and load from `MVNMLE_DATA_DIR` when those
   modules are next touched.
 
+## R18 — Triage every finding: showstoppers slam the brakes, the rest are gathered into one bundled patch
+
+R16 is the emergency stop; R6 is the routine fix-and-re-validate. R18 is the **triage
+rule that decides which one applies** and prevents version-thrash from minor defects.
+
+Every defect found during a validation pass is classified at the moment it is found:
+
+- **Showstopper → R16, immediately.** A correctness defect that would mislead a user:
+  a **silent failure**, an **uncaught wrong answer** (wrong-but-trusted, wrong-but-
+  precise-looking), a bypassed fail-loud guarantee (A6), data corruption, or a
+  complexity-class regression bad enough to make a path unusable. The version under
+  test is **dead on arrival**: STOP all validation, surface, fix, cut a patch, publish
+  (with authorization), discard the doomed version's partial artifacts, restart from the
+  new version. **No validation proceeds on a doomed version.** When in doubt, treat as
+  showstopper (a false stop costs time; a false continue ships wrong answers).
+
+- **Non-showstopper → GATHER, do not stop.** An inaccuracy or defect that **already
+  fails loud** (no silent wrong), a numerical tolerance miss on a gated/opt-in path a
+  default user does not reach, a documented-and-bounded approximation, a performance nit
+  with no correctness impact, cosmetics/docs. These do **not** each trigger a stop or
+  their own release. **Log each to the run's findings ledger and continue the pass.**
+
+**The bundle.** After the pass, the gathered non-showstoppers are fixed together and
+shipped as **one patch release** (e.g. 4.4.0 → **4.4.1**) — not a release per defect.
+The published, blessed report is then the **bundled version**: re-validate the affected
+surface at the new patch (R6's baseline→optimize→re-validate, batched). A validation
+pass may legitimately *complete* on a version carrying known non-showstopper findings,
+**provided** the final blessed report is the bundle that fixes them — never a report
+that silently blesses known inaccuracies (Rule 9 / R5).
+
+The line is correctness-to-the-user, not severity-of-effort: *would a user trust a wrong
+number because nothing told them not to?* If yes → showstopper/R16. If the system already
+refuses, warns, or the inaccuracy is bounded and off the default path → gather/R18.
+
 ## R7 — The seven questions
 
 Every report answers them (see `ARCHITECTURE.md` / the template): procedure,
