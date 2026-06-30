@@ -9,56 +9,63 @@ publishing a paper on it** — that discipline is what surfaces the defects that
 
 ## What we validate — the three foundational guarantees, in strict order
 
-PyStatistics makes the user three promises, in this order of importance. **A failure
-high in this list is not bought off by success lower down.** Everything else in this
-document (the red-team, the scaling studies, the GPU bar, R1–R18) is *method* — the
-machinery that proves or enforces these three.
+PyStatistics makes the user three promises — **Correctness, Fidelity, Performance** — in
+this order of importance. **A failure high in this list is not bought off by success
+lower down.** Everything else in this document (the red-team, the scaling studies, the
+GPU bar, R1–R18) is *method* — the machinery that proves or enforces these three.
 
-### Guarantee 1 — Correctness is absolute. PyStatistics must NEVER give an incorrect answer. Ever.
-The mathematical reference is R; an answer is correct when it matches R's result to the
-module's *stated tolerance* (the per-module `tolerances` contract). A produced answer
-that is wrong — outside the documented tolerance, or wrong while looking right — is the
-gravest failure there is, and nothing below buys it off. "Looks close" is not the bar;
-meeting the stated level is. A wrong answer that reaches a user is a showstopper (R16):
-stop everything, fix, re-release, restart. The red-team (R10) and the no-silent-wrong
-proofs (R9/R12/R13) exist to stress this guarantee where it is most likely to break.
+### Guarantee 1 — Correctness
+**Never return a result that falls outside the documented correctness contract. If
+correctness cannot be guaranteed, fail loudly rather than returning a result.**
 
-### Guarantee 2 — Never answer a different question than the one asked. No silent substitution.
-If the user asks for a specific backend, precision, algorithm, or option, PyStatistics
-delivers **exactly that**, or it **fails loud explaining why it cannot** — it must never
-silently swap in a different backend, drop to a different precision, or substitute a
-different algorithm to manufacture an answer. Getting "the right number" by quietly
-changing the computation the user requested is a violation, not a convenience (the A6
-"PyStatistics does not help" amendment, elevated here to a foundational guarantee).
-What IS allowed: when the user expresses no preference (a bare default call),
-auto-selecting the best available *validated-equivalent* path — provided the choice is
-**disclosed** (e.g. `solution.backend_name`) and produces the same answer to tolerance.
-Silent ≠ default-selection; silent = overriding or substituting what was explicitly
-requested, or changing the question without telling the user.
+The contract is per-module: agreement with the mathematical reference (R) to a *stated
+tolerance* (the `tolerances` contract). Floating point need not be **exact** — it must
+**satisfy the contract**. "Looks close" is not the bar; meeting the documented level is.
+A result that violates the contract — or is wrong while looking right — is the gravest
+failure there is; when correctness cannot be guaranteed, the only acceptable output is a
+**loud failure, never a number**. A contract-violating result that reaches a user is a
+showstopper (R16): stop, fix, re-release, restart. The red-team (R10) and the
+no-silent-wrong proofs (R9/R12/R13) stress this where it is most likely to break.
 
-### Guarantee 3 — Subject to 1 and 2, do not be slower than R on the same hardware with the same algorithm.
-Make every effort not to lag R like-for-like. If R fits an LM in 0.01 ms and
-PyStatistics takes 0.1 ms on the same hardware running the same algorithm, that 10× gap
-**must be justified by a material benefit** — a more accurate or more robust result,
+### Guarantee 2 — Fidelity
+**Never satisfy Guarantee 1 by silently solving a different problem.**
+
+Do not silently change the **estimator, backend, precision, solver, or approximation**
+the user asked for. If the user requests `backend="mps"` and MPS cannot satisfy
+Guarantee 1, do **not** quietly fall back to CPU to produce a number — **raise**. Getting
+"the right answer" by quietly computing a *different* thing than the user requested is the
+violation this guarantee names (the A6 "PyStatistics does not help" amendment, elevated
+to a foundational guarantee). The one non-violation: a **default call where the user
+expressed no preference** — there the library may auto-select the best
+validated-equivalent path, provided the choice is **disclosed** (e.g.
+`solution.backend_name`). Default-selection-when-disclosed is not silent substitution;
+overriding or swapping an *explicit* request is.
+
+### Guarantee 3 — Performance
+**Subject to Guarantees 1 and 2, make every reasonable effort to match or exceed the
+reference implementation on equivalent hardware using the same statistical estimator.**
+
+"Equivalent hardware, same estimator" is the apples-to-apples frame — an M2 Max is not
+expected to beat an H100, and a CPU is not measured against a GPU. If R fits an LM in
+0.01 ms and PyStatistics takes 0.1 ms on the same hardware with the same estimator, that
+gap **must be justified by a material benefit** — a more accurate or robust result,
 quantities R does not compute, a correctness/stability guarantee. **If the benefit is
-"nothing," it is a defect and PyStatistics must be changed** (R1/R2/R6). This is proven
-with a **speed comparison across problem sizes** — small `n` (where fixed overhead
-bites) through large `n` — not a single point; a complexity-class gap (R1) is its most
-severe form. "Same hardware, same algorithm" is the apples-to-apples frame: a *different*
-(faster) algorithm or *different* hardware (GPU) is a separate, legitimate win, not a
-violation — and a faster validated implementation (even one on a heavier dependency, per
-`CONVENTIONS.md`'s dependency-tiering amendment) is preferred over a slower one, never
-the reverse "for packaging reasons."
+"nothing," it is a defect** (R1/R2/R6). Proven with a **speed comparison across problem
+sizes**, not a single point (a complexity-class gap, R1, is its most severe form). A
+*different, faster* estimator or *different* hardware (GPU) is a separate legitimate win,
+not a violation — and a faster *validated* implementation (even on a heavier dependency,
+per `CONVENTIONS.md`'s dependency-tiering amendment) is preferred over a slower one,
+never the reverse "for packaging reasons."
 
 ### The GPU corollary to Guarantee 3
-The GPU is an instance of Guarantee 3, held to its own bar: it exists for **speed**, and
-it already gives up accuracy (fp32), so it must (a) never crash and never be silently
-wrong — Guarantees 1 & 2 still bind absolutely (A6/R9/R12); (b) reach the claimed fp32
-tier; and (c) actually be **faster than the CPU in its intended large-`n`/`p` regime** —
-a GPU that ties or loses to the CPU there has no reason to exist (flag it; fix or remove
-it). Small-`n`/narrow-`p` parity is expected (dispatch overhead) and fine. We are not
-chasing peak FLOPs — just a non-embarrassing, genuinely useful speedup; an honest "no
-GPU path, and why" is a correct result. Do not manufacture a showcase, and do not ship a
+The GPU is Guarantee 3 on *different hardware*, held to its own bar: Guarantees 1 & 2
+still bind absolutely (it must never crash or be silently wrong — A6/R9/R12 — and an
+explicit GPU request that cannot satisfy Guarantee 1 must **raise, not fall back**); it
+must reach the claimed fp32 tier; and it must actually be **faster than the CPU in its
+intended large-`n`/`p` regime** — a GPU that ties or loses there has no reason to exist
+(flag it; fix or remove it). Small-`n`/narrow-`p` parity is expected (dispatch overhead)
+and fine. We are not chasing peak FLOPs — just a non-embarrassing, genuinely useful
+speedup; an honest "no GPU path, and why" is a correct result. Do not manufacture a showcase, and do not ship a
 GPU path that never wins.
 
 ## R1 — Parity with the reference means SPEED too, not just numbers
