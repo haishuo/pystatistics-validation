@@ -41,6 +41,36 @@ _PCA_GRID = [
 ]
 
 
+_FA_SEED = 20260630  # documented deterministic seed for the synthetic FA designs
+
+
+def _synth_factor_cases() -> list[tuple[str, np.ndarray, list[str], int]]:
+    """Deterministic well-fitting multi-factor designs (the F1 varimax regime).
+
+    Simple-structure loadings (each variable loads on one factor) + per-variable
+    noise, so the ML factor model fits well and the rotated solution is identified
+    — the clean multi-factor case that raised ConvergenceError before the 4.4.1
+    varimax fix. Two designs: a 2-factor (8 vars) and a 3-factor (9 vars).
+    """
+    cases: list[tuple[str, np.ndarray, list[str], int]] = []
+    # 2-factor, p=8
+    rng = np.random.default_rng(_FA_SEED)
+    L = np.zeros((8, 2)); L[:4, 0] = [0.8, 0.7, 0.75, 0.65]; L[4:, 1] = [0.8, 0.7, 0.75, 0.6]
+    psi = np.array([0.3, 0.4, 0.35, 0.45, 0.3, 0.4, 0.35, 0.5])
+    X2 = (rng.standard_normal((400, 2)) @ L.T
+          + rng.standard_normal((400, 8)) * np.sqrt(psi))
+    cases.append(("synth2f", X2, [f"v{i}" for i in range(8)], 2))
+    # 3-factor, p=9
+    rng = np.random.default_rng(_FA_SEED + 1)
+    L3 = np.zeros((9, 3))
+    L3[:3, 0] = [0.8, 0.7, 0.75]; L3[3:6, 1] = [0.78, 0.72, 0.7]; L3[6:, 2] = [0.8, 0.68, 0.74]
+    psi3 = np.full(9, 0.4)
+    X3 = (rng.standard_normal((500, 3)) @ L3.T
+          + rng.standard_normal((500, 9)) * np.sqrt(psi3))
+    cases.append(("synth3f", X3, [f"v{i}" for i in range(9)], 3))
+    return cases
+
+
 def _max_rel(a, b) -> float:
     a = np.asarray(a, float).ravel()
     b = np.asarray(b, float).ravel()
@@ -93,9 +123,41 @@ def _pca_agreement(sut: dict[str, Any], ref: dict[str, Any],
     }
 
 
+def _align_factor_columns(Lp, Lr):
+    """Align R's loading columns to pystatistics' by greedy best-|cosine| match.
+
+    Factor loadings are identified only up to column PERMUTATION and per-column
+    SIGN (varimax fixes the rotation but not the order/sign). Greedily pair each
+    pystatistics column with its best-correlated unused R column, then sign-flip.
+    Returns R's loadings reordered+signed to match pystatistics' columns.
+    """
+    Lp = np.asarray(Lp, float)
+    Lr = np.asarray(Lr, float)
+    m = Lp.shape[1]
+    # cosine similarity matrix between pystatistics and R columns
+    norm_p = np.linalg.norm(Lp, axis=0)
+    norm_r = np.linalg.norm(Lr, axis=0)
+    cos = (Lp.T @ Lr) / np.maximum(np.outer(norm_p, norm_r), 1e-300)
+    used = set()
+    perm = [-1] * m
+    for i in range(m):
+        order = np.argsort(-np.abs(cos[i]))
+        for j in order:
+            if j not in used:
+                perm[i] = int(j)
+                used.add(int(j))
+                break
+    Lr_perm = Lr[:, perm]
+    signs = np.sign((Lp * Lr_perm).sum(axis=0))
+    signs[signs == 0] = 1.0
+    return Lr_perm * signs[np.newaxis, :]
+
+
 def _fa_agreement(sut: dict[str, Any], ref: dict[str, Any],
                   key: str, n_factors: int) -> dict[str, Any]:
-    load_r, _ = _sign_align(sut["loadings"], ref["loadings"])
+    # Uniquenesses, the ML objective and chi-sq are rotation-invariant — compared
+    # directly. Loadings are aligned up to column permutation + sign first.
+    load_r = _align_factor_columns(sut["loadings"], ref["loadings"])
     return {
         "analysis": "factor_analysis",
         "dataset": key,
@@ -109,8 +171,6 @@ def _fa_agreement(sut: dict[str, Any], ref: dict[str, Any],
                        if sut.get("chi_sq") and ref.get("chi_sq") else None),
         "py_converged": sut.get("converged"),
         "r_warning": ref.get("r_warning", ""),
-        "note": "F2: Heywood uniqueness-floor convention differs (py ~0 vs R "
-                "lower=0.005); see findings_ledger. Gathered for 4.4.1.",
     }
 
 
@@ -139,30 +199,38 @@ def generate(host: str, *, repeats: int) -> Path:
               f"rot_abs={row['rotation_max_abs']:.2e}  "
               f"scores_rel={row['scores_max_rel']:.2e}")
 
-    # ---- FA iris 1-factor (records F2; multi-factor deferred to 4.4.1) ----
-    X, names, spec = datasets.load_iris()
-    fa_sut = run_fa_record(X, n_factors=spec.n_factors, dataset="iris",
-                           repeats=max(3, repeats // 2), warmup=1)
-    if fa_sut.get("error"):
-        raise RuntimeError(f"pystatistics FA failed for iris: {fa_sut['error']}")
-    fa_ref, _raw = run_r_fa_record(X, names, dataset="iris",
-                                   n_factors=spec.n_factors, reps=3)
-    records.extend([fa_sut, fa_ref])
-    fa_row = _fa_agreement(fa_sut, fa_ref, "iris", spec.n_factors)
-    rows.append(fa_row)
-    print(f"  FA  iris 1-factor   uniq_abs={fa_row['uniq_max_abs']:.2e}  "
-          f"obj_rel={fa_row['objective_rel']:.2e}  (F2 convention gap, gathered)")
+    # ---- FA correctness: single-factor (iris, the F2 Heywood case, now floored
+    #      at lower=0.005) + multi-factor (synthetic, the F1 varimax case, now
+    #      converging). Validated at 4.4.1 after the gathered F1/F2 bundle. ----
+    iris_X, iris_names, iris_spec = datasets.load_iris()
+    fa_cases = [("iris", iris_X, iris_names, 1)]
+    fa_cases += _synth_factor_cases()
+    for label, X, fnames, m in fa_cases:
+        fa_sut = run_fa_record(X, n_factors=m, dataset=label,
+                               repeats=max(3, repeats // 2), warmup=1)
+        if fa_sut.get("error"):
+            raise RuntimeError(f"pystatistics FA failed for {label} (m={m}): "
+                               f"{fa_sut['error']}")
+        fa_ref, _raw = run_r_fa_record(X, fnames, dataset=label, n_factors=m, reps=3)
+        records.extend([fa_sut, fa_ref])
+        fa_row = _fa_agreement(fa_sut, fa_ref, label, m)
+        rows.append(fa_row)
+        print(f"  FA  {label:8s} m={m}  conv={fa_row['py_converged']}  "
+              f"uniq_abs={fa_row['uniq_max_abs']:.2e}  "
+              f"load_abs={fa_row['loadings_max_abs']:.2e}  "
+              f"obj_rel={fa_row['objective_rel']:.2e}")
 
     config = {
         "study": "correctness_vs_r",
         "pca_grid": [{"dataset": k, "scaling": "correlation" if s else "covariance"}
                      for k, s in _PCA_GRID],
-        "fa": {"dataset": "iris", "n_factors": 1,
-               "status": "1-factor recorded; multi-factor deferred to 4.4.1 (F1 varimax)"},
+        "fa_cases": [{"dataset": lbl, "n_factors": m} for lbl, _, _, m in fa_cases],
         "backend": "cpu",
         "repeats": repeats,
         "reference": "R stats::prcomp / stats::factanal",
-        "sign_convention": "eigenvector signs aligned per-column before comparison",
+        "sign_convention": "PCA loadings sign-aligned; FA loadings aligned up to "
+                           "column permutation + sign; uniquenesses/objective/chi2 "
+                           "are rotation-invariant",
     }
     run = build_run(env=env, config=config, records=records)
 

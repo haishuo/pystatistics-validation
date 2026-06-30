@@ -1,0 +1,235 @@
+{
+  "schema": "multivariate-cuda-study/v1",
+  "env": {
+    "host": "forge",
+    "pystatistics_version": "4.4.1",
+    "torch_version": "2.11.0.dev20251226+cu128",
+    "cuda_version": "12.8",
+    "cuda_available": true,
+    "device_name": "NVIDIA GeForce RTX 5070 Ti",
+    "python": "3.11.14",
+    "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39"
+  },
+  "cf1_gate": {
+    "sweep": {
+      "gram": [
+        {
+          "method": "gram",
+          "cond_X": 10.0,
+          "outcome": "accepted",
+          "subspace_angle_deg": 0.0019532310970371276,
+          "sdev_max_rel": 3.055112058272858e-06,
+          "accepted_correct": true
+        },
+        {
+          "method": "gram",
+          "cond_X": 100.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "gram",
+          "cond_X": 300.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "gram",
+          "cond_X": 700.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "gram",
+          "cond_X": 1000.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "gram",
+          "cond_X": 1500.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "gram",
+          "cond_X": 3000.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "gram",
+          "cond_X": 10000.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "gram",
+          "cond_X": 100000.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        }
+      ],
+      "randomized": [
+        {
+          "method": "randomized",
+          "cond_X": 10.0,
+          "outcome": "accepted",
+          "subspace_angle_deg": 9.075738350724584e-06,
+          "sdev_max_rel": 2.577523128147161e-07,
+          "accepted_correct": true
+        },
+        {
+          "method": "randomized",
+          "cond_X": 100.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "randomized",
+          "cond_X": 300.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "randomized",
+          "cond_X": 700.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "randomized",
+          "cond_X": 1000.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "randomized",
+          "cond_X": 1500.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "randomized",
+          "cond_X": 3000.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "randomized",
+          "cond_X": 10000.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        },
+        {
+          "method": "randomized",
+          "cond_X": 100000.0,
+          "outcome": "refused",
+          "error": "NumericalError",
+          "force_bypasses": true
+        }
+      ]
+    },
+    "n": 4000,
+    "p": 60,
+    "k": 8,
+    "silent_wrong_count": 0,
+    "silent_wrong_rows": []
+  },
+  "r11_isolation": {
+    "shapes": [
+      {
+        "n": 5000,
+        "p": 100,
+        "k": 10,
+        "wall_cpu_fp64_s": 0.004480735398828983,
+        "wall_gpu_fp64_s": 0.07525420561432838,
+        "wall_gpu_fp32_s": 0.00207486841827631,
+        "hardware_only_speedup_fp64": 0.059541328783568374,
+        "bundled_speedup_fp32": 2.1595274955080472,
+        "gpu_fp64_vs_cpu_sdev_rel": 6.652073591522753e-14
+      },
+      {
+        "n": 50000,
+        "p": 100,
+        "k": 10,
+        "wall_cpu_fp64_s": 0.05275508016347885,
+        "wall_gpu_fp64_s": 0.16573111899197102,
+        "wall_gpu_fp32_s": 0.012252583168447018,
+        "hardware_only_speedup_fp64": 0.3183172869666958,
+        "bundled_speedup_fp32": 4.305629224320166,
+        "gpu_fp64_vs_cpu_sdev_rel": 5.206654789474488e-14
+      },
+      {
+        "n": 200000,
+        "p": 200,
+        "k": 10,
+        "wall_cpu_fp64_s": 0.62731390632689,
+        "wall_gpu_fp64_s": 0.9601719994097948,
+        "wall_gpu_fp32_s": 0.08662391267716885,
+        "hardware_only_speedup_fp64": 0.6533349303171636,
+        "bundled_speedup_fp32": 7.24180987604164,
+        "gpu_fp64_vs_cpu_sdev_rel": 1.9528750391131582e-13
+      }
+    ]
+  },
+  "randomized": {
+    "shapes": [
+      {
+        "n": 5000,
+        "p": 100,
+        "k": 10,
+        "subspace_max_angle_deg": 8.748576518413899e-06,
+        "sdev_max_rel": 4.5997927218452594e-07,
+        "wall_cpu_s": 0.004393064416944981,
+        "wall_gpu_s": 0.0021036090329289436,
+        "gpu_speedup_vs_cpu": 2.0883464313843203
+      },
+      {
+        "n": 100000,
+        "p": 100,
+        "k": 10,
+        "subspace_max_angle_deg": 1.4209625421253986e-05,
+        "sdev_max_rel": 2.2371643597828174e-07,
+        "wall_cpu_s": 0.11936051212251186,
+        "wall_gpu_s": 0.02419441659003496,
+        "gpu_speedup_vs_cpu": 4.9333907961092685
+      },
+      {
+        "n": 500000,
+        "p": 200,
+        "k": 10,
+        "subspace_max_angle_deg": 1.198328416961092e-05,
+        "sdev_max_rel": 3.8699740255606226e-07,
+        "wall_cpu_s": 1.8377184886485338,
+        "wall_gpu_s": 0.21091562509536743,
+        "gpu_speedup_vs_cpu": 8.713050480814745
+      },
+      {
+        "n": 2000,
+        "p": 5000,
+        "k": 10,
+        "subspace_max_angle_deg": 9.115808030550376e-06,
+        "sdev_max_rel": 2.0625787698806403e-07,
+        "wall_cpu_s": 2.1507519418373704,
+        "wall_gpu_s": 0.019546951167285442,
+        "gpu_speedup_vs_cpu": 110.0300462937133
+      }
+    ]
+  }
+}

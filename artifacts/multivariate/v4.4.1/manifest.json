@@ -1,0 +1,161 @@
+{
+  "schema": "validation-artifact-manifest/v1",
+  "subsystem": "multivariate",
+  "pystatistics_version": "4.4.1",
+  "install_source": "pypi",
+  "evidence_state": "native-harness",
+  "frozen_utc": "2026-06-30",
+  "provenance": {
+    "note": "Validation of pystatistics.multivariate (PCA + ML factor analysis) against a PyPI-installed pystatistics==4.4.1 — the RIGOR R18 bundle that fixes the two factor-analysis findings gathered during the 4.4.0 first-time validation. 4.4.1 fixes F1 (varimax now uses R stats::varimax's RELATIVE convergence test, so the default multi-factor factor_analysis converges on clean data instead of raising ConvergenceError) and F2 (a lower= parameter, default 0.005, bounds the uniquenesses to match R factanal's Heywood floor). With both fixes factor analysis is now VALIDATED against R factanal across 1-, 2- and 3-factor models (uniquenesses to <=2.5e-5, sign/column-aligned loadings to <=1e-5, ML objective to <=3.2e-8). PCA is unchanged from 4.4.0 (the FA fix touches only _rotation.py and _factor.py) and re-confirmed here: machine-precision vs prcomp, the R10 hard cases, the MPS randomized value/correctness, and the CUDA CF-1 gate (silent_wrong_count=0) all reproduce. Hosts: powerhouse (Apple Silicon M2 Max, CPU fp64 + Metal/MPS fp32, R 4.5.2, numpy+R both on Apple Accelerate BLAS, torch 2.12.1) and forge (NVIDIA RTX 5070 Ti, CPU fp64 + CUDA fp32/fp64, torch 2.11.0.dev+cu128). CARRY-FORWARD CF-1 remains CLEARED. The minor F3 (small-n FA iteration count) is a documented R2 cost, unchanged. See runs/ and findings_ledger.md.",
+    "baseline": "Supersedes reports/multivariate-v4.4.0.md (the first-time validation, which deferred multi-factor FA pending this bundle). 4.4.0 -> 4.4.1 changed only factor analysis (F1 varimax convergence test, F2 lower= floor); PCA evidence is re-measured and identical."
+  },
+  "hosts": {
+    "powerhouse": {
+      "role": "MPS + CPU",
+      "device": "Apple Silicon M2 Max / Metal (MPS)",
+      "precision_gpu": "fp32",
+      "precision_cpu": "fp64"
+    },
+    "forge": {
+      "role": "CUDA + CPU",
+      "device": "NVIDIA RTX 5070 Ti (CUDA)",
+      "precision_gpu": "fp32 / fp64",
+      "precision_cpu": "fp64"
+    },
+    "r": {
+      "role": "reference",
+      "engine": "R stats::prcomp / stats::factanal"
+    }
+  },
+  "reference": {
+    "name": "R stats::prcomp / stats::factanal",
+    "kind": "cran-builtin",
+    "what": "R's prcomp() (PCA via SVD of the centred/scaled data matrix) and factanal() (maximum-likelihood factor analysis). Loadings/scores are sign-aligned per component before comparison; near-degenerate/null-space directions are compared by the rotation-invariant subspace angle."
+  },
+  "studies": [
+    {
+      "id": "correctness_pca_powerhouse",
+      "title": "PCA correctness vs R prcomp — Powerhouse (CPU / fp64)",
+      "device": ["cpu"],
+      "summary": "runs/correctness_pca_powerhouse_summary.csv",
+      "run": "runs/correctness_cpu_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": ["dataset", "scaling", "n", "p", "sdev_max_rel",
+                       "rotation_max_abs", "scores_max_rel", "evr_max_abs",
+                       "wall_pystat_s", "wall_r_s"],
+      "note": "CPU PCA vs R prcomp() on the canonical datasets (iris, USArrests; covariance and correlation scaling), identical float64 inputs. Agreement is at LAPACK round-off: sdev <=1.2e-15 relative, sign-aligned rotation <=6.1e-16, scores <=2.7e-12, explained-variance ratio <=4.4e-16. Both use SVD of the same centred/scaled matrix. (R wall is ~0 — prcomp on 50-150 rows is below R's timer resolution; the speed claim is the dedicated CPU-speed study.)"
+    },
+    {
+      "id": "hardcases_r10",
+      "title": "PCA hard-case correctness — behaviour match vs R (R10) + defaults (R15)",
+      "device": ["cpu"],
+      "summary": "runs/hardcases_cpu_powerhouse_summary.csv",
+      "run": "runs/hardcases_cpu_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": ["case", "outcome", "scaling", "sdev_max_abs",
+                       "sdev_max_rel_resolvable", "rotation_max_abs_resolvable",
+                       "n_nullspace_components", "smallest_sdev_pystat",
+                       "pystat_refused", "r_refused", "matched"],
+      "note": "Adversarial grid (RIGOR R10): pystatistics matches R's BEHAVIOUR, not only easy-data numbers. Near-collinear (cond~1e8), rank-deficient, and wide p>>n: sdev agrees to <=2.4e-15 and resolvable eigenvectors to <=1.5e-14; the near-collinear smallest singular value (7e-9) is recovered to machine precision (CPU SVD-of-X never squares the condition number). One null-space direction per degenerate design is correctly identified as ambiguous (excluded from the eigenvector comparison). A constant column under scale=TRUE is REFUSED by both engines (matched); under scale=FALSE both succeed. The default invocation pca(X) (center=True, scale=False) is the scale=False agreement case (R15)."
+    },
+    {
+      "id": "fa_correctness",
+      "title": "Factor analysis correctness vs R factanal — 1/2/3-factor (R18 bundle: F1+F2 fixed)",
+      "device": ["cpu"],
+      "summary": "runs/correctness_fa_powerhouse_summary.csv",
+      "run": "runs/correctness_cpu_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": ["dataset", "n_factors", "n", "p", "uniq_max_abs",
+                       "loadings_max_abs", "objective_rel", "chi_sq_rel",
+                       "py_converged"],
+      "note": "ML factor analysis vs R factanal across 1-factor (iris), 2-factor (synth2f) and 3-factor (synth3f) models — VALIDATED at 4.4.1 after the R18 bundle. Uniquenesses, the ML objective and chi-squared are rotation-invariant (compared directly); loadings are compared up to column permutation + sign. Agreement: uniquenesses <=2.5e-5 absolute, loadings <=1.0e-5, objective <=3.2e-8 relative. F1 fixed: the default multi-factor factor_analysis(X, n_factors>=2) (varimax) now CONVERGES (4.4.0 raised ConvergenceError — an absolute varimax stop test; 4.4.1 adopts R's relative test). F2 fixed: the new lower= parameter (default 0.005) floors the uniquenesses to match R factanal — iris Petal.Length now floors at exactly 0.005 and the iris uniqueness vector agrees to ~1.5e-6 (was ~5e-3 at 4.4.0)."
+    },
+    {
+      "id": "cpu_speed_r1",
+      "title": "CPU vs R across sizes — Powerhouse (priority 3: CPU must never lag R)",
+      "device": ["cpu"],
+      "summary": "runs/cpu_speed_powerhouse_summary.csv",
+      "run": "runs/cpu_speed_powerhouse.json",
+      "claim": "speed",
+      "host": "powerhouse+r",
+      "summary_cols": ["analysis", "sweep", "n", "p", "wall_pystat_s",
+                       "wall_r_s", "speedup_vs_r"],
+      "note": "The first-class CPU-speed deliverable (RIGOR priority 3 / R1). PCA: pystatistics CPU MEETS-OR-BEATS R prcomp at every size (speedup_vs_r 1.17-1.45x) across n 1e3-1e5 and p 10-500, matching empirical complexity (~O(n^0.9) both engines). FA (rotation='none', both engines): pystatistics beats factanal 1.7-3.3x at n>=2000; the single small-n lag (n=500, 0.53x) is explained (R2) — ~38 ML optimiser iterations on the noisier small-sample correlation vs ~10 at scale, a data-dependent iteration count, and R's sub-5ms times are timer-quantised. BLAS: numpy and R both on Apple Accelerate (the honest test). No complexity-class gap (R1)."
+    },
+    {
+      "id": "gpu_mac_value",
+      "title": "MPS PCA value — CPU vs MPS randomized (priority 4: the GPU must earn its place)",
+      "device": ["cpu", "mps"],
+      "summary": "runs/gpu_mac_value_powerhouse_summary.csv",
+      "run": "runs/gpu_mac_powerhouse.json",
+      "claim": "speed",
+      "host": "powerhouse",
+      "summary_cols": ["n", "p", "k", "wall_cpu_s", "wall_mps_s", "mps_speedup_vs_cpu"],
+      "note": "The MPS randomized PCA path 4.4.0 ADDED earns its place (RIGOR priority 4): materially faster than the fp64 CPU in its large regime — 3.5x at 100kx100, 9.3x at 500kx200, 31x at the wide 2000x5000 — with small-n (5000x100) near parity (1.4x, the expected dispatch-overhead regime). Before 4.4.0 there was no MPS PCA at all (blanket refusal); this is a new capability, validated."
+    },
+    {
+      "id": "gpu_mac_correctness",
+      "title": "MPS PCA correctness @ fp32 tier + fail-loud guards (R12/R13)",
+      "device": ["cpu", "mps"],
+      "summary": "runs/gpu_mac_correctness_powerhouse_summary.csv",
+      "run": "runs/gpu_mac_powerhouse.json",
+      "claim": "gpu-accuracy",
+      "host": "powerhouse",
+      "summary_cols": ["shape", "n", "p", "k", "sdev_max_rel",
+                       "subspace_max_angle_deg", "loading_min_cos", "within_fp32_tier"],
+      "note": "MPS randomized vs the fp64 CPU reference, by the rotation-invariant subspace angle (immune to the eigenvector ambiguity of near-degenerate spectra). Top-k subspace recovered to <=0.022 deg on tall/wide/square (sdev 1e-7..2.4e-4 depending on the spectral gap / n_iter), inside the GPU_FP32 statistical-equivalence tier. The run also confirms the fail-loud guards (explicit solver='svd'/'gram' on MPS raise — no silent CPU fallback) and the no-silent-wrong gate (accepts ill-conditioned full matrices whose retained top-k is well-conditioned and is correct there; refuses when the retained top-k is ill-conditioned, with cpu-escape and force-bypass) — see the run JSON 'guards' block."
+    },
+    {
+      "id": "cf1_gate_forge",
+      "title": "CF-1 fp32-Gram no-silent-wrong gate boundary — Forge (CUDA) (R12/R13)",
+      "device": ["cuda"],
+      "summary": "runs/cuda_cf1_gate_summary.csv",
+      "run": "runs/cuda_forge.json",
+      "claim": "boundary",
+      "host": "forge",
+      "summary_cols": ["method", "cond_X", "outcome", "subspace_angle_deg",
+                       "sdev_max_rel", "accepted_correct", "force_bypasses"],
+      "note": "Clears CARRY-FORWARD CF-1. The opt-in solver='gram' fp32 path forms X'X in single precision (the exact CF-1 defect class). Sweeping cond(X) across the fp32 gate, silent_wrong_count = 0: every ACCEPTED fp32 fit is correct vs fp64 (subspace ~0 deg, sdev ~3e-6); every design past the fp32-safe boundary REFUSES (NumericalError) with force=True the documented override. The randomized gate behaves identically (R13 re-proven on CUDA). The gate is a true classifier — never accepts a wrong fit (R12), never refuses a well-conditioned retained top-k."
+    },
+    {
+      "id": "r11_isolation_forge",
+      "title": "Precision-vs-hardware isolation — Forge: gpu_fp64 vs cpu_fp64 (R11)",
+      "device": ["cpu", "cuda"],
+      "summary": "runs/cuda_r11_isolation_summary.csv",
+      "run": "runs/cuda_forge.json",
+      "claim": "speed",
+      "host": "forge",
+      "summary_cols": ["n", "p", "k", "wall_cpu_fp64_s", "wall_gpu_fp64_s",
+                       "wall_gpu_fp32_s", "hardware_only_speedup_fp64",
+                       "bundled_speedup_fp32", "gpu_fp64_vs_cpu_sdev_rel"],
+      "note": "GPU speedup attribution (RIGOR R11). The same-precision pivot gpu_fp64 vs cpu_fp64 isolates the hardware effect: gpu_fp64 is numerically EXACT vs CPU (~5e-14..2e-13) but SLOWER than CPU (hardware-only 0.06-0.65x) — the consumer RTX 5070 Ti runs fp64 at ~1/64 fp32. So the fp32 GPU win (bundled 2.2-7.3x) is driven by fp32 precision + the randomized algorithm, not raw double-precision hardware throughput. gpu_fp64 is a CPU-parity correctness option, not a speed path; reported honestly rather than as a bundled headline."
+    },
+    {
+      "id": "randomized_forge",
+      "title": "CUDA randomized PCA — value + correctness (R13)",
+      "device": ["cpu", "cuda"],
+      "summary": "runs/cuda_randomized_summary.csv",
+      "run": "runs/cuda_forge.json",
+      "claim": "speed",
+      "host": "forge",
+      "summary_cols": ["n", "p", "k", "subspace_max_angle_deg", "sdev_max_rel",
+                       "wall_cpu_s", "wall_gpu_s", "gpu_speedup_vs_cpu"],
+      "note": "The randomized path re-proven on CUDA (R13 — a guarantee is regime-conditional; the MPS proof does not transfer for free). Subspace recovered to ~0 deg at every shape; faster than the fp64 CPU — 5.0x (100kx100), 9.0x (500kx200), 109x (wide 2000x5000)."
+    }
+  ],
+  "record_fields": {
+    "sdev_max_rel": "max relative difference between pystatistics and the reference over the component standard deviations (PCA correctness headline)",
+    "rotation_max_abs": "max absolute difference over the sign-aligned loadings/rotation matrix",
+    "scores_max_rel": "max relative difference over the sign-aligned scores",
+    "subspace_max_angle_deg": "largest principal angle (degrees) between the pystatistics and reference top-k subspaces — the rotation-invariant correctness metric, immune to eigenvector ambiguity",
+    "smallest_sdev_pystat": "the smallest component standard deviation pystatistics recovered (CF-1 relevance: the CPU SVD-of-X path preserves it to machine precision even at cond~1e8)",
+    "speedup_vs_r": "R wall-clock / pystatistics wall-clock on the same fit (>1 means pystatistics is faster)",
+    "mps_speedup_vs_cpu": "fp64 CPU wall-clock / MPS randomized wall-clock (>1 means the GPU earns its place)",
+    "hardware_only_speedup_fp64": "cpu_fp64 wall / gpu_fp64 wall — the same-precision, hardware-only pivot (R11); <1 means the consumer GPU's crippled fp64 loses to the CPU",
+    "accepted_correct": "for an accepted fp32 fit: True iff it matches the fp64 reference (subspace<1deg AND sdev_rel<1e-2) — the no-silent-wrong check (R12)",
+    "force_bypasses": "for a refused design: True iff force=True bypasses the condition gate (the documented override)"
+  }
+}
