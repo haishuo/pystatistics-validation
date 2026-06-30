@@ -14,15 +14,19 @@ SEs); **4.3.1** exposed negbin `theta` + AIC/BIC counting it; **4.3.2** fixed th
 correctness defects the 4.3.1 re-validation surfaced (Gamma/Gaussian BIC, binomial
 deviance/AIC/BIC machine-eps clamp, and the 4.3.0 GPU-OLS-SE understatement); **4.3.3**
 exposed `DiscreteTimeSolution.converged/.n_iter` (C5, additive — IRLS untouched, all
-discrete_time numbers bit-identical).
+discrete_time numbers bit-identical); **4.4.0** added the multivariate randomized GPU
+(MPS/CUDA) PCA path; **4.4.1** R18 bundle fixing the two factor-analysis findings F1
+(varimax relative-convergence test) + F2 (Heywood `lower=` floor).
 
-**Regression is DONE and red-teamed at 4.3.2.** **Survival is DONE and red-teamed at
-4.3.3** — R15 found the `intervals=None` default is actually CORRECT (matches R to
-~1e-15, even at separation extreme — not the presumed footgun); R13 re-proved the fp32
-no-silent-wrong gate on discrete-time's own person-period regime (MPS + CUDA, no
-silent-wrong band, inference-SE extension); R8 confirmed discrete_time bit-identical
-4.2.4→4.3.3; the red-team surfaced C5 (missing convergence accessors), fixed additively
-in 4.3.3. **Next NEW module: multivariate (full run + red-team in one chip).**
+**Current library version:** pystatistics **4.4.1** (on PyPI).
+
+**Regression (4.3.2), survival (4.3.3), and multivariate (4.4.1) are DONE and
+red-teamed.** Multivariate: PCA machine-precision vs `prcomp` (R10 cond~1e8 recovers a
+7e-9 singular value via SVD-of-X), a new MPS randomized PCA path that earns its keep,
+**CF-1 CLEARED** (silent_wrong_count=0 on the gated `solver='gram'` path, R12/R13
+re-proven MPS+CUDA), FA validated vs `factanal` after the R18 bundle (F1+F2); F3 (small-n
+FA speed dip) is a documented R2 cost. **Next NEW module: mixed / LMM (full run +
+red-team in one chip).**
 
 ## Order + status
 
@@ -33,8 +37,8 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 |---|---|---|---|
 | 1 | regression (OLS + GLM families) | ✅ done + red-teamed (v4.3.2) | v3.18.0 → v3.20.0 → v4.2.x → hardened/red-teamed **v4.3.2**: R10 hard cases (weights/offset now supported), R11 precision/hardware isolation + BLAS, R12 extended to inference SEs, priority-3 CPU-vs-R across sizes (meets/beats R at every n incl. n=50), priority-4 GPU value (~18×/10×). Found+fixed 3 correctness defects (→4.3.2). |
 | 2 | survival (KM / log-rank / coxph) | ✅ done + red-teamed (v4.3.3) | v4.0.0 → v4.2.x → red-teamed **v4.3.2/v4.3.3**: R15 default validated CORRECT (matches R ~1e-15, not a footgun), R13 fp32 no-silent-wrong gate re-proven on discrete-time's person-period regime (MPS+CUDA, +inference SEs), R8 bit-identical, C5 convergence accessors added (4.3.3). Stratified Cox = known gap (fail-loud, NotImplementedFeatureError). OWED: prior-art trawl before publication (novelty path). |
-| 3 | multivariate (PCA + factor analysis) | ⬜ next NEW module — FULL run + red-team in ONE chip | SVD/eigendecomposition; the most GPU-amenable op; TCGA large-matrix scaling; self-contained. No baseline exists → first-time validation AND red-team together (not done until red-teamed). Starts after the survival red-team lands AND user says go. |
-| 4 | mixed (LMM) | ⬜ pending | biggest optimization headroom (least GPU-touched); REML over variance components |
+| 3 | multivariate (PCA + factor analysis) | ✅ done + red-teamed (v4.4.1) | first-time full validation + red-team. PCA machine-precision vs `prcomp`, R10 hard cases (cond~1e8 via SVD-of-X), new MPS/CUDA randomized PCA path earns its keep, **CF-1 cleared** (gated `solver='gram'`, silent_wrong_count=0, R12/R13). FA vs `factanal` validated at 4.4.1 after R18 bundle (F1 varimax relative-convergence + F2 Heywood `lower=`). F3 small-n FA dip = documented R2. |
+| 4 | mixed (LMM) | ⬜ next NEW module — FULL run + red-team in ONE chip | biggest optimization headroom (least GPU-touched); REML over variance components. R ref `lme4::lmer` (REML/ML). No baseline → first-time validation AND red-team together. Starts on user go. |
 | 5 | gam | ⬜ pending | penalized IRLS + REML smoothing selection; rides the kernel |
 | 6 | timeseries (ARIMA/ETS/STL) | ⬜ pending | largest module; Kalman/state-space + optimizer loops |
 | 7 | montecarlo (bootstrap/permutation) | ⬜ pending | embarrassingly parallel → clean GPU story |
@@ -45,14 +49,14 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-- **Multivariate (#3) — CHIP SPAWNED (full run + red-team in ONE chip).** No baseline →
-  first-time validation AND red-team together, priority order. PCA + factor analysis
-  (SVD/eigendecomposition). R refs: `stats::prcomp`/`princomp` (PCA), `stats::factanal`
-  (FA). Chip picks canonical datasets (added to the central HDF5 store per R17). Target
-  PyPI **4.3.3**. Forge/CUDA allowance granted. **Must clear CARRY_FORWARD CF-1** —
-  verify PCA's GPU path forms the covariance/Gram in fp64, not fp32 (the regression
-  4.3.2 defect class); ill-conditioned R10 case on MPS + CUDA; library fix via R8/R6, or
-  R16 if a showstopper silent-wrong.
+- **Mixed / LMM (#4) — CHIP SPAWNED (full run + red-team in ONE chip).** No baseline →
+  first-time validation AND red-team together, priority order. Linear mixed models (REML
+  + ML over variance components). R ref `lme4::lmer`. Chip picks canonical datasets
+  (sleepstudy / Penicillin / Dyestuff style) → central HDF5 store (R17). Target PyPI
+  **4.4.1**. CARRY_FORWARD: CF-1 is cleared, but if mixed forms a Gram/normal-equations
+  matrix on a GPU path, watch for the same fp32-Gram class (noted in CF-1 history). Forge/
+  CUDA allowance only if a GPU path is warranted (mixed is the least GPU-touched module —
+  an honest "CPU-only, here's why" is a fine result).
 - **Owed (cross-program, before any paper):** prior-art trawl (arXiv/PyPI/GitHub) for the
   survival novelty claim "first discrete-time survival on GPU at scale" (R13). Not blocking
   the validation corpus; required before publication.
@@ -64,9 +68,15 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 ## Standing coordination constraints
 
 - **Release-hold: CLEARED.** The `pystatsbio`/`sgcbio` consistency releases have
-  landed and pystatistics has since shipped through **4.3.3**. No active hold. Re-check
+  landed and pystatistics has since shipped through **4.4.1**. No active hold. Re-check
   before any new library release; reinstate this line if a downstream consistency
   release is mid-flight again.
+- **Finding triage: showstopper vs gather (RIGOR R18).** Every defect found mid-run is
+  classified when found: a user-misleading correctness defect (silent/uncaught wrong,
+  fail-loud bypass) → R16 brakes-slam (stop-fix-release-restart); everything that already
+  fails loud / is gated-off-default / bounded / cosmetic → GATHER into one bundled patch
+  (e.g. 4.4.0 findings F1+F2 → bundled 4.4.1), and the blessed report is the bundle. Never
+  bless a report that silently carries known inaccuracies.
 - **One at a time.** Do not spawn the next module chip until the current one is done
   AND the user says go. The coordinator confirms before spawning.
   - **Why (the real rationale, not just caution).** The validation *output* barely
