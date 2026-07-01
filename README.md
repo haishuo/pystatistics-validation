@@ -20,6 +20,8 @@ render_report.py + render/        the generation path
 templates/report-template.md      the seven-question report structure
 drivers/                          scripts that (re)generate artifacts via the harness
 artifacts/schema/                 the artifact JSON schema + docs
+handoffs/                         cross-session hand-off / investigation docs (NOT
+                                  reports); archived to handoffs/archive/ when done
 _archive/                         the original sanity-check suite, kept inert
 ```
 

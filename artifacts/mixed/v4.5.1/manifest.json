@@ -1,0 +1,150 @@
+{
+  "schema": "validation-artifact-manifest/v1",
+  "subsystem": "mixed",
+  "pystatistics_version": "4.5.1",
+  "install_source": "pypi",
+  "evidence_state": "native-harness",
+  "frozen_utc": "2026-07-01",
+  "provenance": {
+    "note": "First-time validation + red-team of pystatistics.mixed (linear mixed models) against a PyPI-installed pystatistics==4.5.1. Scope: lmm() (LMM) and the new grm_lmm() (low-rank / GRM model); glmm() is deferred. LMM validated vs R lme4::lmer (estimates, variance components, BLUPs) + lmerTest::lmer (Satterthwaite df/p) on an honest two-tier tolerance contract; grm_lmm validated vs rrBLUP::mixed.solve (CPU) with the fp32 GPU path held to the CF-1 no-silent-wrong gate and the priority-4 earns-its-keep bar. The version arc: 4.4.1 (baseline, CPU-only, dense) surfaced findings F1 (no singular diagnostic), F2a (O(n^3) SEs) and F2b (dense-design complexity gap); these were bundled into 4.5.0 (singular reporting, p×p SEs, structure-exploiting solver, and the new grm_lmm GPU model) — matching a dedicated GPU investigation's verdict that the general LMM stays CPU-only while a separate low-rank/GRM model earns a GPU path. The red-team of 4.5.0 found F3 (extreme variance-ratio non-convergence, plus a silent-wrong sibling), fixed in 4.5.1. F4 (multi-term RE ~2x slower at scale) is a documented R2 cost. Hosts: powerhouse (Apple Silicon, CPU fp64 + Metal/MPS fp32, torch 2.12.1; R lme4 1.1.38 / lmerTest 3.2.0 / rrBLUP 4.6.3; numpy+R both on Apple Accelerate BLAS) and forge (NVIDIA RTX 5070 Ti, CPU fp64 + CUDA fp32/fp64, torch 2.11.0.dev+cu128, compute capability 12.0). See runs/ and findings_ledger.md.",
+    "baseline": "First-time validation of mixed; no prior mixed report. The 4.4.1 → 4.5.0 → 4.5.1 finding arc (F1/F2a/F2b bundled into 4.5.0; F3 fixed in 4.5.1; F4 documented) is recorded in findings_ledger.md."
+  },
+  "hosts": {
+    "powerhouse": {
+      "role": "CPU + MPS",
+      "device": "Apple Silicon (CPU fp64 + Metal/MPS fp32)",
+      "precision_gpu": "fp32",
+      "precision_cpu": "fp64"
+    },
+    "forge": {
+      "role": "CUDA + CPU",
+      "device": "NVIDIA RTX 5070 Ti (CUDA fp32/fp64, compute capability 12.0)",
+      "precision_gpu": "fp32 / fp64",
+      "precision_cpu": "fp64"
+    },
+    "r": {
+      "role": "reference",
+      "engine": "R lme4::lmer / lmerTest::lmer (LMM) + rrBLUP::mixed.solve (GRM)"
+    }
+  },
+  "reference": {
+    "name": "R lme4::lmer / lmerTest::lmer (LMM) + rrBLUP::mixed.solve (GRM)",
+    "kind": "cran",
+    "what": "lme4::lmer for LMM point estimates, SEs, variance components, logLik and BLUPs; lmerTest::lmer for the Satterthwaite df/p lme4 omits; rrBLUP::mixed.solve (GBLUP/GRM, K = W Wᵀ / M, Z = I) for grm_lmm. Two honest LMM tolerance tiers (near-machine fixed effects; optimizer-bound variance components); GRM log-likelihood not compared across engines (different additive constant)."
+  },
+  "studies": [
+    {
+      "id": "lmm_correctness",
+      "title": "LMM correctness vs lme4 / lmerTest — two-tier contract (REML + ML)",
+      "device": ["cpu"],
+      "summary": "runs/correctness_powerhouse_summary.csv",
+      "run": "runs/correctness_cpu_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": ["dataset", "criterion", "n", "coef_max_rel", "loglik_rel",
+                       "se_max_rel", "varcomp_max_rel", "df_satt_max_rel",
+                       "blup_max_scaled", "py_singular", "r_singular"],
+      "note": "Identical float64 inputs to both engines. TIGHT tier: fixed-effect β to ~1e-16..3e-13 and logLik/REML criterion/AIC/BIC to ~1e-11. OPTIMIZER tier: SEs, Satterthwaite df, p-values, variance components and BLUPs to <=1.3e-4 (lme4 bobyqa vs L-BFGS-B). REML and ML both, across random slopes+correlation (sleepstudy), crossed (Penicillin), simple (Dyestuff), singular (Dyestuff2) and nested (Pastes). coef_max_rel is the fixed-effect headline; varcomp_max_rel/blup_max_scaled are the optimizer-tier headlines. Dyestuff2 is is_singular on both engines."
+    },
+    {
+      "id": "lmm_hardcases_r10",
+      "title": "LMM hard-case behaviour match vs R (R10) + default invocation (R15)",
+      "device": ["cpu"],
+      "summary": "runs/hardcases_powerhouse_summary.csv",
+      "run": "runs/hardcases_cpu_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": ["case", "n", "coef_max_rel", "loglik_rel", "varcomp_max_rel",
+                       "py_singular", "r_singular", "expect_singular", "py_converged"],
+      "note": "Adversarial grid (RIGOR R10): pystatistics matches R's BEHAVIOUR, incl. its singular-fit diagnostics. hc1 (perfect intercept/slope correlation → 2×2 boundary) is is_singular on both, with the boundary warning; hc2 (unbalanced groups with singletons) and hc3 (extreme variance ratio, ICC≈0.99999 — converges and matches R to 6.9e-6 after the 4.5.1 F3 fix) hold; hc4_nested_correct matches lme4's nested fit to machine precision, hc4_naive_crossed is the MATCHED reused-inner-label footgun (both engines treat it as crossed). R15: the bare lmm(y,X,groups) default equals the explicit (1|group) spec and matches lmer (recorded in the run config)."
+    },
+    {
+      "id": "grm_correctness",
+      "title": "GRM / low-rank model correctness vs R rrBLUP::mixed.solve",
+      "device": ["cpu"],
+      "summary": "runs/grm_correctness_powerhouse_summary.csv",
+      "run": "runs/grm_correctness_cpu_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": ["dataset", "n", "M", "true_h2", "beta_max_rel",
+                       "var_genetic_rel", "var_residual_rel", "heritability_rel",
+                       "blup_corr", "blup_max_scaled"],
+      "note": "grm_lmm(backend='cpu') vs rrBLUP::mixed.solve (K = W Wᵀ / M) across h² ∈ {0.2,0.5,0.8} and two sizes. Estimable quantities compared directly: β ≤ 3.4e-7, genetic/residual variances ≤ 2.0e-5, heritability ≤ 9.3e-6, genetic-value BLUP correlation = 1.000000. Log-likelihood is not compared (rrBLUP uses a different restricted-likelihood additive constant; every estimate agrees regardless)."
+    },
+    {
+      "id": "lmm_cpu_speed_r1",
+      "title": "LMM CPU vs R across sizes (priority 3: CPU must never lag R)",
+      "device": ["cpu"],
+      "summary": "runs/cpu_speed_powerhouse_summary.csv",
+      "run": "runs/cpu_speed_powerhouse.json",
+      "claim": "speed",
+      "host": "powerhouse+r",
+      "summary_cols": ["complexity", "G", "n", "pystat_s", "r_lmer_s", "speedup_vs_r"],
+      "note": "The structure-exploiting solver (4.5.0). Random-intercept: pystatistics MEETS-OR-BEATS lme4 at every size (speedup_vs_r 3.2–5.3×) across G=10..2000 (n up to 16000), near-linear (~O(n^0.45) vs lmer ~O(n^0.39)) — the 4.4.1 dense-design O(n^1.4) gap and the O(n³) SE cost are gone. Random-slope (correlated 2×2 RE): competitive at small sizes, ~2× slower than lmerTest at scale (finding F4) — ~26% is the Satterthwaite df pystatistics computes in-fit that lmerTest defers (R2), the rest the correlated-RE optimizer; a documented cost, not a complexity-class gap. BLAS: numpy and R both on Apple Accelerate."
+    },
+    {
+      "id": "grm_cf1_gate_cuda",
+      "title": "GRM fp32-Gram no-silent-wrong gate boundary — Forge (CUDA) (R12/R13)",
+      "device": ["cuda"],
+      "summary": "runs/grm_cf1_gate_cuda_forge_summary.csv",
+      "run": "runs/grm_gpu_cuda_forge.json",
+      "claim": "boundary",
+      "host": "forge",
+      "summary_cols": ["cond", "verdict", "dh2_vs_fp64", "dbeta_vs_fp64", "refused"],
+      "note": "The grm_lmm fp32 GPU path forms K = W Wᵀ / M in single precision (the CF-1 defect class). Sweeping cond(W) across the fp32 gate on CUDA, silent_wrong_count = 0: cond(W) ≤ 3e3 ACCEPTED and correct vs fp64 (|Δh²| ≤ 1.1e-3), cond(W) ≥ 1e4 REFUSED loudly (NumericalError). A true classifier — never accepts a biased fit (R12), never refuses a recoverable one (R9); the gate keys on the double-precision conditioning of W so it survives a torch upgrade (R14)."
+    },
+    {
+      "id": "grm_cf1_gate_mps",
+      "title": "GRM fp32-Gram no-silent-wrong gate boundary — Powerhouse (MPS) (R13)",
+      "device": ["mps"],
+      "summary": "runs/grm_cf1_gate_mps_powerhouse_summary.csv",
+      "run": "runs/grm_gpu_mps_powerhouse.json",
+      "claim": "boundary",
+      "host": "powerhouse",
+      "summary_cols": ["cond", "verdict", "dh2_vs_fp64", "dbeta_vs_fp64", "refused"],
+      "note": "The same CF-1 gate re-proven on Apple Silicon / MPS (R13 — a guarantee is regime-conditional and must be re-proven per device): silent_wrong_count = 0, cond(W) ≤ 3e3 accepted and correct (|Δh²| ≤ 2.3e-3), cond(W) ≥ 1e4 refused loud — identical classifier behaviour to CUDA."
+    },
+    {
+      "id": "grm_gpu_speed_cuda",
+      "title": "GRM GPU earns-its-keep + R11 isolation — Forge (CUDA) (priority 4 / R11)",
+      "device": ["cpu", "cuda"],
+      "summary": "runs/grm_speed_cuda_forge_summary.csv",
+      "run": "runs/grm_gpu_cuda_forge.json",
+      "claim": "speed",
+      "host": "forge",
+      "summary_cols": ["n", "M", "cpu_s", "gpu_fp32_s", "gpu_fp64_s",
+                       "gpu_fp32_speedup_vs_cpu", "gpu_fp64_speedup_vs_cpu",
+                       "gpu_fp32_dh2_vs_cpu", "gpu_fp64_dh2_vs_cpu"],
+      "note": "grm_lmm earns its GPU path on CUDA (RIGOR priority 4): fp32 is 6.6× (n=5000) and 14.7× (n=20000) over the fp64 CPU, accepted fits correct to |Δh²| ≤ 2.1e-4. R11 same-precision pivot: gpu_fp64 is numerically EXACT vs CPU (|Δh²| ≤ 1.8e-8) but only 1.2–1.6× faster (consumer fp64 throughput) — a correctness option; the fp32 headline is precision + hardware, reported honestly."
+    },
+    {
+      "id": "grm_gpu_speed_mps",
+      "title": "GRM GPU on MPS — correctness/portability, not speed (honest) — Powerhouse",
+      "device": ["cpu", "mps"],
+      "summary": "runs/grm_speed_mps_powerhouse_summary.csv",
+      "run": "runs/grm_gpu_mps_powerhouse.json",
+      "claim": "speed",
+      "host": "powerhouse",
+      "summary_cols": ["n", "M", "cpu_s", "gpu_fp32_s", "gpu_fp32_speedup_vs_cpu"],
+      "note": "On Apple Silicon / MPS the grm_lmm fp32 path is a correctness / portability path only: the CF-1 gate holds (see the MPS gate study) but it does NOT beat the fp64 CPU (0.27–0.74×). Reported plainly — the GPU speed story is CUDA, not MPS; a GPU path that ties/loses to the CPU is not dressed as a win."
+    }
+  ],
+  "record_fields": {
+    "coef_max_rel": "max relative difference vs lme4 over the fixed-effect coefficients (the near-machine TIGHT-tier headline)",
+    "loglik_rel": "relative difference vs lme4 in the log-likelihood / REML criterion (optimizer-bound but flat-near-optimum, ~1e-11)",
+    "varcomp_max_rel": "max relative difference vs lme4 over the (away-from-boundary) variance components (OPTIMIZER-tier headline)",
+    "df_satt_max_rel": "max relative difference vs lmerTest over the Satterthwaite denominator df",
+    "blup_max_scaled": "max |Δ| over the random-effect BLUPs, scaled by their RMS (optimizer tier)",
+    "py_singular": "LMMSolution.is_singular — pystatistics flags the fit as on the RE-covariance boundary (mirrors lme4 isSingular)",
+    "r_singular": "lme4 isSingular() on the same fit — the behaviour-match target (R10)",
+    "speedup_vs_r": "lme4/lmerTest wall-clock / pystatistics wall-clock on the same fit (>1 means pystatistics is faster)",
+    "beta_max_rel": "GRM: max relative difference vs rrBLUP over the fixed effects",
+    "heritability_rel": "GRM: relative difference vs rrBLUP in narrow-sense heritability h²",
+    "blup_corr": "GRM: Pearson correlation between pystatistics and rrBLUP genetic-value BLUPs (1.0 = identical ranking/scale)",
+    "verdict": "CF-1 gate outcome for an fp32 GPU fit at a given cond(W): accepted_correct / refused_loud / SILENT_WRONG (the last must never occur)",
+    "dh2_vs_fp64": "|Δh²| of an accepted fp32 GPU fit vs the fp64 CPU optimum (the no-silent-wrong check, R12)",
+    "gpu_fp32_speedup_vs_cpu": "fp64 CPU wall / fp32 GPU wall (>1 means the GPU earns its place, priority 4)",
+    "gpu_fp64_speedup_vs_cpu": "fp64 CPU wall / fp64 GPU wall — the same-precision hardware-only pivot (R11)",
+    "gpu_fp64_dh2_vs_cpu": "|Δh²| of the fp64 GPU fit vs the fp64 CPU — the hardware-exactness check (~1e-8)"
+  }
+}

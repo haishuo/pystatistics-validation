@@ -1,0 +1,1261 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.4.1",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "host": "powerhouse"
+  },
+  "config": {
+    "study": "hardcases_r10",
+    "cases": [
+      "hc1_random_slope_singular",
+      "hc2_unbalanced_singletons",
+      "hc3_extreme_variance_ratio",
+      "hc4_nested_correct",
+      "hc4_nested_naive_crossed",
+      "R15_default_invocation"
+    ],
+    "backend": "cpu",
+    "repeats": 3,
+    "seed": 20260630,
+    "reference": "R lme4::lmer + lmerTest::lmer",
+    "r15_default": {
+      "case": "R15_default_invocation",
+      "default_vs_explicit_coef_rel": 0.0,
+      "default_vs_explicit_varcomp_rel": 0.0,
+      "default_vs_r_coef_rel": 2.977069400238718e-16,
+      "note": "bare lmm(y,X,groups) == explicit (1|g) spec and matches lmer"
+    }
+  },
+  "records": [
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "hc1_rslope_singular",
+      "n": 120,
+      "p": 2,
+      "backend_name": "lmm_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -201.95794429615674,
+      "n_iter": 8,
+      "converged": true,
+      "wall_median_s": 0.023335250094532967,
+      "wall_min_s": 0.022236957913264632,
+      "wall_max_s": 0.02401645900681615,
+      "wall_times_s": [
+        0.02401645900681615,
+        0.023335250094532967,
+        0.022236957913264632
+      ],
+      "coefficients": [
+        2.747068486956975,
+        1.8662783550106004
+      ],
+      "standard_errors": [
+        0.5471683993717162,
+        0.2875584936501214
+      ],
+      "t_values": [
+        5.020517431400067,
+        6.490082526587933
+      ],
+      "df_satterthwaite": [
+        14.002477346438488,
+        14.45127428409056
+      ],
+      "p_values": [
+        0.0001871584899648253,
+        1.222444818877075e-05
+      ],
+      "coef_names": [
+        "(Intercept)",
+        "x"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 4.353811227391577,
+          "std_dev": 2.086578833255906,
+          "corr": null
+        },
+        {
+          "group": "g",
+          "name": "x",
+          "variance": 1.0755056040393747,
+          "std_dev": 1.0370658629225893,
+          "corr": 0.9999999999999998
+        },
+        {
+          "group": "Residual",
+          "name": "",
+          "corr": null,
+          "variance": 1.0643889005522615,
+          "std_dev": 1.0316922508928046
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            0.7591330672383989,
+            0.37730229833693907
+          ],
+          [
+            -0.4480061487492083,
+            -0.22266682468078206
+          ],
+          [
+            1.0269770897445556,
+            0.5104254221326351
+          ],
+          [
+            -1.6284200808021534,
+            -0.8093530181471171
+          ],
+          [
+            2.8616435074350295,
+            1.4222864461747189
+          ],
+          [
+            -2.2565921625215877,
+            -1.1215654357224023
+          ],
+          [
+            -2.395505352059586,
+            -1.1906076997785169
+          ],
+          [
+            1.3696692861277135,
+            0.6807493862669679
+          ],
+          [
+            -2.454125082564699,
+            -1.2197427223483153
+          ],
+          [
+            2.367527308905065,
+            1.176702127171105
+          ],
+          [
+            -1.7954431466178116,
+            -0.8923663781589257
+          ],
+          [
+            1.6734743197749407,
+            0.8317457561898612
+          ],
+          [
+            0.8734775296722295,
+            0.4341334789826869
+          ],
+          [
+            -2.768861145803898,
+            -1.3761720035304212
+          ],
+          [
+            2.8150510102219246,
+            1.3991291671120205
+          ]
+        ]
+      },
+      "log_likelihood": -201.95794429615674,
+      "aic": 415.9158885923135,
+      "bic": 432.64083904900576,
+      "reml_criterion": 403.9158885923135,
+      "analysis": "lmm",
+      "reml": true,
+      "satterthwaite": true,
+      "is_singular": true,
+      "py_warnings": []
+    },
+    {
+      "engine": "R:lmer",
+      "dataset": "hc1_rslope_singular",
+      "n": 120,
+      "p": 2,
+      "backend_name": "lmer",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -201.957944299605,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.02,
+      "wall_min_s": null,
+      "wall_max_s": null,
+      "wall_times_s": [
+        0.021,
+        0.018,
+        0.02
+      ],
+      "coefficients": [
+        2.74706869940359,
+        1.86627891887547
+      ],
+      "standard_errors": [
+        0.547168019095129,
+        0.28756071551187
+      ],
+      "t_values": [
+        5.02052130887787,
+        6.49003434128133
+      ],
+      "df_satterthwaite": [
+        14.0024775915403,
+        14.4510382666576
+      ],
+      "p_values": [
+        0.000187157136063469,
+        1.22264106028375e-05
+      ],
+      "coef_names": [
+        "(Intercept)",
+        "x"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 4.35380494976319,
+          "std_dev": 2.08657732896799,
+          "corr": null
+        },
+        {
+          "group": "g",
+          "name": "x",
+          "variance": 1.0755246689577,
+          "std_dev": 1.03707505464055,
+          "corr": 1.0
+        },
+        {
+          "group": "Residual",
+          "name": "",
+          "variance": 1.06438864964934,
+          "std_dev": 1.03169212929504,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            0.759133568193209,
+            0.377306163439834
+          ],
+          [
+            -0.448006537201813,
+            -0.222669151819881
+          ],
+          [
+            1.02697331631365,
+            0.51042843864173
+          ],
+          [
+            -1.62841563165322,
+            -0.80935856377274
+          ],
+          [
+            2.86164120483924,
+            1.42229893312324
+          ],
+          [
+            -2.25659097583091,
+            -1.12157559514878
+          ],
+          [
+            -2.39549854205928,
+            -1.19061572600629
+          ],
+          [
+            1.36966714148059,
+            0.680754844725979
+          ],
+          [
+            -2.45412134388409,
+            -1.21975255432394
+          ],
+          [
+            2.36751716137723,
+            1.176708361301
+          ],
+          [
+            -1.79544225728527,
+            -0.892374488703479
+          ],
+          [
+            1.67347112994364,
+            0.831752142339276
+          ],
+          [
+            0.873476307852554,
+            0.434137032506458
+          ],
+          [
+            -2.76885222479211,
+            -1.37618075901271
+          ],
+          [
+            2.81504768270744,
+            1.39914092271073
+          ]
+        ]
+      },
+      "log_likelihood": -201.957944299605,
+      "reml_criterion": 403.91588859921,
+      "aic": 415.91588859921,
+      "bic": 432.640839055903,
+      "analysis": "lmm",
+      "reml": true,
+      "is_singular": true,
+      "r_warnings": [
+        "message: boundary (singular) fit: see help('isSingular')"
+      ],
+      "r_version": "4.5.2",
+      "lme4_version": "1.1.38",
+      "lmerTest_version": "3.2.0"
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "hc2_unbalanced",
+      "n": 51,
+      "p": 1,
+      "backend_name": "lmm_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -86.60809420427627,
+      "n_iter": 6,
+      "converged": true,
+      "wall_median_s": 0.003531374968588352,
+      "wall_min_s": 0.0030052911024540663,
+      "wall_max_s": 0.0038098341319710016,
+      "wall_times_s": [
+        0.0038098341319710016,
+        0.003531374968588352,
+        0.0030052911024540663
+      ],
+      "coefficients": [
+        4.379950396863313
+      ],
+      "standard_errors": [
+        0.6641690660434928
+      ],
+      "t_values": [
+        6.594631729771789
+      ],
+      "df_satterthwaite": [
+        10.959877360153435
+      ],
+      "p_values": [
+        3.960748641534034e-05
+      ],
+      "coef_names": [
+        "(Intercept)"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 4.904939534356976,
+          "std_dev": 2.2147098081592937,
+          "corr": null
+        },
+        {
+          "group": "Residual",
+          "name": "",
+          "corr": null,
+          "variance": 0.9204618551473106,
+          "std_dev": 0.9594070330924777
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            -1.203696176840361
+          ],
+          [
+            -1.5782370803246453
+          ],
+          [
+            0.7829842798982231
+          ],
+          [
+            -3.410359121296532
+          ],
+          [
+            0.5620726044240959
+          ],
+          [
+            2.5363690121685685
+          ],
+          [
+            -2.3370848519637724
+          ],
+          [
+            2.3840340433943825
+          ],
+          [
+            2.815420146852817
+          ],
+          [
+            0.4700579949622347
+          ],
+          [
+            -2.41236393563097
+          ],
+          [
+            1.390803084356508
+          ]
+        ]
+      },
+      "log_likelihood": -86.60809420427627,
+      "aic": 179.21618840855254,
+      "bic": 185.01166530672552,
+      "reml_criterion": 173.21618840855254,
+      "analysis": "lmm",
+      "reml": true,
+      "satterthwaite": true,
+      "is_singular": false,
+      "py_warnings": []
+    },
+    {
+      "engine": "R:lmer",
+      "dataset": "hc2_unbalanced",
+      "n": 51,
+      "p": 1,
+      "backend_name": "lmer",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -86.6080942042755,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.014,
+      "wall_min_s": null,
+      "wall_max_s": null,
+      "wall_times_s": [
+        0.014,
+        0.015,
+        0.013
+      ],
+      "coefficients": [
+        4.37995034591193
+      ],
+      "standard_errors": [
+        0.664169233956363
+      ],
+      "t_values": [
+        6.59462998582633
+      ],
+      "df_satterthwaite": [
+        10.9598694259289
+      ],
+      "p_values": [
+        3.96077170915655e-05
+      ],
+      "coef_names": [
+        "(Intercept)"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 4.90494225473569,
+          "std_dev": 2.21471042232064,
+          "corr": null
+        },
+        {
+          "group": "Residual",
+          "name": "",
+          "variance": 0.920461724481497,
+          "std_dev": 0.959406964995302,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            -1.20369626642443
+          ],
+          [
+            -1.57823721113253
+          ],
+          [
+            0.782984373264754
+          ],
+          [
+            -3.41035927849571
+          ],
+          [
+            0.562072675425424
+          ],
+          [
+            2.53636914001059
+          ],
+          [
+            -2.33708486174586
+          ],
+          [
+            2.38403413637316
+          ],
+          [
+            2.81542023682059
+          ],
+          [
+            0.470058051006471
+          ],
+          [
+            -2.41236415824695
+          ],
+          [
+            1.39080316314455
+          ]
+        ]
+      },
+      "log_likelihood": -86.6080942042755,
+      "reml_criterion": 173.216188408551,
+      "aic": 179.216188408551,
+      "bic": 185.011665306724,
+      "analysis": "lmm",
+      "reml": true,
+      "is_singular": false,
+      "r_warnings": [],
+      "r_version": "4.5.2",
+      "lme4_version": "1.1.38",
+      "lmerTest_version": "3.2.0"
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "hc3_extreme_ratio",
+      "n": 90,
+      "p": 1,
+      "backend_name": "lmm_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": 105.47093522517176,
+      "n_iter": 19,
+      "converged": true,
+      "wall_median_s": 0.011905458988621831,
+      "wall_min_s": 0.011475249892100692,
+      "wall_max_s": 0.012122957967221737,
+      "wall_times_s": [
+        0.012122957967221737,
+        0.011905458988621831,
+        0.011475249892100692
+      ],
+      "coefficients": [
+        -3.1035096215784224
+      ],
+      "standard_errors": [
+        2.945357978138102
+      ],
+      "t_values": [
+        -1.0536952196012164
+      ],
+      "df_satterthwaite": [
+        14.041541996837159
+      ],
+      "p_values": [
+        0.30981733839508674
+      ],
+      "coef_names": [
+        "(Intercept)"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 130.12691056893203,
+          "std_dev": 11.407318289980868,
+          "corr": null
+        },
+        {
+          "group": "Residual",
+          "name": "",
+          "corr": null,
+          "variance": 0.0005623307667872847,
+          "std_dev": 0.023713514433488864
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            5.2788356467686794
+          ],
+          [
+            -1.8680835203967927
+          ],
+          [
+            -11.421931227461446
+          ],
+          [
+            6.492333359467762
+          ],
+          [
+            1.8859082455186436
+          ],
+          [
+            -2.4776599802934793
+          ],
+          [
+            -9.767753850809154
+          ],
+          [
+            8.363109856117754
+          ],
+          [
+            -2.856927896855507
+          ],
+          [
+            -15.944473933177015
+          ],
+          [
+            24.869306021187967
+          ],
+          [
+            -8.485670484477653
+          ],
+          [
+            18.014768783519806
+          ],
+          [
+            0.8464730127127846
+          ],
+          [
+            -12.92823402924621
+          ]
+        ]
+      },
+      "log_likelihood": 105.47093522517176,
+      "aic": -204.94187045034352,
+      "bic": -197.4424414393527,
+      "reml_criterion": -210.94187045034352,
+      "analysis": "lmm",
+      "reml": true,
+      "satterthwaite": true,
+      "is_singular": false,
+      "py_warnings": []
+    },
+    {
+      "engine": "R:lmer",
+      "dataset": "hc3_extreme_ratio",
+      "n": 90,
+      "p": 1,
+      "backend_name": "lmer",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": 105.470943054978,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.014,
+      "wall_min_s": null,
+      "wall_max_s": null,
+      "wall_times_s": [
+        0.014,
+        0.016,
+        0.013
+      ],
+      "coefficients": [
+        -3.10350961912406
+      ],
+      "standard_errors": [
+        2.94738028576298
+      ],
+      "t_values": [
+        -1.0529722391492
+      ],
+      "df_satterthwaite": [
+        13.9998659153397
+      ],
+      "p_values": [
+        0.310189114804455
+      ],
+      "coef_names": [
+        "(Intercept)"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 130.305664556999,
+          "std_dev": 11.4151506585327,
+          "corr": null
+        },
+        {
+          "group": "Residual",
+          "name": "",
+          "variance": 0.00056218657291782,
+          "std_dev": 0.0237104739074912,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            5.27883565050349
+          ],
+          [
+            -1.86808352504139
+          ],
+          [
+            -11.4219312433074
+          ],
+          [
+            6.49233336462534
+          ],
+          [
+            1.88590824527542
+          ],
+          [
+            -2.47765998565277
+          ],
+          [
+            -9.76775386471571
+          ],
+          [
+            8.36310986346872
+          ],
+          [
+            -2.85692790265947
+          ],
+          [
+            -15.9444739543255
+          ],
+          [
+            24.8693060478916
+          ],
+          [
+            -8.48567049688104
+          ],
+          [
+            18.0147688021869
+          ],
+          [
+            0.846473011250872
+          ],
+          [
+            -12.9282340468583
+          ]
+        ]
+      },
+      "log_likelihood": 105.470943054978,
+      "reml_criterion": -210.941886109956,
+      "aic": -204.941886109956,
+      "bic": -197.442457098965,
+      "analysis": "lmm",
+      "reml": true,
+      "is_singular": false,
+      "r_warnings": [],
+      "r_version": "4.5.2",
+      "lme4_version": "1.1.38",
+      "lmerTest_version": "3.2.0"
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "hc4_nested_correct",
+      "n": 90,
+      "p": 1,
+      "backend_name": "lmm_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -148.11882443589707,
+      "n_iter": 8,
+      "converged": true,
+      "wall_median_s": 0.006160750053822994,
+      "wall_min_s": 0.005888374987989664,
+      "wall_max_s": 0.006228333106264472,
+      "wall_times_s": [
+        0.006160750053822994,
+        0.006228333106264472,
+        0.005888374987989664
+      ],
+      "coefficients": [
+        9.85876153210621
+      ],
+      "standard_errors": [
+        1.034868373240325
+      ],
+      "t_values": [
+        9.526585010262684
+      ],
+      "df_satterthwaite": [
+        5.000035083639431
+      ],
+      "p_values": [
+        0.00021560051386513955
+      ],
+      "coef_names": [
+        "(Intercept)"
+      ],
+      "var_components": [
+        {
+          "group": "school",
+          "name": "(Intercept)",
+          "variance": 5.236841608402268,
+          "std_dev": 2.2884146495777964,
+          "corr": null
+        },
+        {
+          "group": "sclass",
+          "name": "(Intercept)",
+          "variance": 3.4113958317951543,
+          "std_dev": 1.8469964352415935,
+          "corr": null
+        },
+        {
+          "group": "Residual",
+          "name": "",
+          "corr": null,
+          "variance": 0.7761262089670883,
+          "std_dev": 0.8809802545841129
+        }
+      ],
+      "blups": {
+        "school": [
+          [
+            -3.0266375525081792
+          ],
+          [
+            1.6573879934128457
+          ],
+          [
+            -0.9794839609589525
+          ],
+          [
+            2.5590953251230366
+          ],
+          [
+            -1.0803343715606306
+          ],
+          [
+            0.8699725664923736
+          ]
+        ],
+        "sclass": [
+          [
+            0.7560581568103109
+          ],
+          [
+            -2.1164003744457247
+          ],
+          [
+            -0.6112772245901155
+          ],
+          [
+            -0.9912503493090549
+          ],
+          [
+            1.45563742252726
+          ],
+          [
+            0.6152725604290435
+          ],
+          [
+            0.66420690224335
+          ],
+          [
+            -1.8174127725499483
+          ],
+          [
+            0.5151480958716063
+          ],
+          [
+            1.5412317913417102
+          ],
+          [
+            -2.8334997947925786
+          ],
+          [
+            2.9593199744870025
+          ],
+          [
+            -0.7503548200400283
+          ],
+          [
+            -1.9649993767638383
+          ],
+          [
+            2.0116002077249986
+          ],
+          [
+            0.22756868262293745
+          ],
+          [
+            1.0407839083508919
+          ],
+          [
+            -0.7016329899176547
+          ]
+        ]
+      },
+      "log_likelihood": -148.11882443589707,
+      "aic": 304.23764887179414,
+      "bic": 314.2368875531152,
+      "reml_criterion": 296.23764887179414,
+      "analysis": "lmm",
+      "reml": true,
+      "satterthwaite": true,
+      "is_singular": false,
+      "py_warnings": []
+    },
+    {
+      "engine": "R:lmer",
+      "dataset": "hc4_nested_correct",
+      "n": 90,
+      "p": 1,
+      "backend_name": "lmer",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -148.118824436133,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.019,
+      "wall_min_s": null,
+      "wall_max_s": null,
+      "wall_times_s": [
+        0.021,
+        0.018,
+        0.019
+      ],
+      "coefficients": [
+        9.85876153210581
+      ],
+      "standard_errors": [
+        1.0348635216296
+      ],
+      "t_values": [
+        9.52662967246271
+      ],
+      "df_satterthwaite": [
+        5.00011268159644
+      ],
+      "p_values": [
+        0.00021557749067901
+      ],
+      "coef_names": [
+        "(Intercept)"
+      ],
+      "var_components": [
+        {
+          "group": "sclass",
+          "name": "(Intercept)",
+          "variance": 3.41140806625401,
+          "std_dev": 1.8469997472263,
+          "corr": null
+        },
+        {
+          "group": "school",
+          "name": "(Intercept)",
+          "variance": 5.23677727696874,
+          "std_dev": 2.28840059363931,
+          "corr": null
+        },
+        {
+          "group": "Residual",
+          "name": "",
+          "variance": 0.776126270170078,
+          "std_dev": 0.880980289319845,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "sclass": [
+          [
+            0.756049853353776
+          ],
+          [
+            -2.11640911638696
+          ],
+          [
+            -0.611285736772254
+          ],
+          [
+            -0.991245890447991
+          ],
+          [
+            1.45564225490907
+          ],
+          [
+            0.615277264528014
+          ],
+          [
+            0.664204279111044
+          ],
+          [
+            -1.81741577450487
+          ],
+          [
+            0.51514544998527
+          ],
+          [
+            1.5412391449713
+          ],
+          [
+            -2.8334931089717
+          ],
+          [
+            2.95932754458968
+          ],
+          [
+            -0.75035793963174
+          ],
+          [
+            -1.96500268177269
+          ],
+          [
+            2.01159750974947
+          ],
+          [
+            0.227571137270191
+          ],
+          [
+            1.04078648713655
+          ],
+          [
+            -0.701630677114297
+          ]
+        ],
+        "school": [
+          [
+            -3.02662875056409
+          ],
+          [
+            1.65738317346506
+          ],
+          [
+            -0.979481112463359
+          ],
+          [
+            2.55908788286675
+          ],
+          [
+            -1.08033122977602
+          ],
+          [
+            0.86997003647396
+          ]
+        ]
+      },
+      "log_likelihood": -148.118824436133,
+      "reml_criterion": 296.237648872265,
+      "aic": 304.237648872265,
+      "bic": 314.236887553586,
+      "analysis": "lmm",
+      "reml": true,
+      "is_singular": false,
+      "r_warnings": [],
+      "r_version": "4.5.2",
+      "lme4_version": "1.1.38",
+      "lmerTest_version": "3.2.0"
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "hc4_naive_crossed",
+      "n": 90,
+      "p": 1,
+      "backend_name": "lmm_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -182.20672585803067,
+      "n_iter": 8,
+      "converged": true,
+      "wall_median_s": 0.006334250094369054,
+      "wall_min_s": 0.005917540984228253,
+      "wall_max_s": 0.0064598750323057175,
+      "wall_times_s": [
+        0.006334250094369054,
+        0.0064598750323057175,
+        0.005917540984228253
+      ],
+      "coefficients": [
+        9.858761532106497
+      ],
+      "standard_errors": [
+        1.1686344471496672
+      ],
+      "t_values": [
+        8.436138055105511
+      ],
+      "df_satterthwaite": [
+        6.620923247334967
+      ],
+      "p_values": [
+        8.864784078394636e-05
+      ],
+      "coef_names": [
+        "(Intercept)"
+      ],
+      "var_components": [
+        {
+          "group": "school",
+          "name": "(Intercept)",
+          "variance": 6.253714299230072,
+          "std_dev": 2.500742749510647,
+          "corr": null
+        },
+        {
+          "group": "klass",
+          "name": "(Intercept)",
+          "variance": 0.8842203229809762,
+          "std_dev": 0.9403299011416026,
+          "corr": null
+        },
+        {
+          "group": "Residual",
+          "name": "",
+          "corr": null,
+          "variance": 2.581258217952364,
+          "std_dev": 1.6066294588212815
+        }
+      ],
+      "blups": {
+        "school": [
+          [
+            -3.6142934661077053
+          ],
+          [
+            1.9791886182182683
+          ],
+          [
+            -1.1696618504313654
+          ],
+          [
+            3.0559726271394676
+          ],
+          [
+            -1.2900935089197971
+          ],
+          [
+            1.0388875801000843
+          ]
+        ],
+        "klass": [
+          [
+            0.2298537737455966
+          ],
+          [
+            -0.9902468572954882
+          ],
+          [
+            0.7603930835498316
+          ]
+        ]
+      },
+      "log_likelihood": -182.20672585803067,
+      "aic": 372.41345171606133,
+      "bic": 382.4126903973824,
+      "reml_criterion": 364.41345171606133,
+      "analysis": "lmm",
+      "reml": true,
+      "satterthwaite": true,
+      "is_singular": false,
+      "py_warnings": []
+    },
+    {
+      "engine": "R:lmer",
+      "dataset": "hc4_naive_crossed",
+      "n": 90,
+      "p": 1,
+      "backend_name": "lmer",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -182.206725857983,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.019,
+      "wall_min_s": null,
+      "wall_max_s": null,
+      "wall_times_s": [
+        0.02,
+        0.017,
+        0.019
+      ],
+      "coefficients": [
+        9.85876153210636
+      ],
+      "standard_errors": [
+        1.16863195149107
+      ],
+      "t_values": [
+        8.43615607080353
+      ],
+      "df_satterthwaite": [
+        6.62096736695458
+      ],
+      "p_values": [
+        8.86434034926424e-05
+      ],
+      "coef_names": [
+        "(Intercept)"
+      ],
+      "var_components": [
+        {
+          "group": "school",
+          "name": "(Intercept)",
+          "variance": 6.25367480359159,
+          "std_dev": 2.50073485271662,
+          "corr": null
+        },
+        {
+          "group": "klass",
+          "name": "(Intercept)",
+          "variance": 0.884222544404885,
+          "std_dev": 0.940331082334773,
+          "corr": null
+        },
+        {
+          "group": "Residual",
+          "name": "",
+          "variance": 2.58125903810562,
+          "std_dev": 1.60662971406159,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "school": [
+          [
+            -3.6142928240593
+          ],
+          [
+            1.97918826663245
+          ],
+          [
+            -1.16966164265085
+          ],
+          [
+            3.05597208427218
+          ],
+          [
+            -1.29009327974562
+          ],
+          [
+            1.03888739555069
+          ]
+        ],
+        "klass": [
+          [
+            0.229853818477775
+          ],
+          [
+            -0.990247050008698
+          ],
+          [
+            0.760393231530963
+          ]
+        ]
+      },
+      "log_likelihood": -182.206725857983,
+      "reml_criterion": 364.413451715965,
+      "aic": 372.413451715965,
+      "bic": 382.412690397286,
+      "analysis": "lmm",
+      "reml": true,
+      "is_singular": false,
+      "r_warnings": [],
+      "r_version": "4.5.2",
+      "lme4_version": "1.1.38",
+      "lmerTest_version": "3.2.0"
+    }
+  ]
+}

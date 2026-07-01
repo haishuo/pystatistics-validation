@@ -1,0 +1,6 @@
+case,n,p,coef_max_rel,loglik_rel,se_max_rel,varcomp_max_rel,py_singular,r_singular,expect_singular,r_diagnostics,py_converged
+hc1_rslope_singular,120,2,3.0213322562985764e-07,1.7074168132392258e-11,7.726583043969846e-06,1.77261562432122e-05,True,True,True,message: boundary (singular) fit: see help('isSingular'),True
+hc2_unbalanced,51,1,1.1632867645653848e-08,8.860443838089043e-15,2.5281639314046173e-07,5.546199266217808e-07,False,False,False,,True
+hc3_extreme_ratio,90,1,7.908345042329818e-10,7.423661920020753e-08,0.0006861373249479589,0.0013718051987585014,False,False,False,,True
+hc4_nested_correct,90,1,4.05406183690991e-14,1.5928333949444295e-12,4.68816479037078e-06,1.2284546415736711e-05,False,False,False,,True
+hc4_naive_crossed,90,1,1.3873900508535361e-14,2.615886240771241e-13,2.1355385621198747e-06,6.315588789441942e-06,False,False,False,,True
