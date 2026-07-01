@@ -5,7 +5,7 @@ a time**, each to the rigor of `RIGOR.md` (treat as if publishing). The
 **coordinator chip** owns this file: it advances the program one module at a time
 and keeps the status table current.
 
-**Current library version:** pystatistics **4.3.3** (on PyPI). Lineage: 4.0
+**Version lineage.** 4.0
 standardized the API to `CONVENTIONS.md`; **4.1.0** consistency sweep (R8); **4.2.0**
 survival optimizations (coxph O(n²)→O(n), R1); **4.2.3** plain-fp32 GPU GLM convergence
 fix (R9); **4.2.4** MPS fp32 GLM gated matrix-free CG (squaring-free, host-fp64 gate);
@@ -16,7 +16,10 @@ deviance/AIC/BIC machine-eps clamp, and the 4.3.0 GPU-OLS-SE understatement); **
 exposed `DiscreteTimeSolution.converged/.n_iter` (C5, additive — IRLS untouched, all
 discrete_time numbers bit-identical); **4.4.0** added the multivariate randomized GPU
 (MPS/CUDA) PCA path; **4.4.1** R18 bundle fixing the two factor-analysis findings F1
-(varimax relative-convergence test) + F2 (Heywood `lower=` floor).
+(varimax relative-convergence test) + F2 (Heywood `lower=` floor); **4.5.0** mixed/LMM
+perf (F1/F2a/F2b) + the new `grm_lmm()` GPU model + `CONVENTIONS.md` A7 (dependency
+tiering) + the Prime Directive reframe; **4.5.1** F3 fix (an extreme-variance-ratio
+silent-wrong the mixed red-team caught — R16).
 
 **Current library version:** pystatistics **4.5.1** (on PyPI) — 4.5.0 shipped mixed/LMM
 perf + the new `grm_lmm()` GPU model + `CONVENTIONS.md` A7 (dependency tiering) + the
