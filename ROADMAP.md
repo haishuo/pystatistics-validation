@@ -45,7 +45,7 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 | 2 | survival (KM / log-rank / coxph) | ✅ done + red-teamed (v4.3.3) | v4.0.0 → v4.2.x → red-teamed **v4.3.2/v4.3.3**: R15 default validated CORRECT (matches R ~1e-15, not a footgun), R13 fp32 no-silent-wrong gate re-proven on discrete-time's person-period regime (MPS+CUDA, +inference SEs), R8 bit-identical, C5 convergence accessors added (4.3.3). Stratified Cox = known gap (fail-loud, NotImplementedFeatureError). OWED: prior-art trawl before publication (novelty path). |
 | 3 | multivariate (PCA + factor analysis) | ✅ done + red-teamed (v4.4.1) | first-time full validation + red-team. PCA machine-precision vs `prcomp`, R10 hard cases (cond~1e8 via SVD-of-X), new MPS/CUDA randomized PCA path earns its keep, **CF-1 cleared** (gated `solver='gram'`, silent_wrong_count=0, R12/R13). FA vs `factanal` validated at 4.4.1 after R18 bundle (F1 varimax relative-convergence + F2 Heywood `lower=`). F3 small-n FA dip = documented R2. |
 | 4 | mixed (`lmm` + `glmm` + `grm_lmm`) | 🔄 LMM + GRM validated (v4.5.1); **GLMM PENDING — module NOT complete** | `lmm` vs `lme4`/`lmerTest` (two-tier: tight fixed-effects ~1e-13, optimizer-bound varcomps ≤1.3e-4) + `grm_lmm()` vs `rrBLUP`. 4.5.0 shipped F1/F2a/F2b + `grm_lmm()` (CF-1 gate, CUDA fp32 6.6–14.7×, MPS correctness-only); red-team caught **F3 (ICC→1 silent-wrong, R16) → fixed 4.5.1**; F4 = documented R2 (autodiff/A.3 roadmap). **`glmm()` is a PUBLIC function of `mixed` (`__all__` = lmm/glmm/grm_lmm) but is UNVALIDATED — the module is not done until GLMM is validated vs `lme4::glmer`.** |
-| 5 | gam | ⬜ pending (after mixed is COMPLETED by the GLMM pass) | penalized IRLS + REML smoothing selection; rides the kernel. R ref `mgcv::gam`. No baseline → first-time validation AND red-team together. |
+| 5 | gam | ⛔ BLOCKED until mixed is complete (GLMM validated + A.3 implemented/re-validated) | penalized IRLS + REML smoothing selection; rides the kernel. R ref `mgcv::gam`. No baseline → first-time validation AND red-team together. |
 | 6 | timeseries (ARIMA/ETS/STL) | ⬜ pending | largest module; Kalman/state-space + optimizer loops |
 | 7 | montecarlo (bootstrap/permutation) | ⬜ pending | embarrassingly parallel → clean GPU story |
 | 8 | ordinal (polr) + multinomial | ⬜ pending | IRLS-family; de-risked by the optimized kernel |
@@ -55,22 +55,29 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-- **glmm() first-time validation — THE IMMEDIATE NEXT STEP (completes the mixed module).**
-  `glmm()` is a PUBLIC function of `mixed` (`__all__` = lmm/glmm/grm_lmm) with a public
+**⛔ Two BLOCKERS gate #5 gam — `mixed` is not complete (and gam cannot start) until BOTH
+land.** Done sequentially (both mutate the `mixed` module; one-at-a-time). Not "future,"
+not "non-blocking."
+
+- **BLOCKER 1 — glmm() first-time validation — CHIP SPAWNED (task_c5ecb529).** `glmm()`
+  is a PUBLIC function of `mixed` (`__all__` = lmm/glmm/grm_lmm) with a public
   `GLMMSolution`; the module is NOT complete while it is unvalidated (a user can call it
-  today and get an unchecked result). Validate `glmm()` (generalized LMM via Laplace
-  approximation / PIRLS) against **`lme4::glmer`** at PyPI **4.5.1**, full three-guarantee
-  treatment + red-team (R10 hard cases, R15 defaults). **CPU-only** — the mixed GPU
-  investigation already concluded the general LMM/GLMM earns no GPU path (`grm_lmm` is the
-  only GPU model), so an honest "no GPU path, and why" is correct (no CF-1/R11 GPU work).
-  Findings triage per R18/R16; on bless, mixed (#4) becomes ✅ done and gam (#5) is next.
-  Comes BEFORE gam (one-at-a-time: finish the module before starting a new one).
-- **A.3 autodiff θ-gradient = the F4 fix — UNBLOCKED by the torch policy.** F4 (multi-term
-  random-slope LMM ~2× slower than lmerTest at scale) is a documented R2 cost; its roadmap
-  fix is the autodiff θ-gradient (fewer deviance evals) = the deferred A.3. Under the torch
-  ruling (capability-first B) it ships as an **opt-in / auto-when-present** accelerator
-  (numpy default stays the reference), in a FUTURE mixed release. See memory
-  `torch-dependency-policy`.
+  today and get an unchecked result). Validate `glmm()` (generalized LMM via Laplace/PIRLS)
+  against **`lme4::glmer`** at PyPI **4.5.1**, full three-guarantee treatment + red-team
+  (R10 hard cases, R15 defaults). **CPU-only** — the mixed GPU investigation already
+  concluded the general LMM/GLMM earns no GPU path (`grm_lmm` is the only GPU model), so an
+  honest "no GPU path, and why" is correct (no CF-1/R11/Forge). Findings triage per R18/R16.
+- **BLOCKER 2 — A.3 autodiff θ-gradient (implement + re-validate) — next after GLMM.** The
+  F4 fix: multi-term random-slope LMM is ~2× slower than lmerTest at scale; the autodiff
+  θ-gradient (fewer deviance evals) closes it. Implement now rather than re-opening `mixed`
+  later (avoids the churn the one-at-a-time / single-trunk rule guards against). Ships as an
+  **opt-in / auto-when-present** torch accelerator (numpy default stays the reference; torch
+  optional — A7). **Requires re-validation** (A7 + R6): (a) prove the A.3 path numerically
+  equivalent to the numpy/default reference + `lme4` (Fidelity/G2); (b) confirm F4's gap
+  closes (Performance/G3); (c) R8 bit-identical confirmation that glmm/grm_lmm are
+  untouched. Implementation chip → release (patch, e.g. 4.5.2/4.6.0, user authorizes) →
+  re-validate the LMM path. Then — and only then — mixed (#4) is ✅ done and gam is unblocked.
+  See memory `torch-dependency-policy`.
 - **Owed (cross-program, before any paper):** prior-art trawl (arXiv/PyPI/GitHub) for the
   survival novelty claim "first discrete-time survival on GPU at scale" (R13). Not blocking
   the validation corpus; required before publication.
