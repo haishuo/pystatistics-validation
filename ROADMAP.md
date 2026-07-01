@@ -38,7 +38,7 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 | 1 | regression (OLS + GLM families) | ✅ done + red-teamed (v4.3.2) | v3.18.0 → v3.20.0 → v4.2.x → hardened/red-teamed **v4.3.2**: R10 hard cases (weights/offset now supported), R11 precision/hardware isolation + BLAS, R12 extended to inference SEs, priority-3 CPU-vs-R across sizes (meets/beats R at every n incl. n=50), priority-4 GPU value (~18×/10×). Found+fixed 3 correctness defects (→4.3.2). |
 | 2 | survival (KM / log-rank / coxph) | ✅ done + red-teamed (v4.3.3) | v4.0.0 → v4.2.x → red-teamed **v4.3.2/v4.3.3**: R15 default validated CORRECT (matches R ~1e-15, not a footgun), R13 fp32 no-silent-wrong gate re-proven on discrete-time's person-period regime (MPS+CUDA, +inference SEs), R8 bit-identical, C5 convergence accessors added (4.3.3). Stratified Cox = known gap (fail-loud, NotImplementedFeatureError). OWED: prior-art trawl before publication (novelty path). |
 | 3 | multivariate (PCA + factor analysis) | ✅ done + red-teamed (v4.4.1) | first-time full validation + red-team. PCA machine-precision vs `prcomp`, R10 hard cases (cond~1e8 via SVD-of-X), new MPS/CUDA randomized PCA path earns its keep, **CF-1 cleared** (gated `solver='gram'`, silent_wrong_count=0, R12/R13). FA vs `factanal` validated at 4.4.1 after R18 bundle (F1 varimax relative-convergence + F2 Heywood `lower=`). F3 small-n FA dip = documented R2. |
-| 4 | mixed (LMM) | 🔄 CHIP SPAWNED — FULL run + red-team in ONE chip | biggest optimization headroom (least GPU-touched); REML over variance components. R ref `lme4::lmer` (REML/ML). No baseline → first-time validation AND red-team together. Target PyPI 4.4.1. |
+| 4 | mixed (LMM) | 🔄 impl done + staged for **4.5.0**; validation/bless pending release | LMM validated vs `lme4` (two-tier: tight fixed-effects, looser optimizer-bound varcomps). Implementer landed CPU fixes F2a (`_compute_se` form A, O(p³) not O(n³)), F1 (singular/`isSingular` warning), F2b (structure-exploiting solver, **scipy-only**, 197s→0.05s, crossed-OOM fixed) + a NEW `grm_lmm()` GPU model (GRM/low-rank, `backend=`, CF-1 gate, heritability BLUPs; CUDA fp32 13–16×, MPS correctness-only). 3008 tests pass. A.3 autodiff deferred. Next: release 4.5.0 → validate + bless at PyPI 4.5.0. |
 | 5 | gam | ⬜ pending | penalized IRLS + REML smoothing selection; rides the kernel |
 | 6 | timeseries (ARIMA/ETS/STL) | ⬜ pending | largest module; Kalman/state-space + optimizer loops |
 | 7 | montecarlo (bootstrap/permutation) | ⬜ pending | embarrassingly parallel → clean GPU story |
@@ -49,14 +49,29 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-- **Mixed / LMM (#4) — CHIP SPAWNED (full run + red-team in ONE chip).** No baseline →
-  first-time validation AND red-team together, priority order. Linear mixed models (REML
-  + ML over variance components). R ref `lme4::lmer`. Chip picks canonical datasets
-  (sleepstudy / Penicillin / Dyestuff style) → central HDF5 store (R17). Target PyPI
-  **4.4.1**. CARRY_FORWARD: CF-1 is cleared, but if mixed forms a Gram/normal-equations
-  matrix on a GPU path, watch for the same fp32-Gram class (noted in CF-1 history). Forge/
-  CUDA allowance only if a GPU path is warranted (mixed is the least GPU-touched module —
-  an honest "CPU-only, here's why" is a fine result).
+- **Mixed / LMM (#4) — implementation handed back, staged for 4.5.0; awaiting release +
+  bless.** Hand-back: `handoffs/mixed-implementation-handback.md` (per-file changes,
+  decisions, gate numbers, staged UNRELEASED, re-check list). Work is staged UNCOMMITTED
+  in `../pystatistics` main (19 files, +2096/−145; 3008 pass, 0 fail). **Sequence:**
+  1. **Cut 4.5.0** — commit staged work + `.release/release.py`; publish to PyPI (needs
+     the user's separate release authorization).
+  2. **Validate + red-team at PyPI 4.5.0 → bless `mixed-v4.5.0`** (per R5 can't validate
+     until published). Re-check list from the hand-back:
+     - penicillin Satterthwaite df a hair looser (1.3e-4 vs 1.0e-4) — optimizer-stop not
+       defect (structured Satterthwaite is machine-identical at fixed θ); confirm at 4.5.0,
+       record within the optimizer tier.
+     - the CUDA-gated GRM test (`test_gpu_fp64_matches_cpu`) must run against the published
+       wheel on Forge (verified on Forge via gate script, not yet in CI vs the wheel).
+     - **re-verify the GRM CF-1 fp32 gate** at 4.5.0 (implementer proved silent_wrong_count=0
+       MPS+CUDA; `_MIN_EIG_RATIO_FP32=1e-7`) — R9/R12/R13/R14.
+     - GLMM out of scope for bless (deferred); post-publish smoke check.
+     - live-R tight tier is ~2e-11 (optimizer-bound bobyqa vs L-BFGS-B), not the stored-R
+       3e-14 artifact (memory `mixed-gate-tight-tier-liveR`).
+- **A.3 autodiff θ-gradient — UNBLOCKED by the torch policy (capability-first B), NOT in
+  4.5.0.** It was deferred torch-only; under the ruling it may ship as an **opt-in /
+  auto-when-present** accelerator (numpy default stays the reference), in a FUTURE mixed
+  release — not retrofitted into the staged 4.5.0. Revisit after 4.5.0 is blessed. See
+  memory `torch-dependency-policy`.
 - **Owed (cross-program, before any paper):** prior-art trawl (arXiv/PyPI/GitHub) for the
   survival novelty claim "first discrete-time survival on GPU at scale" (R13). Not blocking
   the validation corpus; required before publication.
