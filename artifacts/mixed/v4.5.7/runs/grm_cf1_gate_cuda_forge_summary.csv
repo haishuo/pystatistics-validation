@@ -1,0 +1,7 @@
+study,device,cond,verdict,dh2_vs_fp64,dbeta_vs_fp64,refused,msg
+cf1_gate,cuda,100.0,accepted_correct,0.001114011856021826,7.1430234759861655e-06,False,
+cf1_gate,cuda,1000.0,accepted_correct,0.0006743614819653914,5.400827009727216e-06,False,
+cf1_gate,cuda,3000.0,accepted_correct,0.00022700232555694798,1.8863826982684628e-06,False,
+cf1_gate,cuda,10000.0,refused_loud,,,True,GRM GPU float32 path: the low-rank factor W is too ill-conditioned for single precision (estimated cond(W) ≈ 1.00e+04; λ
+cf1_gate,cuda,30000.0,refused_loud,,,True,GRM GPU float32 path: the low-rank factor W is too ill-conditioned for single precision (estimated cond(W) ≈ 3.00e+04; λ
+cf1_gate,cuda,100000.0,refused_loud,,,True,GRM GPU float32 path: the low-rank factor W is too ill-conditioned for single precision (estimated cond(W) ≈ 1.00e+05; λ

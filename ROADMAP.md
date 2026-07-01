@@ -21,8 +21,10 @@ perf (F1/F2a/F2b) + the new `grm_lmm()` GPU model + `CONVENTIONS.md` A7 (depende
 tiering) + the Prime Directive reframe; **4.5.1** F3 fix (an extreme-variance-ratio
 silent-wrong the mixed red-team caught — R16).
 
-**Current library version:** pystatistics **4.5.6** (on PyPI) — the `glmm()` first-time
-validation drove a fix cascade **4.5.2→4.5.6**: G1 (nAGQ=0→true Laplace nAGQ=1) + G2
+**Current library version:** pystatistics **4.5.7** (on PyPI) — **4.5.7** is the A.3
+optimization (analytic θ-gradient for `lmm()`; closes finding F4, ~1.35× faster
+random-slope fits, estimates unchanged; torch rejected on benchmark). The prior
+`glmm()` first-time validation drove a fix cascade **4.5.2→4.5.6**: G1 (nAGQ=0→true Laplace nAGQ=1) + G2
 (fixed-effect SE transpose, silently wrong for correlated predictors) at 4.5.2; G3
 (fail-loud on free-dispersion families) at 4.5.3; G4 (Poisson PIRLS overflow + silent
 variance-collapse) at 4.5.4, completed at 4.5.6; G5 (structure-exploiting GLMM solver,
@@ -48,8 +50,8 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 | 1 | regression (OLS + GLM families) | ✅ done + red-teamed (v4.3.2) | v3.18.0 → v3.20.0 → v4.2.x → hardened/red-teamed **v4.3.2**: R10 hard cases (weights/offset now supported), R11 precision/hardware isolation + BLAS, R12 extended to inference SEs, priority-3 CPU-vs-R across sizes (meets/beats R at every n incl. n=50), priority-4 GPU value (~18×/10×). Found+fixed 3 correctness defects (→4.3.2). |
 | 2 | survival (KM / log-rank / coxph) | ✅ done + red-teamed (v4.3.3) | v4.0.0 → v4.2.x → red-teamed **v4.3.2/v4.3.3**: R15 default validated CORRECT (matches R ~1e-15, not a footgun), R13 fp32 no-silent-wrong gate re-proven on discrete-time's person-period regime (MPS+CUDA, +inference SEs), R8 bit-identical, C5 convergence accessors added (4.3.3). Stratified Cox = known gap (fail-loud, NotImplementedFeatureError). OWED: prior-art trawl before publication (novelty path). |
 | 3 | multivariate (PCA + factor analysis) | ✅ done + red-teamed (v4.4.1) | first-time full validation + red-team. PCA machine-precision vs `prcomp`, R10 hard cases (cond~1e8 via SVD-of-X), new MPS/CUDA randomized PCA path earns its keep, **CF-1 cleared** (gated `solver='gram'`, silent_wrong_count=0, R12/R13). FA vs `factanal` validated at 4.4.1 after R18 bundle (F1 varimax relative-convergence + F2 Heywood `lower=`). F3 small-n FA dip = documented R2. |
-| 4 | mixed (`lmm` + `glmm` + `grm_lmm`) | 🔄 LMM + GRM + **GLMM validated (v4.5.6)**; module complete **pending BLOCKER 2 (A.3)** | `lmm` vs `lme4`/`lmerTest` + `grm_lmm()` vs `rrBLUP` (blessed 4.5.1, byte-identical at 4.5.6). **`glmm()` validated vs `lme4::glmer` (Laplace nAGQ=1)** on the two-tier contract across binomial/logit, poisson/log, correlated random slope, probit; R10 red-team + R15 default match glmer's behaviour. First-time glmm pass drove a fix cascade **4.5.2→4.5.6**: G1 nAGQ=0→Laplace + G2 SE transpose (silent-wrong for correlated predictors) @4.5.2; G3 fail-loud free-dispersion families @4.5.3; G4 PIRLS overflow + variance-collapse @4.5.4/completed @4.5.6; G5 structure-exploiting solver (removes O(#groups³) gap) @4.5.5. G6 (no glmm is_singular flag) + G7 (no aggregated-binomial/weights/offset) documented. F4 = documented R2 (autodiff/A.3). |
-| 5 | gam | ⛔ BLOCKED until mixed is complete (**GLMM validated ✅** + A.3 implemented/re-validated) | penalized IRLS + REML smoothing selection; rides the kernel. R ref `mgcv::gam`. No baseline → first-time validation AND red-team together. |
+| 4 | mixed (`lmm` + `glmm` + `grm_lmm`) | ✅ **DONE + red-teamed (v4.5.7)** — LMM + GLMM + GRM all validated; A.3 (analytic θ-gradient) closed F4 | `lmm` vs `lme4`/`lmerTest` + `grm_lmm()` vs `rrBLUP` (blessed 4.5.1, byte-identical at 4.5.6). **`glmm()` validated vs `lme4::glmer` (Laplace nAGQ=1)** on the two-tier contract across binomial/logit, poisson/log, correlated random slope, probit; R10 red-team + R15 default match glmer's behaviour. First-time glmm pass drove a fix cascade **4.5.2→4.5.6**: G1 nAGQ=0→Laplace + G2 SE transpose (silent-wrong for correlated predictors) @4.5.2; G3 fail-loud free-dispersion families @4.5.3; G4 PIRLS overflow + variance-collapse @4.5.4/completed @4.5.6; G5 structure-exploiting solver (removes O(#groups³) gap) @4.5.5. G6 (no glmm is_singular flag) + G7 (no aggregated-binomial/weights/offset) documented. F4 = documented R2 (autodiff/A.3). |
+| 5 | gam | 🟢 **UNBLOCKED** (mixed complete: GLMM validated + A.3 done) — next NEW module | penalized IRLS + REML smoothing selection; rides the kernel. R ref `mgcv::gam`. No baseline → first-time validation AND red-team together. |
 | 6 | timeseries (ARIMA/ETS/STL) | ⬜ pending | largest module; Kalman/state-space + optimizer loops |
 | 7 | montecarlo (bootstrap/permutation) | ⬜ pending | embarrassingly parallel → clean GPU story |
 | 8 | ordinal (polr) + multinomial | ⬜ pending | IRLS-family; de-risked by the optimized kernel |
@@ -59,9 +61,9 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-**⛔ ONE BLOCKER now gates #5 gam — `mixed` is complete except for A.3.** BLOCKER 1
-(glmm validation) is DONE; BLOCKER 2 (A.3) remains. Done sequentially (mutates the
-`mixed` module; one-at-a-time).
+**✅ BOTH blockers cleared — `mixed` is COMPLETE and `gam` is unblocked.** BLOCKER 1
+(glmm validation, blessed v4.5.6) and BLOCKER 2 (A.3 analytic θ-gradient, blessed
+v4.5.7) are both DONE. `gam` (#5) is the next NEW module.
 
 - **BLOCKER 1 — glmm() first-time validation — ✅ DONE (blessed mixed v4.5.6).** Validated
   `glmm()` (generalized LMM via Laplace/PIRLS) against **`lme4::glmer` (nAGQ=1)** on the

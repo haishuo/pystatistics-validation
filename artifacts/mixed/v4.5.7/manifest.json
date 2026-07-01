@@ -1,0 +1,304 @@
+{
+  "schema": "validation-artifact-manifest/v1",
+  "subsystem": "mixed",
+  "pystatistics_version": "4.5.7",
+  "install_source": "pypi",
+  "evidence_state": "native-harness",
+  "frozen_utc": "2026-07-01",
+  "provenance": {
+    "note": "Re-validation of pystatistics.mixed at 4.5.7 after the A.3 optimization: lmm()'s variance-parameter optimizer now uses an exact ANALYTIC \u03b8-gradient of the profiled REML/ML deviance (single grouping-factor / batched path) instead of finite differences \u2014 one deviance evaluation per L-BFGS-B step instead of 2\u00b7dim(\u03b8)+1 (~2.3\u00d7 fewer). This is the F4 fix: correlated random-slope LMMs are ~1.35\u00d7 faster end-to-end and now competitive with lmerTest at small/moderate group counts (speedup_vs_r 1.97\u00d7 at G=10, 0.99\u00d7 at G=100, 0.52\u00d7 at G=2000 \u2014 up from 1.06\u00d7/0.73\u00d7/0.42\u00d7 at 4.5.6); the residual at-scale gap is the in-fit Satterthwaite df (a documented R2 cost lmerTest defers), not an optimizer defect. A torch-autograd gradient was prototyped and REJECTED on benchmark (slower than numpy-analytic on CPU until n\u224812k, only ~1.3\u00d7 at n\u224824k) \u2014 the gradient is pure numpy, no torch. LMM estimates are UNCHANGED vs 4.5.6 (fixed effects identical; variance components within the ~1e-4 optimizer tolerance) and still match lme4 on the two-tier contract. glmm() is BIT-IDENTICAL to 4.5.6 (A.3 does not touch its numerics; verified) and grm_lmm() is unchanged; the grm_lmm GPU studies (CUDA/MPS) are carried forward from 4.5.1 (backend code byte-identical). This completes the mixed module: lmm + glmm + grm_lmm all validated. Hosts: powerhouse (Apple Silicon, CPU fp64; R lme4 1.1.38 / lmerTest 3.2.0 / rrBLUP 4.6.3; numpy+R Apple Accelerate); forge (NVIDIA RTX 5070 Ti \u2014 GPU evidence carried forward). See findings_ledger.md.",
+    "baseline": "R6 baseline\u2192optimize\u2192re-validate: 4.5.6 (glmm-validated, F4 documented) \u2192 4.5.7 (A.3 analytic-gradient optimization; F4 closed to a documented R2 residual). LMM estimates unchanged; glmm bit-identical; grm unchanged."
+  },
+  "hosts": {
+    "powerhouse": {
+      "role": "CPU + MPS",
+      "device": "Apple Silicon (CPU fp64 + Metal/MPS fp32)",
+      "precision_gpu": "fp32",
+      "precision_cpu": "fp64"
+    },
+    "forge": {
+      "role": "CUDA + CPU",
+      "device": "NVIDIA RTX 5070 Ti (CUDA fp32/fp64, compute capability 12.0)",
+      "precision_gpu": "fp32 / fp64",
+      "precision_cpu": "fp64"
+    },
+    "r": {
+      "role": "reference",
+      "engine": "R lme4::lmer / lmerTest::lmer (LMM) + rrBLUP::mixed.solve (GRM)"
+    }
+  },
+  "reference": {
+    "name": "R lme4::lmer / lmerTest::lmer (LMM) + lme4::glmer (GLMM, Laplace nAGQ=1) + rrBLUP::mixed.solve (GRM)",
+    "kind": "cran",
+    "what": "lme4::lmer for LMM point estimates, SEs, variance components, logLik and BLUPs; lmerTest::lmer for the Satterthwaite df/p lme4 omits; rrBLUP::mixed.solve (GBLUP/GRM, K = W W\u1d40 / M, Z = I) for grm_lmm. Two honest LMM tolerance tiers (near-machine fixed effects; optimizer-bound variance components); GRM log-likelihood not compared across engines (different additive constant)."
+  },
+  "studies": [
+    {
+      "id": "lmm_correctness",
+      "title": "LMM correctness vs lme4 / lmerTest \u2014 two-tier contract (REML + ML)",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/correctness_powerhouse_summary.csv",
+      "run": "runs/correctness_cpu_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": [
+        "dataset",
+        "criterion",
+        "n",
+        "coef_max_rel",
+        "loglik_rel",
+        "se_max_rel",
+        "varcomp_max_rel",
+        "df_satt_max_rel",
+        "blup_max_scaled",
+        "py_singular",
+        "r_singular"
+      ],
+      "note": "Identical float64 inputs to both engines. TIGHT tier: fixed-effect \u03b2 to ~1e-16..3e-13 and logLik/REML criterion/AIC/BIC to ~1e-11. OPTIMIZER tier: SEs, Satterthwaite df, p-values, variance components and BLUPs to <=1.3e-4 (lme4 bobyqa vs L-BFGS-B). REML and ML both, across random slopes+correlation (sleepstudy), crossed (Penicillin), simple (Dyestuff), singular (Dyestuff2) and nested (Pastes). coef_max_rel is the fixed-effect headline; varcomp_max_rel/blup_max_scaled are the optimizer-tier headlines. Dyestuff2 is is_singular on both engines."
+    },
+    {
+      "id": "lmm_hardcases_r10",
+      "title": "LMM hard-case behaviour match vs R (R10) + default invocation (R15)",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/hardcases_powerhouse_summary.csv",
+      "run": "runs/hardcases_cpu_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": [
+        "case",
+        "n",
+        "coef_max_rel",
+        "loglik_rel",
+        "varcomp_max_rel",
+        "py_singular",
+        "r_singular",
+        "expect_singular",
+        "py_converged"
+      ],
+      "note": "Adversarial grid (RIGOR R10): pystatistics matches R's BEHAVIOUR, incl. its singular-fit diagnostics. hc1 (perfect intercept/slope correlation \u2192 2\u00d72 boundary) is is_singular on both, with the boundary warning; hc2 (unbalanced groups with singletons) and hc3 (extreme variance ratio, ICC\u22480.99999 \u2014 converges and matches R to 6.9e-6 after the 4.5.1 F3 fix) hold; hc4_nested_correct matches lme4's nested fit to machine precision, hc4_naive_crossed is the MATCHED reused-inner-label footgun (both engines treat it as crossed). R15: the bare lmm(y,X,groups) default equals the explicit (1|group) spec and matches lmer (recorded in the run config)."
+    },
+    {
+      "id": "grm_correctness",
+      "title": "GRM / low-rank model correctness vs R rrBLUP::mixed.solve",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/grm_correctness_powerhouse_summary.csv",
+      "run": "runs/grm_correctness_cpu_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": [
+        "dataset",
+        "n",
+        "M",
+        "true_h2",
+        "beta_max_rel",
+        "var_genetic_rel",
+        "var_residual_rel",
+        "heritability_rel",
+        "blup_corr",
+        "blup_max_scaled"
+      ],
+      "note": "grm_lmm(backend='cpu') vs rrBLUP::mixed.solve (K = W W\u1d40 / M) across h\u00b2 \u2208 {0.2,0.5,0.8} and two sizes. Estimable quantities compared directly: \u03b2 \u2264 3.4e-7, genetic/residual variances \u2264 2.0e-5, heritability \u2264 9.3e-6, genetic-value BLUP correlation = 1.000000. Log-likelihood is not compared (rrBLUP uses a different restricted-likelihood additive constant; every estimate agrees regardless)."
+    },
+    {
+      "id": "glmm_correctness",
+      "title": "GLMM correctness vs lme4::glmer (Laplace nAGQ=1) \u2014 two-tier contract",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/glmm_correctness_powerhouse_summary.csv",
+      "run": "runs/glmm_correctness_cpu_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": [
+        "dataset",
+        "family",
+        "link",
+        "n",
+        "coef_max_rel",
+        "loglik_rel",
+        "deviance_rel",
+        "aic_rel",
+        "se_max_rel",
+        "z_max_rel",
+        "varcomp_max_rel",
+        "blup_max_scaled",
+        "py_converged"
+      ],
+      "note": "glmm() vs glmer(nAGQ=1) on identical float64 inputs, matching the approximation order. TIGHT tier: fixed-effect coefficients + logLik/deviance/AIC/BIC agree to ~1e-3 or better. OPTIMIZER/LAPLACE tier: SEs, Wald z, variance components and BLUPs agree to ~1-2% (finite optimizer tolerance; the fixed-effect covariance is the Laplace Schur inverse at the mode). Grid: cbpp (binomial/logit, random intercept + 4-level fixed factor), grouseticks (poisson/log), glmm_slope_synth (binomial, CORRELATED random intercept+slope), cbpp_probit (probit link via a Family instance). (Bit-identical to 4.5.6 \u2014 A.3 does not touch the glmm path.)"
+    },
+    {
+      "id": "glmm_hardcases",
+      "title": "GLMM hard-case behaviour match vs glmer (R10) + default invocation (R15) + fail-loud (A6)",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/glmm_hardcases_powerhouse_summary.csv",
+      "run": "runs/glmm_hardcases_cpu_powerhouse.json",
+      "claim": "agreement",
+      "host": "powerhouse+r",
+      "summary_cols": [
+        "case",
+        "n",
+        "coef_max_rel",
+        "py_var",
+        "r_var",
+        "py_converged",
+        "r_singular",
+        "failed_loud"
+      ],
+      "note": "R10 grid: hc1 quasi-separation (huge-but-finite slope, matches glmer ~4e-5); hc2 singular RE (no group signal \u2014 variance collapses to 0 matching glmer isSingular=True, though glmm exposes no is_singular flag, finding G6); hc3 unbalanced with singletons (~2e-4). R15: the bare glmm(y,X,groups,family='binomial') default equals the explicit (1|group) spec (0.0) and matches glmer's default variance to ~6e-5 (the 4.5.6 collapse fix). A6: gaussian and gamma raise ValidationError rather than returning wrong statistics."
+    },
+    {
+      "id": "glmm_cpu_speed",
+      "title": "GLMM CPU vs glmer across sizes (priority 3 / R1)",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/glmm_speed_powerhouse_summary.csv",
+      "run": "runs/glmm_speed_cpu_powerhouse.json",
+      "claim": "speed",
+      "host": "powerhouse+r",
+      "summary_cols": [
+        "G",
+        "n",
+        "pystat_s",
+        "r_glmer_s",
+        "speedup_vs_r"
+      ],
+      "note": "Binomial random-intercept GLMM, group-count sweep. After the 4.5.5 structure-exploiting solver there is NO complexity-class gap vs glmer \u2014 empirical exponent pystatistics ~O(n^0.48) vs glmer ~O(n^0.68). A residual constant factor (speedup 0.29x at G=25 rising to 0.63x at G=400/n=6000) is glmm computing more per fit than glmer defers \u2014 the two-stage nAGQ=0->nAGQ=1 Laplace, the in-fit fixed-effect SEs, and the robustness stationarity probe (a documented R2 cost, not a scaling defect). CPU-only (matching lme4/glmmTMB). BLAS: numpy and R both Apple Accelerate."
+    },
+    {
+      "id": "lmm_cpu_speed_r1",
+      "title": "LMM CPU vs R across sizes (priority 3 / R1) \u2014 with the A.3 analytic gradient",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/cpu_speed_powerhouse_summary.csv",
+      "run": "runs/cpu_speed_powerhouse.json",
+      "claim": "speed",
+      "host": "powerhouse+r",
+      "summary_cols": [
+        "complexity",
+        "G",
+        "n",
+        "pystat_s",
+        "r_lmer_s",
+        "speedup_vs_r"
+      ],
+      "note": "The A.3 analytic \u03b8-gradient (4.5.7): the batched single-factor optimizer supplies the exact gradient of the profiled deviance, ~2.3\u00d7 fewer deviance evals. Random-intercept: pystatistics still MEETS-OR-BEATS lme4 at every size (~3\u20135\u00d7). Random-slope (correlated 2\u00d72 RE, finding F4): now ~1.35\u00d7 faster end-to-end than at 4.5.6 and competitive with lmerTest at small/moderate G (speedup_vs_r 1.97\u00d7 at G=10 \u2192 0.99\u00d7 at G=100 \u2192 0.52\u00d7 at G=2000, up from 1.06\u00d7/0.73\u00d7/0.42\u00d7). The residual at-scale gap is the in-fit Satterthwaite df pystatistics computes that lmerTest defers \u2014 a documented R2 cost, not a complexity-class gap. Estimates unchanged. BLAS: numpy and R both Apple Accelerate."
+    },
+    {
+      "id": "grm_cf1_gate_cuda",
+      "title": "GRM fp32-Gram no-silent-wrong gate boundary \u2014 Forge (CUDA) (R12/R13)",
+      "device": [
+        "cuda"
+      ],
+      "summary": "runs/grm_cf1_gate_cuda_forge_summary.csv",
+      "run": "runs/grm_gpu_cuda_forge.json",
+      "claim": "boundary",
+      "host": "forge",
+      "summary_cols": [
+        "cond",
+        "verdict",
+        "dh2_vs_fp64",
+        "dbeta_vs_fp64",
+        "refused"
+      ],
+      "note": "[CARRIED FORWARD from 4.5.1 \u2014 grm_lmm GPU/backend code is byte-identical at 4.5.6 (the 4.5.1->4.5.6 diff touches only glmm files); not re-measured.] The grm_lmm fp32 GPU path forms K = W W\u1d40 / M in single precision (the CF-1 defect class). Sweeping cond(W) across the fp32 gate on CUDA, silent_wrong_count = 0: cond(W) \u2264 3e3 ACCEPTED and correct vs fp64 (|\u0394h\u00b2| \u2264 1.1e-3), cond(W) \u2265 1e4 REFUSED loudly (NumericalError). A true classifier \u2014 never accepts a biased fit (R12), never refuses a recoverable one (R9); the gate keys on the double-precision conditioning of W so it survives a torch upgrade (R14)."
+    },
+    {
+      "id": "grm_cf1_gate_mps",
+      "title": "GRM fp32-Gram no-silent-wrong gate boundary \u2014 Powerhouse (MPS) (R13)",
+      "device": [
+        "mps"
+      ],
+      "summary": "runs/grm_cf1_gate_mps_powerhouse_summary.csv",
+      "run": "runs/grm_gpu_mps_powerhouse.json",
+      "claim": "boundary",
+      "host": "powerhouse",
+      "summary_cols": [
+        "cond",
+        "verdict",
+        "dh2_vs_fp64",
+        "dbeta_vs_fp64",
+        "refused"
+      ],
+      "note": "[CARRIED FORWARD from 4.5.1 \u2014 grm_lmm GPU/backend code is byte-identical at 4.5.6 (the 4.5.1->4.5.6 diff touches only glmm files); not re-measured.] The same CF-1 gate re-proven on Apple Silicon / MPS (R13 \u2014 a guarantee is regime-conditional and must be re-proven per device): silent_wrong_count = 0, cond(W) \u2264 3e3 accepted and correct (|\u0394h\u00b2| \u2264 2.3e-3), cond(W) \u2265 1e4 refused loud \u2014 identical classifier behaviour to CUDA."
+    },
+    {
+      "id": "grm_gpu_speed_cuda",
+      "title": "GRM GPU earns-its-keep + R11 isolation \u2014 Forge (CUDA) (priority 4 / R11)",
+      "device": [
+        "cpu",
+        "cuda"
+      ],
+      "summary": "runs/grm_speed_cuda_forge_summary.csv",
+      "run": "runs/grm_gpu_cuda_forge.json",
+      "claim": "speed",
+      "host": "forge",
+      "summary_cols": [
+        "n",
+        "M",
+        "cpu_s",
+        "gpu_fp32_s",
+        "gpu_fp64_s",
+        "gpu_fp32_speedup_vs_cpu",
+        "gpu_fp64_speedup_vs_cpu",
+        "gpu_fp32_dh2_vs_cpu",
+        "gpu_fp64_dh2_vs_cpu"
+      ],
+      "note": "[CARRIED FORWARD from 4.5.1 \u2014 grm_lmm GPU/backend code is byte-identical at 4.5.6 (the 4.5.1->4.5.6 diff touches only glmm files); not re-measured.] grm_lmm earns its GPU path on CUDA (RIGOR priority 4): fp32 is 6.6\u00d7 (n=5000) and 14.7\u00d7 (n=20000) over the fp64 CPU, accepted fits correct to |\u0394h\u00b2| \u2264 2.1e-4. R11 same-precision pivot: gpu_fp64 is numerically EXACT vs CPU (|\u0394h\u00b2| \u2264 1.8e-8) but only 1.2\u20131.6\u00d7 faster (consumer fp64 throughput) \u2014 a correctness option; the fp32 headline is precision + hardware, reported honestly."
+    },
+    {
+      "id": "grm_gpu_speed_mps",
+      "title": "GRM GPU on MPS \u2014 correctness/portability, not speed (honest) \u2014 Powerhouse",
+      "device": [
+        "cpu",
+        "mps"
+      ],
+      "summary": "runs/grm_speed_mps_powerhouse_summary.csv",
+      "run": "runs/grm_gpu_mps_powerhouse.json",
+      "claim": "speed",
+      "host": "powerhouse",
+      "summary_cols": [
+        "n",
+        "M",
+        "cpu_s",
+        "gpu_fp32_s",
+        "gpu_fp32_speedup_vs_cpu"
+      ],
+      "note": "[CARRIED FORWARD from 4.5.1 \u2014 grm_lmm GPU/backend code is byte-identical at 4.5.6 (the 4.5.1->4.5.6 diff touches only glmm files); not re-measured.] On Apple Silicon / MPS the grm_lmm fp32 path is a correctness / portability path only: the CF-1 gate holds (see the MPS gate study) but it does NOT beat the fp64 CPU (0.27\u20130.74\u00d7). Reported plainly \u2014 the GPU speed story is CUDA, not MPS; a GPU path that ties/loses to the CPU is not dressed as a win."
+    }
+  ],
+  "record_fields": {
+    "coef_max_rel": "max relative difference vs lme4 over the fixed-effect coefficients (the near-machine TIGHT-tier headline)",
+    "loglik_rel": "relative difference vs lme4 in the log-likelihood / REML criterion (optimizer-bound but flat-near-optimum, ~1e-11)",
+    "varcomp_max_rel": "max relative difference vs lme4 over the (away-from-boundary) variance components (OPTIMIZER-tier headline)",
+    "df_satt_max_rel": "max relative difference vs lmerTest over the Satterthwaite denominator df",
+    "blup_max_scaled": "max |\u0394| over the random-effect BLUPs, scaled by their RMS (optimizer tier)",
+    "py_singular": "LMMSolution.is_singular \u2014 pystatistics flags the fit as on the RE-covariance boundary (mirrors lme4 isSingular)",
+    "r_singular": "lme4 isSingular() on the same fit \u2014 the behaviour-match target (R10)",
+    "speedup_vs_r": "lme4/lmerTest wall-clock / pystatistics wall-clock on the same fit (>1 means pystatistics is faster)",
+    "beta_max_rel": "GRM: max relative difference vs rrBLUP over the fixed effects",
+    "heritability_rel": "GRM: relative difference vs rrBLUP in narrow-sense heritability h\u00b2",
+    "blup_corr": "GRM: Pearson correlation between pystatistics and rrBLUP genetic-value BLUPs (1.0 = identical ranking/scale)",
+    "verdict": "CF-1 gate outcome for an fp32 GPU fit at a given cond(W): accepted_correct / refused_loud / SILENT_WRONG (the last must never occur)",
+    "dh2_vs_fp64": "|\u0394h\u00b2| of an accepted fp32 GPU fit vs the fp64 CPU optimum (the no-silent-wrong check, R12)",
+    "gpu_fp32_speedup_vs_cpu": "fp64 CPU wall / fp32 GPU wall (>1 means the GPU earns its place, priority 4)",
+    "gpu_fp64_speedup_vs_cpu": "fp64 CPU wall / fp64 GPU wall \u2014 the same-precision hardware-only pivot (R11)",
+    "gpu_fp64_dh2_vs_cpu": "|\u0394h\u00b2| of the fp64 GPU fit vs the fp64 CPU \u2014 the hardware-exactness check (~1e-8)",
+    "family": "GLMM response family (binomial/poisson)",
+    "link": "GLMM link (logit/log/probit)",
+    "deviance_rel": "GLMM: relative diff vs glmer in the conditional deviance (\u03a3 deviance residuals\u00b2 at the mode)",
+    "z_max_rel": "GLMM: max relative diff vs glmer over the Wald z-statistics",
+    "failed_loud": "GLMM R10: True if glmm raised ValidationError for a free-dispersion family (required A6 behaviour)",
+    "py_var": "GLMM hardcase: pystatistics RE variance (vs r_var \u2014 the singular/boundary behaviour-match)",
+    "r_var": "GLMM hardcase: glmer RE variance"
+  }
+}
