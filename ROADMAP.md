@@ -71,17 +71,22 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
   gaussian/gamma) + R15 default match glmer's behaviour. CPU-only (no GPU path, as
   expected). The pass drove the 4.5.2→4.5.6 fix cascade (G1-G5; G6/G7 documented). Report:
   `reports/mixed-v4.5.6.md`.
-- **BLOCKER 2 — A.3 autodiff θ-gradient (implement + re-validate) — next after GLMM.** The
-  F4 fix: multi-term random-slope LMM is ~2× slower than lmerTest at scale; the autodiff
-  θ-gradient (fewer deviance evals) closes it. Implement now rather than re-opening `mixed`
-  later (avoids the churn the one-at-a-time / single-trunk rule guards against). Ships as an
-  **opt-in / auto-when-present** torch accelerator (numpy default stays the reference; torch
-  optional — A7). **Requires re-validation** (A7 + R6): (a) prove the A.3 path numerically
-  equivalent to the numpy/default reference + `lme4` (Fidelity/G2); (b) confirm F4's gap
-  closes (Performance/G3); (c) R8 bit-identical confirmation that glmm/grm_lmm are
-  untouched. Implementation chip → release (patch, e.g. 4.5.2/4.6.0, user authorizes) →
-  re-validate the LMM path. Then — and only then — mixed (#4) is ✅ done and gam is unblocked.
-  See memory `torch-dependency-policy`.
+- **BLOCKER 2 — A.3 θ-gradient (implement + re-validate) — IN PROGRESS.** The F4 fix:
+  multi-term random-slope LMM is ~2× slower than lmerTest at scale because
+  `_optimizer.optimize_theta` runs L-BFGS-B with **finite-difference** gradients
+  (`2·dim(θ)+1` deviance evals per step). Supplying a real θ-gradient cuts that to 1.
+  **DECISION (evidence-based): numpy ANALYTIC gradient, NOT torch autodiff.** A benchmark
+  of finite-diff vs numpy-analytic vs torch-CPU autograd (all landing at the identical
+  optimum; analytic grad matches finite-diff to 1.8e-7) showed the numpy analytic gradient
+  is **~2.3× faster than finite-diff at every size, dependency-free**, while **torch-CPU is
+  SLOWER than numpy-analytic until n≈12k and only wins ≤1.3× at n≥24k** (~50 ms fits) —
+  the "accelerator that rarely wins" anti-pattern. So torch is rejected here; the CPU path
+  stays torch-free. Scope: the batched single-factor path (where F4 lives); crossed/sparse
+  stays on finite-diff. **Requires re-validation** (R6): (a) analytic grad ≡ finite-diff to
+  machine precision + estimates bit-identical to 4.5.6 + match `lme4`; (b) F4 gap closes
+  (Performance/G3); (c) R8 bit-identical glmm/grm_lmm untouched. Release (patch, user
+  authorizes) → re-validate LMM → then mixed (#4) is ✅ done and gam unblocked. See memory
+  `a3-torch-loses-on-cpu` + `torch-dependency-policy`.
 - **Owed (cross-program, before any paper):** prior-art trawl (arXiv/PyPI/GitHub) for the
   survival novelty claim "first discrete-time survival on GPU at scale" (R13). Not blocking
   the validation corpus; required before publication.
