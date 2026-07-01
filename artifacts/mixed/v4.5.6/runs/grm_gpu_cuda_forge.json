@@ -1,0 +1,92 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.5.1",
+    "device": "cuda",
+    "host": "forge",
+    "torch": "2.11.0.dev20251226+cu128",
+    "gpu": "NVIDIA GeForce RTX 5070 Ti",
+    "compute_cap": [
+      12,
+      0
+    ],
+    "install_source": "pypi"
+  },
+  "config": {
+    "study": "grm_gpu",
+    "device": "cuda",
+    "reference": "self-contained Forge CUDA study (drivers/mixed/generate_grm_gpu.py logic, run in a throwaway venv layered on the gpumice torch); silent_wrong_count must be 0; GPU must beat CPU",
+    "silent_wrong_count": 0
+  },
+  "cf1_gate": [
+    {
+      "cond": 100.0,
+      "verdict": "accepted_correct",
+      "dh2_vs_fp64": 0.001114011856021826,
+      "dbeta_vs_fp64": 7.1430234759861655e-06,
+      "refused": false
+    },
+    {
+      "cond": 1000.0,
+      "verdict": "accepted_correct",
+      "dh2_vs_fp64": 0.0006743614819653914,
+      "dbeta_vs_fp64": 5.400827009727216e-06,
+      "refused": false
+    },
+    {
+      "cond": 3000.0,
+      "verdict": "accepted_correct",
+      "dh2_vs_fp64": 0.00022700232555694798,
+      "dbeta_vs_fp64": 1.8863826982684628e-06,
+      "refused": false
+    },
+    {
+      "cond": 10000.0,
+      "verdict": "refused_loud",
+      "dh2_vs_fp64": null,
+      "dbeta_vs_fp64": null,
+      "refused": true,
+      "msg": "GRM GPU float32 path: the low-rank factor W is too ill-conditioned for single precision (estimated cond(W) \u2248 1.00e+04; \u03bb"
+    },
+    {
+      "cond": 30000.0,
+      "verdict": "refused_loud",
+      "dh2_vs_fp64": null,
+      "dbeta_vs_fp64": null,
+      "refused": true,
+      "msg": "GRM GPU float32 path: the low-rank factor W is too ill-conditioned for single precision (estimated cond(W) \u2248 3.00e+04; \u03bb"
+    },
+    {
+      "cond": 100000.0,
+      "verdict": "refused_loud",
+      "dh2_vs_fp64": null,
+      "dbeta_vs_fp64": null,
+      "refused": true,
+      "msg": "GRM GPU float32 path: the low-rank factor W is too ill-conditioned for single precision (estimated cond(W) \u2248 1.00e+05; \u03bb"
+    }
+  ],
+  "speed": [
+    {
+      "n": 5000,
+      "M": 500,
+      "cpu_s": 0.26057652197778225,
+      "gpu_fp32_s": 0.03945490997284651,
+      "gpu_fp64_s": 0.22142290882766247,
+      "gpu_fp32_speedup_vs_cpu": 6.604413041548318,
+      "gpu_fp64_speedup_vs_cpu": 1.1768272910758018,
+      "gpu_fp32_dh2_vs_cpu": 0.00021189661154145516,
+      "gpu_fp64_dh2_vs_cpu": 5.625137803525817e-08
+    },
+    {
+      "n": 20000,
+      "M": 1000,
+      "cpu_s": 3.459173956885934,
+      "gpu_fp32_s": 0.23552620317786932,
+      "gpu_fp64_s": 2.171975119970739,
+      "gpu_fp32_speedup_vs_cpu": 14.68700259339538,
+      "gpu_fp64_speedup_vs_cpu": 1.5926397706307687,
+      "gpu_fp32_dh2_vs_cpu": 0.00017416733736040242,
+      "gpu_fp64_dh2_vs_cpu": 1.8149128821606868e-08
+    }
+  ]
+}

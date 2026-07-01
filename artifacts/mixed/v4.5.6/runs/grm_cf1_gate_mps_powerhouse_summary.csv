@@ -1,0 +1,7 @@
+study,cond,device,verdict,dh2_vs_fp64,dbeta_vs_fp64,refused
+cf1_gate,100.0,mps,accepted_correct,0.00020412496752187902,1.2420519495681681e-06,False
+cf1_gate,1000.0,mps,accepted_correct,0.0013863681875653927,9.97693884818851e-06,False
+cf1_gate,3000.0,mps,accepted_correct,0.0022710800748546437,6.383917731112021e-06,False
+cf1_gate,10000.0,mps,refused_loud,,,True
+cf1_gate,30000.0,mps,refused_loud,,,True
+cf1_gate,100000.0,mps,refused_loud,,,True
