@@ -18,7 +18,9 @@ discrete_time numbers bit-identical); **4.4.0** added the multivariate randomize
 (MPS/CUDA) PCA path; **4.4.1** R18 bundle fixing the two factor-analysis findings F1
 (varimax relative-convergence test) + F2 (Heywood `lower=` floor).
 
-**Current library version:** pystatistics **4.4.1** (on PyPI).
+**Current library version:** pystatistics **4.5.0** (on PyPI) — mixed/LMM perf + the new
+`grm_lmm()` GPU model; also carries `CONVENTIONS.md` Amendment A7 (dependency tiering:
+torch optional) + the Prime Directive reframe to Correctness/Fidelity/Performance.
 
 **Regression (4.3.2), survival (4.3.3), and multivariate (4.4.1) are DONE and
 red-teamed.** Multivariate: PCA machine-precision vs `prcomp` (R10 cond~1e8 recovers a
@@ -38,7 +40,7 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 | 1 | regression (OLS + GLM families) | ✅ done + red-teamed (v4.3.2) | v3.18.0 → v3.20.0 → v4.2.x → hardened/red-teamed **v4.3.2**: R10 hard cases (weights/offset now supported), R11 precision/hardware isolation + BLAS, R12 extended to inference SEs, priority-3 CPU-vs-R across sizes (meets/beats R at every n incl. n=50), priority-4 GPU value (~18×/10×). Found+fixed 3 correctness defects (→4.3.2). |
 | 2 | survival (KM / log-rank / coxph) | ✅ done + red-teamed (v4.3.3) | v4.0.0 → v4.2.x → red-teamed **v4.3.2/v4.3.3**: R15 default validated CORRECT (matches R ~1e-15, not a footgun), R13 fp32 no-silent-wrong gate re-proven on discrete-time's person-period regime (MPS+CUDA, +inference SEs), R8 bit-identical, C5 convergence accessors added (4.3.3). Stratified Cox = known gap (fail-loud, NotImplementedFeatureError). OWED: prior-art trawl before publication (novelty path). |
 | 3 | multivariate (PCA + factor analysis) | ✅ done + red-teamed (v4.4.1) | first-time full validation + red-team. PCA machine-precision vs `prcomp`, R10 hard cases (cond~1e8 via SVD-of-X), new MPS/CUDA randomized PCA path earns its keep, **CF-1 cleared** (gated `solver='gram'`, silent_wrong_count=0, R12/R13). FA vs `factanal` validated at 4.4.1 after R18 bundle (F1 varimax relative-convergence + F2 Heywood `lower=`). F3 small-n FA dip = documented R2. |
-| 4 | mixed (LMM) | 🔄 impl done + staged for **4.5.0**; validation/bless pending release | LMM validated vs `lme4` (two-tier: tight fixed-effects, looser optimizer-bound varcomps). Implementer landed CPU fixes F2a (`_compute_se` form A, O(p³) not O(n³)), F1 (singular/`isSingular` warning), F2b (structure-exploiting solver, **scipy-only**, 197s→0.05s, crossed-OOM fixed) + a NEW `grm_lmm()` GPU model (GRM/low-rank, `backend=`, CF-1 gate, heritability BLUPs; CUDA fp32 13–16×, MPS correctness-only). 3008 tests pass. A.3 autodiff deferred. Next: release 4.5.0 → validate + bless at PyPI 4.5.0. |
+| 4 | mixed (LMM) | 🔄 **4.5.0 RELEASED** (PyPI); validation/bless in progress | LMM validated vs `lme4` (two-tier: tight fixed-effects, looser optimizer-bound varcomps). 4.5.0 shipped CPU fixes F2a (`_compute_se` form A, O(p³) not O(n³)), F1 (singular/`isSingular` warning), F2b (structure-exploiting solver, **scipy-only**, 197s→0.05s, crossed-OOM fixed) + NEW `grm_lmm()` GPU model (GRM/low-rank, `backend=`, CF-1 gate, heritability BLUPs; CUDA fp32 13–16×, MPS correctness-only). 3008 tests pass. A.3 autodiff deferred (now unblocked by torch policy, future release). Validation chip has its go-ahead: validate + red-team + bless at PyPI **4.5.0**. |
 | 5 | gam | ⬜ pending | penalized IRLS + REML smoothing selection; rides the kernel |
 | 6 | timeseries (ARIMA/ETS/STL) | ⬜ pending | largest module; Kalman/state-space + optimizer loops |
 | 7 | montecarlo (bootstrap/permutation) | ⬜ pending | embarrassingly parallel → clean GPU story |
@@ -49,14 +51,13 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-- **Mixed / LMM (#4) — implementation handed back, staged for 4.5.0; awaiting release +
-  bless.** Hand-back: `handoffs/mixed-implementation-handback.md` (per-file changes,
-  decisions, gate numbers, staged UNRELEASED, re-check list). Work is staged UNCOMMITTED
-  in `../pystatistics` main (19 files, +2096/−145; 3008 pass, 0 fail). **Sequence:**
-  1. **Cut 4.5.0** — commit staged work + `.release/release.py`; publish to PyPI (needs
-     the user's separate release authorization).
-  2. **Validate + red-team at PyPI 4.5.0 → bless `mixed-v4.5.0`** (per R5 can't validate
-     until published). Re-check list from the hand-back:
+- **Mixed / LMM (#4) — 4.5.0 RELEASED to PyPI (2026-06-30); validation/bless in
+  progress.** Hand-back: `handoffs/mixed-implementation-handback.md`. Released via the
+  manual flow (feature commit 029cba4 → Release 4.5.0 5f1e63a → tag v4.5.0 → gh release →
+  publish.yml → PyPI; wheel+sdist live, verified). The `CONVENTIONS.md` A7 amendment
+  (247750a) rode along in the same push. **Remaining:** the waiting validation chip now
+  has its go-ahead — validate + red-team at PyPI **4.5.0** → bless `mixed-v4.5.0`.
+  Re-check list from the hand-back:
      - penicillin Satterthwaite df a hair looser (1.3e-4 vs 1.0e-4) — optimizer-stop not
        defect (structured Satterthwaite is machine-identical at fixed θ); confirm at 4.5.0,
        record within the optimizer tier.
@@ -83,7 +84,7 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 ## Standing coordination constraints
 
 - **Release-hold: CLEARED.** The `pystatsbio`/`sgcbio` consistency releases have
-  landed and pystatistics has since shipped through **4.4.1**. No active hold. Re-check
+  landed and pystatistics has since shipped through **4.5.0**. No active hold. Re-check
   before any new library release; reinstate this line if a downstream consistency
   release is mid-flight again.
 - **Finding triage: showstopper vs gather (RIGOR R18).** Every defect found mid-run is
