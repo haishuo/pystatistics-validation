@@ -37,8 +37,9 @@ red-teamed.** Multivariate: PCA machine-precision vs `prcomp` (R10 cond~1e8 reco
 7e-9 singular value via SVD-of-X), a new MPS randomized PCA path that earns its keep,
 **CF-1 CLEARED** (silent_wrong_count=0 on the gated `solver='gram'` path, R12/R13
 re-proven MPS+CUDA), FA validated vs `factanal` after the R18 bundle (F1+F2); F3 (small-n
-FA speed dip) is a documented R2 cost. **Next NEW module: mixed / LMM (full run +
-red-team in one chip).**
+FA speed dip) is a documented R2 cost. **`mixed` (v4.5.7) is also DONE + red-teamed** —
+all three public models (`lmm`/`glmm`/`grm_lmm`) validated. **Next NEW module: `gam`
+(chip spawned, task_31d5fd2b).**
 
 ## Order + status
 
@@ -51,7 +52,7 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 | 2 | survival (KM / log-rank / coxph) | ✅ done + red-teamed (v4.3.3) | v4.0.0 → v4.2.x → red-teamed **v4.3.2/v4.3.3**: R15 default validated CORRECT (matches R ~1e-15, not a footgun), R13 fp32 no-silent-wrong gate re-proven on discrete-time's person-period regime (MPS+CUDA, +inference SEs), R8 bit-identical, C5 convergence accessors added (4.3.3). Stratified Cox = known gap (fail-loud, NotImplementedFeatureError). OWED: prior-art trawl before publication (novelty path). |
 | 3 | multivariate (PCA + factor analysis) | ✅ done + red-teamed (v4.4.1) | first-time full validation + red-team. PCA machine-precision vs `prcomp`, R10 hard cases (cond~1e8 via SVD-of-X), new MPS/CUDA randomized PCA path earns its keep, **CF-1 cleared** (gated `solver='gram'`, silent_wrong_count=0, R12/R13). FA vs `factanal` validated at 4.4.1 after R18 bundle (F1 varimax relative-convergence + F2 Heywood `lower=`). F3 small-n FA dip = documented R2. |
 | 4 | mixed (`lmm` + `glmm` + `grm_lmm`) | ✅ **DONE + red-teamed (v4.5.7)** — LMM + GLMM + GRM all validated; A.3 (analytic θ-gradient) closed F4 | `lmm` vs `lme4`/`lmerTest` + `grm_lmm()` vs `rrBLUP` (blessed 4.5.1, byte-identical at 4.5.6). **`glmm()` validated vs `lme4::glmer` (Laplace nAGQ=1)** on the two-tier contract across binomial/logit, poisson/log, correlated random slope, probit; R10 red-team + R15 default match glmer's behaviour. First-time glmm pass drove a fix cascade **4.5.2→4.5.6**: G1 nAGQ=0→Laplace + G2 SE transpose (silent-wrong for correlated predictors) @4.5.2; G3 fail-loud free-dispersion families @4.5.3; G4 PIRLS overflow + variance-collapse @4.5.4/completed @4.5.6; G5 structure-exploiting solver (removes O(#groups³) gap) @4.5.5. G6 (no glmm is_singular flag) + G7 (no aggregated-binomial/weights/offset) documented. F4 = documented R2 (autodiff/A.3). |
-| 5 | gam | 🟢 **UNBLOCKED** (mixed complete: GLMM validated + A.3 done) — next NEW module | penalized IRLS + REML smoothing selection; rides the kernel. R ref `mgcv::gam`. No baseline → first-time validation AND red-team together. |
+| 5 | gam | 🔄 **CHIP SPAWNED** (task_31d5fd2b) — FULL run + red-team in ONE chip | penalized IRLS + REML/GCV smoothing selection; rides the kernel. R ref `mgcv::gam`. No baseline → first-time validation AND red-team together. Target PyPI 4.5.7. Watch CF-1 if any GPU path forms the penalized Gram in fp32. |
 | 6 | timeseries (ARIMA/ETS/STL) | ⬜ pending | largest module; Kalman/state-space + optimizer loops |
 | 7 | montecarlo (bootstrap/permutation) | ⬜ pending | embarrassingly parallel → clean GPU story |
 | 8 | ordinal (polr) + multinomial | ⬜ pending | IRLS-family; de-risked by the optimized kernel |
@@ -61,9 +62,9 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-**✅ BOTH blockers cleared — `mixed` is COMPLETE and `gam` is unblocked.** BLOCKER 1
-(glmm validation, blessed v4.5.6) and BLOCKER 2 (A.3 analytic θ-gradient, blessed
-v4.5.7) are both DONE. `gam` (#5) is the next NEW module.
+**✅ BOTH blockers cleared — `mixed` is COMPLETE; `gam` (#5) CHIP SPAWNED (task_31d5fd2b).**
+BLOCKER 1 (glmm validation, blessed v4.5.6) and BLOCKER 2 (A.3 analytic θ-gradient, blessed
+v4.5.7) are both DONE. The two `mixed` bullets below are kept for history.
 
 - **BLOCKER 1 — glmm() first-time validation — ✅ DONE (blessed mixed v4.5.6).** Validated
   `glmm()` (generalized LMM via Laplace/PIRLS) against **`lme4::glmer` (nAGQ=1)** on the
@@ -73,7 +74,7 @@ v4.5.7) are both DONE. `gam` (#5) is the next NEW module.
   gaussian/gamma) + R15 default match glmer's behaviour. CPU-only (no GPU path, as
   expected). The pass drove the 4.5.2→4.5.6 fix cascade (G1-G5; G6/G7 documented). Report:
   `reports/mixed-v4.5.6.md`.
-- **BLOCKER 2 — A.3 θ-gradient (implement + re-validate) — IN PROGRESS.** The F4 fix:
+- **BLOCKER 2 — A.3 θ-gradient (implement + re-validate) — ✅ DONE (blessed mixed v4.5.7).** The F4 fix:
   multi-term random-slope LMM is ~2× slower than lmerTest at scale because
   `_optimizer.optimize_theta` runs L-BFGS-B with **finite-difference** gradients
   (`2·dim(θ)+1` deviance evals per step). Supplying a real θ-gradient cuts that to 1.
@@ -89,6 +90,10 @@ v4.5.7) are both DONE. `gam` (#5) is the next NEW module.
   (Performance/G3); (c) R8 bit-identical glmm/grm_lmm untouched. Release (patch, user
   authorizes) → re-validate LMM → then mixed (#4) is ✅ done and gam unblocked. See memory
   `a3-torch-loses-on-cpu` + `torch-dependency-policy`.
+- **Minor (mixed, non-blocking) — G6/G7:** `glmm()` has no `is_singular` flag (G6; it
+  matches glmer's isSingular *behaviour*, just doesn't surface it — a transparency gap like
+  survival's C5) and no aggregated-binomial / weights / offset support (G7). Gather-level;
+  a future additive `mixed` release, not a defect.
 - **Owed (cross-program, before any paper):** prior-art trawl (arXiv/PyPI/GitHub) for the
   survival novelty claim "first discrete-time survival on GPU at scale" (R13). Not blocking
   the validation corpus; required before publication.
@@ -100,7 +105,7 @@ v4.5.7) are both DONE. `gam` (#5) is the next NEW module.
 ## Standing coordination constraints
 
 - **Release-hold: CLEARED.** The `pystatsbio`/`sgcbio` consistency releases have
-  landed and pystatistics has since shipped through **4.5.1**. No active hold. Re-check
+  landed and pystatistics has since shipped through **4.5.7**. No active hold. Re-check
   before any new library release; reinstate this line if a downstream consistency
   release is mid-flight again.
 - **Finding triage: showstopper vs gather (RIGOR R18).** Every defect found mid-run is
