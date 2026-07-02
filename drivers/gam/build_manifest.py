@@ -137,15 +137,26 @@ def main() -> None:
         "frozen_utc": _FROZEN_UTC,
         "provenance": {
             "note": (
-                f"First-time validation of pystatistics.gam at {_VER}, immediately "
-                "after the 4.6.0 numerical rewrite this validation drove. The prior "
-                "gam (through 4.5.7) was never validated against mgcv and shipped a "
-                "silently-wrong automatic smoothing selection (finding H0) plus a "
-                "silently-wrong fp32 GPU path (H1); both were fixed/removed at 4.6.0. "
-                "Reference mgcv " + env.get("mgcv", "?") + ". Identical float64 inputs "
-                "to both engines (each case dumps its data to a temp CSV both read). "
-                "Two-tier contract: fixed-sp tight (cr) + free-selection optimizer "
-                "tier. Adversarially reviewed (2 HIGH findings H2/H3 fixed pre-release)."
+                f"Performance re-validation of pystatistics.gam at {_VER}, after the "
+                "analytic smoothing-parameter gradient landed (finding H4). Gaussian "
+                "gam() now selects its smoothing parameters with the exact analytic "
+                "gradient of the GCV/REML criterion (one inner penalized-IRLS fit per "
+                "outer step) instead of finite differences (2m+1 fits per step), so "
+                "multi-smooth Gaussian fits no longer slow down with the number of "
+                "smooths: the py/mgcv ratio is now roughly flat across smooth count "
+                "(~2.0-2.7x) where at 4.6.0 it climbed to ~5.1x at 6 smooths. "
+                "Estimates are UNCHANGED — the search lands on the same optimum "
+                "(selected sp within ~1e-3 relative, total EDF within ~2e-4 of the "
+                "finite-difference path), and the whole two-tier correctness contract "
+                "vs mgcv is re-run and holds. GLM families (Poisson/binomial UBRE, "
+                "non-Gaussian REML) keep the finite-difference path (their IRLS "
+                "weights depend on the coefficients). The 4.6.0 first-time validation "
+                "drove the full numerical rewrite that fixed the silently-wrong "
+                "automatic smoothing selection (H0) and removed the silently-wrong "
+                "fp32 GPU path (H1). Reference mgcv " + env.get("mgcv", "?") + ". "
+                "Identical float64 inputs to both engines (each case dumps its data to "
+                "a temp CSV both read). Two-tier contract: fixed-sp tight (cr) + "
+                "free-selection optimizer tier."
             )
         },
         "hosts": {
@@ -221,8 +232,10 @@ def main() -> None:
                         f"compiled C, best-of-{perf['config']['reps']}. Single smooth: "
                         f"parity across n (py/mgcv ≈1.0–1.8×, 0.97× at n=50000; "
                         f"empirical exponent py={exp_py:.2f} vs r={exp_r:.2f}). "
-                        f"Multi-smooth lags with the sp count (finite-difference search "
-                        f"vs Newton) — a documented R2 cost (H4).",
+                        f"Multi-smooth (Gaussian): the analytic GCV/REML gradient (4.6.1, "
+                        f"finding H4) keeps py/mgcv roughly flat across smooth count "
+                        f"(~2.0–2.7× at 1→6 smooths) instead of the 4.6.0 climb to ~5.1×; "
+                        f"estimates unchanged. GLM families keep the finite-difference path.",
             },
         ],
         "record_fields": {

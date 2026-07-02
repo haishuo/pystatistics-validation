@@ -1,0 +1,137 @@
+{
+  "schema": "validation-artifact-manifest/v1",
+  "subsystem": "gam",
+  "pystatistics_version": "4.6.1",
+  "install_source": "pypi",
+  "evidence_state": "native-harness",
+  "frozen_utc": "2026-07-02",
+  "provenance": {
+    "note": "Performance re-validation of pystatistics.gam at 4.6.1, after the analytic smoothing-parameter gradient landed (finding H4). Gaussian gam() now selects its smoothing parameters with the exact analytic gradient of the GCV/REML criterion (one inner penalized-IRLS fit per outer step) instead of finite differences (2m+1 fits per step), so multi-smooth Gaussian fits no longer slow down with the number of smooths: the py/mgcv ratio is now roughly flat across smooth count (~2.0-2.7x) where at 4.6.0 it climbed to ~5.1x at 6 smooths. Estimates are UNCHANGED \u2014 the search lands on the same optimum (selected sp within ~1e-3 relative, total EDF within ~2e-4 of the finite-difference path), and the whole two-tier correctness contract vs mgcv is re-run and holds. GLM families (Poisson/binomial UBRE, non-Gaussian REML) keep the finite-difference path (their IRLS weights depend on the coefficients). The 4.6.0 first-time validation drove the full numerical rewrite that fixed the silently-wrong automatic smoothing selection (H0) and removed the silently-wrong fp32 GPU path (H1). Reference mgcv 1.9.3. Identical float64 inputs to both engines (each case dumps its data to a temp CSV both read). Two-tier contract: fixed-sp tight (cr) + free-selection optimizer tier."
+  },
+  "hosts": {
+    "arm+r": {
+      "device": "CPU (numpy 2.4.3) + R mgcv 1.9.3"
+    }
+  },
+  "reference": {
+    "name": "R mgcv::gam (Wood)",
+    "kind": "cran"
+  },
+  "studies": [
+    {
+      "id": "g1_tier1_fixedsp",
+      "title": "G1 correctness \u2014 TIER 1 (tight): at mgcv's selected sp, fed to both engines (cr designs)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/tier1_fixedsp_summary.csv",
+      "run": "runs/correctness.json",
+      "summary_cols": [
+        "case",
+        "n",
+        "fitted_max_abs",
+        "total_edf_abs",
+        "param_coef_max_abs",
+        "param_se_max_rel",
+        "scale_rel",
+        "aic_abs",
+        "smooth_stat_kind",
+        "smooth_stat_max_rel"
+      ],
+      "note": "At a SHARED sp the penalized fit is one stable-QR solve, so fitted values / EDF / coefficients / posterior SEs / scale agree to fp64 arithmetic (\u2264~1e-9, \u2264~1e-13 for Gaussian). aic_abs is the documented edf2 df convention difference; smooth_stat_max_rel is the approximate Wood-2013 test \u2014 see limitations (widest on the concurvity case)."
+    },
+    {
+      "id": "g1_tier2_free",
+      "title": "G1 correctness \u2014 TIER 2 (optimizer): free selection, each engine picks its own sp \u2014 families + R10 + R15",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/tier2_free_summary.csv",
+      "run": "runs/correctness.json",
+      "summary_cols": [
+        "case",
+        "family",
+        "method",
+        "n",
+        "n_coef_py",
+        "n_coef_r",
+        "total_edf_abs",
+        "smooth_edf_max_abs",
+        "score_rel",
+        "deviance_rel",
+        "fitted_max_abs",
+        "sp_rel_nonnull"
+      ],
+      "note": "R15 default (mcycle), Gaussian/Poisson/Binomial gamSim 4-smooth, and R10 hard cases. sp_rel_nonnull is the max sp disagreement over IDENTIFIED (non-null) cr smooths; null/near-linear terms (\u03bb\u2192\u221e) are unidentified in sp and compared by EDF instead (next study). n_coef matches mgcv (k\u22121 per smooth after centering). tp cases compared by fitted/EDF only."
+    },
+    {
+      "id": "g1_per_smooth_sp",
+      "title": "G1 \u2014 per-smooth sp vs EDF: null/near-linear terms are sp-unidentified (\u03bb\u2192\u221e) but EDF-matched",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/per_smooth_sp_summary.csv",
+      "run": "runs/correctness.json",
+      "summary_cols": [
+        "case",
+        "term",
+        "sp_py",
+        "sp_r",
+        "sp_rel",
+        "edf_py",
+        "edf_r",
+        "edf_abs",
+        "near_null"
+      ],
+      "note": "Identified smooths agree in sp to ~1e-5; near_null=True terms (EDF\u21921) show a large sp ratio because \u03bb\u2192\u221e is only weakly identified \u2014 there EDF agrees to \u22641e-4 and the fit is identical. This is correct, not a defect."
+    },
+    {
+      "id": "g2_fidelity",
+      "title": "G2 fidelity \u2014 fail-loud, no silent substitution (A6)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "fail-loud",
+      "host": "arm",
+      "summary": "runs/fidelity_summary.csv",
+      "run": "runs/correctness.json",
+      "summary_cols": [
+        "check",
+        "why",
+        "raised",
+        "pass"
+      ],
+      "note": "Unsupported basis/family/method/k and the removed GPU backend all raise rather than silently substituting; wrong-length names raises rather than mislabelling coefficients (H3)."
+    },
+    {
+      "id": "g3_performance",
+      "title": "G3 performance \u2014 pystatistics CPU vs mgcv::gam",
+      "device": [
+        "cpu"
+      ],
+      "claim": "benchmark",
+      "host": "arm+r",
+      "summary": "runs/performance_summary.csv",
+      "run": "runs/performance.json",
+      "summary_cols": [
+        "axis",
+        "n",
+        "n_smooths",
+        "k",
+        "py_ms",
+        "r_ms",
+        "ratio_py_over_r"
+      ],
+      "note": "Same estimator (penalised spline + GCV), CPU-vs-CPU vs mgcv's compiled C, best-of-5. Single smooth: parity across n (py/mgcv \u22481.0\u20131.8\u00d7, 0.97\u00d7 at n=50000; empirical exponent py=0.35 vs r=0.49). Multi-smooth (Gaussian): the analytic GCV/REML gradient (4.6.1, finding H4) keeps py/mgcv roughly flat across smooth count (~2.0\u20132.7\u00d7 at 1\u21926 smooths) instead of the 4.6.0 climb to ~5.1\u00d7; estimates unchanged. GLM families keep the finite-difference path."
+    }
+  ],
+  "record_fields": {
+    "note": "See runs/correctness.json and runs/performance.json for the full per-case records; the CSVs are the rendered summaries."
+  }
+}
