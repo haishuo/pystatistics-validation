@@ -26,7 +26,16 @@ What does NOT belong here:
 
 ## Current
 
-_(none active)_
+- `gam-gpu-investigation.md` (+ `gam-gpu-investigation-scripts/`) — GPU-feasibility
+  verdict for `gam`, **measured on Forge CUDA** (RTX 5070 Ti, MKL CPU baseline).
+  **Verdict: no meaningful win in the typical regime (n≲10k — sub-ms inner op);
+  at large n the only safe wins are ~3× (fp32 augmented-QR) to ~5× (batched fp64
+  multi-λ), in formulations the library doesn't have. The current `gpu_pirls`
+  fp32 path is 43–78× fast but carries a CUDA-proven silent-wrong EDF band
+  (33-DOF error / negative EDF, ungated CF-1); its fp64 remedy LOSES at typical p
+  (0.67×).** Flags for the gam chip (task_31d5fd2b): R12 boundary sweep on the fp32
+  path (MPS+CUDA), TF32 pin (R14), overstated cuSOLVER-divergence docstring.
+  Informs the GPU-backend decision; archive once gam is blessed.
 
 ## Archived
 

@@ -1,0 +1,13 @@
+case,family,method,n,n_coef_py,n_coef_r,total_edf_abs,smooth_edf_max_abs,score_rel,deviance_rel,fitted_max_abs,sp_rel_nonnull
+R15_default_mcycle,gaussian,GCV,133,10,10,2.35e-05,2.35e-05,1.08e-11,3.81e-07,0.000143,4.93e-05
+mcycle_reml,gaussian,REML,133,10,10,3.43e-05,3.43e-05,4.62e-12,4.84e-07,0.000202,7.72e-05
+mcycle_tp,gaussian,GCV,133,10,10,1.38e-05,1.38e-05,5.42e-12,2.23e-07,0.000114,n/a
+gamsim4_gaussian,gaussian,GCV,400,37,37,0.000145,7.85e-05,2.66e-07,4.87e-07,1.52e-05,6.82e-05
+gamsim4_gaussian_reml,gaussian,REML,400,37,37,0.00073,0.000841,3.09e-07,1.12e-06,0.000101,5.32e-05
+gamsim4_poisson,poisson,GCV,2000,37,37,0.000225,5.83e-05,1.91e-11,2.05e-07,1.42e-05,5.38e-05
+gamsim4_binomial,binomial,GCV,600,37,37,0.000281,0.000351,9.32e-07,1.03e-06,1.6e-05,5.27e-05
+R10_near_linear,gaussian,GCV,300,10,10,9.6e-05,9.6e-05,5.61e-07,8.28e-08,1.01e-06,all-null
+R10_wiggly,gaussian,GCV,400,20,20,0.00203,0.00203,3.39e-07,1.1e-05,0.000121,0.0594
+R10_concurvity,gaussian,GCV,400,19,19,3.24e-05,0.00032,1.28e-10,1.66e-07,1.85e-05,0.000508
+R10_overspecified_k,gaussian,GCV,400,30,30,0.000101,0.000101,3.48e-13,5.45e-07,1.5e-06,9.81e-05
+R10_parametric_plus_smooth,gaussian,GCV,300,11,11,5.67e-05,5.67e-05,4.98e-12,3.89e-07,2.81e-06,5.02e-05

@@ -28,6 +28,24 @@ _(none)_
 
 ## Cleared
 
+### CF-1 — gam fp32 GPU Gram band → CLOSED at gam 4.6.0 (GPU path removed)
+- **The gam instance of CF-1 materialised, and was closed by removing the path.**
+  gam's penalized IRLS formed the normal-equations Gram `X'WX + λS` in fp32 on
+  the `backend='gpu'` path. Unlike PCA (SVD-of-X, immune) this DID lose the
+  smallest eigenvalues in exactly the small-λ regime the smoothing-parameter
+  optimizer probes by design → silently-wrong EDF → wrong λ → wrong fit, proven
+  on **both** CUDA (33.6-DOF EDF error; negative EDF at n=100k) and MPS (a
+  wiggly n=1000 fit silently over-smoothed EDF 24.1→3.0). There was **no gate**.
+  The GPU-feasibility investigation (`handoffs/gam-gpu-investigation.md`) found
+  no shippable GPU win for GAM in any regime, so the fp32 (and the
+  also-defective, slower fp64) GPU path was **removed** at 4.6.0 rather than
+  gated — gam is CPU-only. Evidence: `artifacts/gam/v4.5.7/runs/cf1_mps.json` +
+  the investigation handoff. Reported in `reports/gam-v4.6.0.md` (finding H1).
+- **Lesson for future modules:** a module forming a normal-equations Gram
+  `X'WX(+λS)` on an fp32 GPU path is a live CF-1 exposure whenever an optimizer
+  visits the ill-conditioned (small-λ / near-singular) regime — the SVD-of-X
+  immunity that saved PCA does not transfer. Check it, don't assume.
+
 ### CF-1 — fp64 Gram/covariance on the fp32 GPU path → CLEARED at multivariate 4.4.0
 - **Cleared 2026-06-30** by the multivariate validation. The original fear — that
   PCA's GPU path forms an fp32 Gram and silently loses trailing eigenvalues — does
