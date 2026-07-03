@@ -55,7 +55,7 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 | 3 | multivariate (PCA + factor analysis) | ✅ done + red-teamed (v4.4.1) | first-time full validation + red-team. PCA machine-precision vs `prcomp`, R10 hard cases (cond~1e8 via SVD-of-X), new MPS/CUDA randomized PCA path earns its keep, **CF-1 cleared** (gated `solver='gram'`, silent_wrong_count=0, R12/R13). FA vs `factanal` validated at 4.4.1 after R18 bundle (F1 varimax relative-convergence + F2 Heywood `lower=`). F3 small-n FA dip = documented R2. |
 | 4 | mixed (`lmm` + `glmm` + `grm_lmm`) | ✅ **DONE + red-teamed (v4.5.7)** — LMM + GLMM + GRM all validated; A.3 (analytic θ-gradient) closed F4 | `lmm` vs `lme4`/`lmerTest` + `grm_lmm()` vs `rrBLUP` (blessed 4.5.1, byte-identical at 4.5.6). **`glmm()` validated vs `lme4::glmer` (Laplace nAGQ=1)** on the two-tier contract across binomial/logit, poisson/log, correlated random slope, probit; R10 red-team + R15 default match glmer's behaviour. First-time glmm pass drove a fix cascade **4.5.2→4.5.6**: G1 nAGQ=0→Laplace + G2 SE transpose (silent-wrong for correlated predictors) @4.5.2; G3 fail-loud free-dispersion families @4.5.3; G4 PIRLS overflow + variance-collapse @4.5.4/completed @4.5.6; G5 structure-exploiting solver (removes O(#groups³) gap) @4.5.5. G6 (no glmm is_singular flag) + G7 (no aggregated-binomial/weights/offset) documented. F4 = documented R2 (autodiff/A.3). |
 | 5 | gam | ✅ **DONE + red-teamed (v4.6.1)** — first-time validation drove a full numerical rewrite | vs `mgcv::gam`. No baseline → first-time run found the SHOWSTOPPER (H0): pre-4.6.0 smooths had no identifiability constraint → exactly-singular design → garbage EDF (`total_edf=−3.12`) → silently-wrong GCV/REML smoothing selection on the DEFAULT path (unvalidated module shipped through 4.5.7). Full rewrite at **4.6.0**: mgcv-exact constrained cr/tp bases + augmented-QR PIRLS + Laplace REML + real posterior SEs; two-tier contract met (tier-1 fixed-sp ≤1e-9, tier-2 free sp ~1e-5). **CF-1 materialised for gam** (fp32 GPU Gram band, silent-wrong on CUDA+MPS, negative EDF) → **GPU path REMOVED** (H1; no shippable GPU win per the CUDA-first investigation). H2 (scale-invariant GCV) + H3 (names mislabel) fixed in adversarial review pre-release. **H4 resolved at 4.6.1** — Gaussian analytic sp-gradient (mixed-A.3 pattern); GLM families keep finite-diff (documented). CPU-only. |
-| 6 | timeseries (ARIMA/ETS/STL) | ⬜ next NEW module — FULL run + red-team in ONE chip | largest module; Kalman/state-space + optimizer loops. R refs `stats::arima`/`forecast`/`stats::stl`. No baseline → first-time validation AND red-team together. Starts on user go. |
+| 6 | timeseries (ARIMA/ETS/STL) | 🔄 **CHIP SPAWNED** (task_3669f645) — FULL run + red-team in ONE chip | largest module; whole surface (acf/pacf, adf/kpss, arima/auto_arima/arima_batch, ets, stl/decompose). R refs `stats`/`forecast`/`tseries`. Two-tier contract for MLE fits (log-lik/forecasts optimizer-tier; deterministic acf/stl/tests tight). CF-1 watch on any GPU `arima_batch` path. Target PyPI 4.6.1. |
 | 7 | montecarlo (bootstrap/permutation) | ⬜ pending | embarrassingly parallel → clean GPU story |
 | 8 | ordinal (polr) + multinomial | ⬜ pending | IRLS-family; de-risked by the optimized kernel |
 | 9 | anova, descriptive, hypothesis | ⬜ pending | correctness-dominant, optimization-light; corpus completeness; batch last |
@@ -64,9 +64,9 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-**`mixed` (v4.5.7) and `gam` (v4.6.1) are COMPLETE.** Next NEW module: **`timeseries`**
-(#6) — awaiting user go (not yet spawned). The two `mixed` BLOCKER bullets below are kept
-for history.
+**`mixed` (v4.5.7) and `gam` (v4.6.1) are COMPLETE. `timeseries` (#6) CHIP SPAWNED
+(task_3669f645)** — the largest module, whole public surface. The two `mixed` BLOCKER
+bullets below are kept for history.
 
 - **CF-1 gam instance — CLOSED (gam GPU path removed at 4.6.0).** The gam fp32 GPU Gram
   band materialised (silent-wrong EDF on CUDA+MPS, no gate) and was closed by removing the
