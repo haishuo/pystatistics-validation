@@ -21,25 +21,27 @@ perf (F1/F2a/F2b) + the new `grm_lmm()` GPU model + `CONVENTIONS.md` A7 (depende
 tiering) + the Prime Directive reframe; **4.5.1** F3 fix (an extreme-variance-ratio
 silent-wrong the mixed red-team caught — R16).
 
-**Current library version:** pystatistics **4.5.7** (on PyPI) — **4.5.7** is the A.3
-optimization (analytic θ-gradient for `lmm()`; closes finding F4, ~1.35× faster
-random-slope fits, estimates unchanged; torch rejected on benchmark). The prior
-`glmm()` first-time validation drove a fix cascade **4.5.2→4.5.6**: G1 (nAGQ=0→true Laplace nAGQ=1) + G2
-(fixed-effect SE transpose, silently wrong for correlated predictors) at 4.5.2; G3
-(fail-loud on free-dispersion families) at 4.5.3; G4 (Poisson PIRLS overflow + silent
-variance-collapse) at 4.5.4, completed at 4.5.6; G5 (structure-exploiting GLMM solver,
-removes the O(#groups³) gap) at 4.5.5. `glmm` now matches `lme4::glmer` (nAGQ=1) on the
-two-tier contract. (Prior: **4.5.0** mixed/LMM perf + `grm_lmm()` GPU model +
-`CONVENTIONS.md` A7 + the Prime Directive reframe; **4.5.1** F3 fix.)
+**Current library version:** pystatistics **4.6.1** (on PyPI). **gam** first-time
+validation drove a full numerical rewrite: **4.6.0** fixed the H0 showstopper
+(unconstrained smooth bases → exactly-singular design → silently-wrong smoothing
+selection on the DEFAULT path, shipped unvalidated through 4.5.7) with mgcv-exact
+constrained cr/tp bases + augmented-QR PIRLS + Laplace REML + real posterior SEs, and
+**removed the gam fp32 GPU path** (H1 = CF-1 materialised: silent-wrong EDF on CUDA+MPS,
+no gate); **4.6.1** added the Gaussian analytic sp-gradient (H4). Prior mixed arc:
+**4.5.7** A.3 analytic θ-gradient (F4; torch rejected on benchmark); **4.5.2→4.5.6** the
+glmm cascade (G1 nAGQ Laplace, G2 SE-transpose silent-wrong, G3 fail-loud, G4 PIRLS
+overflow, G5 solver); **4.5.0/4.5.1** mixed LMM perf + `grm_lmm()` + `CONVENTIONS.md` A7 +
+Prime Directive reframe + F3 fix.
 
 **Regression (4.3.2), survival (4.3.3), and multivariate (4.4.1) are DONE and
 red-teamed.** Multivariate: PCA machine-precision vs `prcomp` (R10 cond~1e8 recovers a
 7e-9 singular value via SVD-of-X), a new MPS randomized PCA path that earns its keep,
 **CF-1 CLEARED** (silent_wrong_count=0 on the gated `solver='gram'` path, R12/R13
 re-proven MPS+CUDA), FA validated vs `factanal` after the R18 bundle (F1+F2); F3 (small-n
-FA speed dip) is a documented R2 cost. **`mixed` (v4.5.7) is also DONE + red-teamed** —
-all three public models (`lmm`/`glmm`/`grm_lmm`) validated. **Next NEW module: `gam`
-(chip spawned, task_31d5fd2b).**
+FA speed dip) is a documented R2 cost. **`mixed` (v4.5.7)** and **`gam` (v4.6.1)** are
+also DONE + red-teamed — gam's first-time validation caught a DEFAULT-path silent-wrong
+(H0) + the CF-1 GPU silent-wrong (H1), driving a full rewrite. **Next NEW module:
+`timeseries` (ARIMA/ETS/STL) — the largest module.**
 
 ## Order + status
 
@@ -52,8 +54,8 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 | 2 | survival (KM / log-rank / coxph) | ✅ done + red-teamed (v4.3.3) | v4.0.0 → v4.2.x → red-teamed **v4.3.2/v4.3.3**: R15 default validated CORRECT (matches R ~1e-15, not a footgun), R13 fp32 no-silent-wrong gate re-proven on discrete-time's person-period regime (MPS+CUDA, +inference SEs), R8 bit-identical, C5 convergence accessors added (4.3.3). Stratified Cox = known gap (fail-loud, NotImplementedFeatureError). OWED: prior-art trawl before publication (novelty path). |
 | 3 | multivariate (PCA + factor analysis) | ✅ done + red-teamed (v4.4.1) | first-time full validation + red-team. PCA machine-precision vs `prcomp`, R10 hard cases (cond~1e8 via SVD-of-X), new MPS/CUDA randomized PCA path earns its keep, **CF-1 cleared** (gated `solver='gram'`, silent_wrong_count=0, R12/R13). FA vs `factanal` validated at 4.4.1 after R18 bundle (F1 varimax relative-convergence + F2 Heywood `lower=`). F3 small-n FA dip = documented R2. |
 | 4 | mixed (`lmm` + `glmm` + `grm_lmm`) | ✅ **DONE + red-teamed (v4.5.7)** — LMM + GLMM + GRM all validated; A.3 (analytic θ-gradient) closed F4 | `lmm` vs `lme4`/`lmerTest` + `grm_lmm()` vs `rrBLUP` (blessed 4.5.1, byte-identical at 4.5.6). **`glmm()` validated vs `lme4::glmer` (Laplace nAGQ=1)** on the two-tier contract across binomial/logit, poisson/log, correlated random slope, probit; R10 red-team + R15 default match glmer's behaviour. First-time glmm pass drove a fix cascade **4.5.2→4.5.6**: G1 nAGQ=0→Laplace + G2 SE transpose (silent-wrong for correlated predictors) @4.5.2; G3 fail-loud free-dispersion families @4.5.3; G4 PIRLS overflow + variance-collapse @4.5.4/completed @4.5.6; G5 structure-exploiting solver (removes O(#groups³) gap) @4.5.5. G6 (no glmm is_singular flag) + G7 (no aggregated-binomial/weights/offset) documented. F4 = documented R2 (autodiff/A.3). |
-| 5 | gam | ✅ **DONE + red-teamed (v4.6.0)** — first-time validation drove a full numerical rewrite | vs `mgcv::gam`. No baseline → first-time run found the SHOWSTOPPER (H0): pre-4.6.0 smooths had no identifiability constraint → exactly-singular design → garbage EDF (`total_edf=−3.12`) → silently-wrong GCV/REML smoothing selection on the DEFAULT path (unvalidated module shipped through 4.5.7). Full rewrite at **4.6.0**: mgcv-exact constrained cr/tp bases + stable augmented-QR PIRLS + Laplace REML + real posterior SEs; two-tier contract met (tier-1 fixed-sp ≤1e-9, tier-2 free sp ~1e-5). **CF-1 materialised for gam** (fp32 GPU Gram band, silent-wrong on CUDA+MPS) → **GPU path REMOVED** (H1; no shippable GPU win per the CUDA-first investigation). Adversarial review caught + fixed H2 (scale-invariant GCV) + H3 (names mislabel) pre-release. H4 (multi-smooth FD-gradient lag) = documented R2, analytic-gradient chip spawned. |
-| 6 | timeseries (ARIMA/ETS/STL) | ⬜ pending | largest module; Kalman/state-space + optimizer loops |
+| 5 | gam | ✅ **DONE + red-teamed (v4.6.1)** — first-time validation drove a full numerical rewrite | vs `mgcv::gam`. No baseline → first-time run found the SHOWSTOPPER (H0): pre-4.6.0 smooths had no identifiability constraint → exactly-singular design → garbage EDF (`total_edf=−3.12`) → silently-wrong GCV/REML smoothing selection on the DEFAULT path (unvalidated module shipped through 4.5.7). Full rewrite at **4.6.0**: mgcv-exact constrained cr/tp bases + augmented-QR PIRLS + Laplace REML + real posterior SEs; two-tier contract met (tier-1 fixed-sp ≤1e-9, tier-2 free sp ~1e-5). **CF-1 materialised for gam** (fp32 GPU Gram band, silent-wrong on CUDA+MPS, negative EDF) → **GPU path REMOVED** (H1; no shippable GPU win per the CUDA-first investigation). H2 (scale-invariant GCV) + H3 (names mislabel) fixed in adversarial review pre-release. **H4 resolved at 4.6.1** — Gaussian analytic sp-gradient (mixed-A.3 pattern); GLM families keep finite-diff (documented). CPU-only. |
+| 6 | timeseries (ARIMA/ETS/STL) | ⬜ next NEW module — FULL run + red-team in ONE chip | largest module; Kalman/state-space + optimizer loops. R refs `stats::arima`/`forecast`/`stats::stl`. No baseline → first-time validation AND red-team together. Starts on user go. |
 | 7 | montecarlo (bootstrap/permutation) | ⬜ pending | embarrassingly parallel → clean GPU story |
 | 8 | ordinal (polr) + multinomial | ⬜ pending | IRLS-family; de-risked by the optimized kernel |
 | 9 | anova, descriptive, hypothesis | ⬜ pending | correctness-dominant, optimization-light; corpus completeness; batch last |
@@ -62,9 +64,22 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-**✅ BOTH blockers cleared — `mixed` is COMPLETE; `gam` (#5) CHIP SPAWNED (task_31d5fd2b).**
-BLOCKER 1 (glmm validation, blessed v4.5.6) and BLOCKER 2 (A.3 analytic θ-gradient, blessed
-v4.5.7) are both DONE. The two `mixed` bullets below are kept for history.
+**`mixed` (v4.5.7) and `gam` (v4.6.1) are COMPLETE.** Next NEW module: **`timeseries`**
+(#6) — awaiting user go (not yet spawned). The two `mixed` BLOCKER bullets below are kept
+for history.
+
+- **CF-1 gam instance — CLOSED (gam GPU path removed at 4.6.0).** The gam fp32 GPU Gram
+  band materialised (silent-wrong EDF on CUDA+MPS, no gate) and was closed by removing the
+  path (no shippable GPU win). **Durable lesson (in `CARRY_FORWARD.md`): a module forming a
+  normal-equations Gram `X'WX(+λS)` on an fp32 GPU path is a LIVE CF-1 exposure whenever an
+  optimizer visits the ill-conditioned regime — the SVD-of-X immunity that saved PCA does
+  NOT transfer.** Relevant flag for future modules with an IRLS/normal-equations GPU path
+  (e.g. ordinal #8): check it, don't assume.
+- **Minor (gam, non-blocking) — H4 GLM-family analytic gradient deferred.** The analytic
+  sp-gradient closed H4 for the Gaussian-identity path (4.6.1); GLM families
+  (Poisson/binomial UBRE, non-Gaussian REML) keep the finite-difference search (their IRLS
+  weights depend on the coefficients). The full Wood-2011 implicit-derivative form is a
+  documented future optimization, not a defect.
 
 - **BLOCKER 1 — glmm() first-time validation — ✅ DONE (blessed mixed v4.5.6).** Validated
   `glmm()` (generalized LMM via Laplace/PIRLS) against **`lme4::glmer` (nAGQ=1)** on the
@@ -105,9 +120,19 @@ v4.5.7) are both DONE. The two `mixed` bullets below are kept for history.
 ## Standing coordination constraints
 
 - **Release-hold: CLEARED.** The `pystatsbio`/`sgcbio` consistency releases have
-  landed and pystatistics has since shipped through **4.5.7**. No active hold. Re-check
+  landed and pystatistics has since shipped through **4.6.1**. No active hold. Re-check
   before any new library release; reinstate this line if a downstream consistency
   release is mid-flight again.
+- **Standing allowance — the validation testing env always tracks the latest PyPI
+  release; do NOT ask each time.** Each chip builds a throwaway PyPI venv (`require_pypi`)
+  at the version under validation, which is normally the CURRENT PyPI release. Installing
+  or updating that env to the latest released pystatistics is **pre-authorized every
+  session** (like the Forge-CUDA allowance) — it is local, throwaway, reversible env
+  setup, not an outward/irreversible action, so a chip (or the coordinator) does NOT stop
+  to ask permission to bump it. **R5 is unaffected:** each report still pins the exact
+  version it validated; the env simply always has frictionless access to the current
+  release. (Contrast: *publishing* a release still needs explicit authorization —
+  *installing* one never does.)
 - **Finding triage: showstopper vs gather (RIGOR R18).** Every defect found mid-run is
   classified when found: a user-misleading correctness defect (silent/uncaught wrong,
   fail-loud bypass) → R16 brakes-slam (stop-fix-release-restart); everything that already
@@ -215,10 +240,12 @@ Each module chip is self-contained (the spawned session has no prior context) an
    constitutional audit** and an honest perf story (R2: document any justified slowdown;
    never sweep).
 4. Repeats the current **release-hold** status, the Forge standing-CUDA-testing
-   allowance (only if a GPU path is warranted per the constitution), and the **R16
-   stop-fix-release-restart** rule: a severe (showstopper / quiet-wrong) bug halts the
-   run — surface to the user, fix, cut+publish a patch release, restart from the new
-   version; do not validate on past a known-broken version.
+   allowance (only if a GPU path is warranted per the constitution), the **standing
+   allowance that the PyPI testing env always installs the current release without asking**
+   (installing ≠ publishing), and the **R16 stop-fix-release-restart** rule: a severe
+   (showstopper / quiet-wrong) bug halts the run — surface to the user, fix, cut+publish a
+   patch release, restart from the new version; do not validate on past a known-broken
+   version.
 5. Deliverables: `drivers/<m>/`, `artifacts/<m>/v<current>/`, `subsystems/<m>/meta.json`,
    `reports/<m>-v<current>.md` (current PyPI version, which may advance mid-run under
    R16); commit to validation `main` and push. **Any new dataset → centralized HDF5 in
