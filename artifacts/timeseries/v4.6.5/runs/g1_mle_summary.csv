@@ -1,0 +1,24 @@
+group,series,spec,loglik_py,loglik_r,loglik_abs,aic_abs,coef_or_fit_abs,selected,pass
+ets,nile,ANN,,,,,0.12134046068115367,,True
+ets,sim_arma11,ANN,,,,,0.020735610297897722,,True
+ets,air_passengers,AAN,,,,,9.363512743398303,,True
+ets,air_passengers,MAM,,,,,33.81709623334143,,True
+ets,air_passengers,AAA,,,,,63.239240179002934,,True
+ets,co2,AAA,,,,,0.03529692403202489,,True
+ets_zzz,air_passengers,,,,,,,MAM,True
+ets_zzz,nile,,,,,,,MNN,True
+ets_zzz,co2,,,,,,,MAM,True
+ets_forecast,nile,ANN,,,,,,,True
+ets_forecast,air_passengers,MAM,,,,,,,True
+arima,sim_arma11,"[1, 0, 1]",-576.5266838173518,-576.5266837542922,6.305958777375054e-08,1.2611917554750107e-07,4.1863689786626745e-05,,True
+arima,sim_arma11,"[1, 0, 1]",-576.5266835098747,-576.5266835099396,6.491518433904275e-11,1.298303686780855e-10,6.209947191471166e-07,,True
+arima,sim_arma11,"[1, 0, 1]",-576.4899682993552,-576.3362108932722,0.15375740608294564,,0.03872613880964704,,True
+arima,nile,"[1, 1, 1]",-630.6273830500749,-630.6273817760191,1.2740557622237247e-06,2.5481115244474495e-06,5.73279237389146e-05,,True
+arima,lynx,"[2, 0, 0]",-935.0167566719743,-935.0159245995615,0.0008320724128907386,0.0016641448257814773,7.4283138449773105,,True
+arima,air_passengers,"[0, 1, 1][0, 1, 1]",-507.5014842698891,-507.50144324077627,4.10291128218887e-05,8.20582256437774e-05,8.856366454479403e-06,,True
+arima,near_noninv,"[0, 0, 1]",-446.11353722420614,-446.11353758142,3.572138780327805e-07,7.14427756065561e-07,1.2051895600606599e-05,,True
+arima_forecast,air_passengers,"(0,1,1)(0,1,1)[12]",,,,,,,True
+auto,air_passengers,,,,,,,,True
+auto_seasonal,air_passengers,,,,,,,,True
+auto_purenoise,,,,,,,,,True
+auto_needsdiff,co2,,,,,,,,True

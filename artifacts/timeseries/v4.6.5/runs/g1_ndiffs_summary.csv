@@ -1,0 +1,9 @@
+series,test,py,r,pass,note
+air_passengers,kpss,1,1,True,
+air_passengers,adf,1,1,True,
+co2,kpss,1,1,True,
+co2,adf,1,1,True,
+nile,kpss,1,1,True,
+nile,adf,1,0,False,boundary: ADF p at d0 = 0.0561 (~alpha=0.05); default test='kpss' matches R everywhere
+sim_arma11,kpss,1,1,True,
+sim_arma11,adf,0,0,True,

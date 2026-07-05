@@ -1,0 +1,636 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.6.5",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "r_packages": {
+      "forecast": "9.0.0",
+      "tseries": "0.10.61",
+      "urca": "1.3.4",
+      "stats": "4.5.2"
+    },
+    "statsmodels": "0.14.6"
+  },
+  "config": {
+    "suite": "timeseries-deterministic",
+    "reference": "R stats/forecast/tseries + statsmodels (ADF p)",
+    "tolerance_contract": "TIGHT \u2014 deterministic quantities to machine precision or defined convention"
+  },
+  "records": [
+    {
+      "key": "diagnostics",
+      "checks": [
+        {
+          "group": "acf_pacf",
+          "series": "air_passengers",
+          "max_lag": 24,
+          "acf": {
+            "n": 25,
+            "max_abs": 7.771561172376096e-16,
+            "max_rel": 1.1723502411789102e-15
+          },
+          "pacf": {
+            "n": 24,
+            "max_abs": 2.197200754672224e-14,
+            "max_rel": 8.804454110210987e-13
+          },
+          "pass": true
+        },
+        {
+          "group": "acf_pacf",
+          "series": "lynx",
+          "max_lag": 24,
+          "acf": {
+            "n": 25,
+            "max_abs": 3.3306690738754696e-16,
+            "max_rel": 1.24975521684231e-15
+          },
+          "pacf": {
+            "n": 24,
+            "max_abs": 4.010680676458378e-15,
+            "max_rel": 2.1242974179209354e-13
+          },
+          "pass": true
+        },
+        {
+          "group": "acf_pacf",
+          "series": "sunspot_year",
+          "max_lag": 24,
+          "acf": {
+            "n": 25,
+            "max_abs": 9.992007221626409e-16,
+            "max_rel": 1.458456026070448e-15
+          },
+          "pacf": {
+            "n": 24,
+            "max_abs": 6.439293542825908e-15,
+            "max_rel": 2.19388095946504e-12
+          },
+          "pass": true
+        },
+        {
+          "group": "acf_pacf",
+          "series": "nile",
+          "max_lag": 24,
+          "acf": {
+            "n": 25,
+            "max_abs": 3.885780586188048e-16,
+            "max_rel": 5.111393735133564e-15
+          },
+          "pacf": {
+            "n": 24,
+            "max_abs": 6.106226635438361e-16,
+            "max_rel": 7.952964786662969e-14
+          },
+          "pass": true
+        },
+        {
+          "group": "acf_pacf",
+          "series": "co2",
+          "max_lag": 24,
+          "acf": {
+            "n": 25,
+            "max_abs": 1.2212453270876722e-15,
+            "max_rel": 1.4218354141203085e-15
+          },
+          "pacf": {
+            "n": 24,
+            "max_abs": 1.9050039323786905e-13,
+            "max_rel": 1.3653044519286665e-11
+          },
+          "pass": true
+        },
+        {
+          "group": "acf_pacf",
+          "series": "sim_arma11",
+          "max_lag": 24,
+          "acf": {
+            "n": 25,
+            "max_abs": 7.771561172376096e-16,
+            "max_rel": 5.305354818085136e-15
+          },
+          "pacf": {
+            "n": 24,
+            "max_abs": 1.4710455076283324e-15,
+            "max_rel": 9.350776841283556e-14
+          },
+          "pass": true
+        },
+        {
+          "group": "acf_pacf",
+          "series": "sim_nearunitroot",
+          "max_lag": 24,
+          "acf": {
+            "n": 25,
+            "max_abs": 1.3322676295501878e-15,
+            "max_rel": 1.5086078001189826e-15
+          },
+          "pacf": {
+            "n": 24,
+            "max_abs": 4.140437992461443e-14,
+            "max_rel": 1.0880238571286573e-10
+          },
+          "pass": true
+        },
+        {
+          "group": "diff",
+          "lag": 1,
+          "differences": 1,
+          "cmp": {
+            "n": 143,
+            "max_abs": 0.0,
+            "max_rel": 0.0
+          },
+          "pass": true
+        },
+        {
+          "group": "diff",
+          "lag": 1,
+          "differences": 2,
+          "cmp": {
+            "n": 142,
+            "max_abs": 0.0,
+            "max_rel": 0.0
+          },
+          "pass": true
+        },
+        {
+          "group": "diff",
+          "lag": 12,
+          "differences": 1,
+          "cmp": {
+            "n": 132,
+            "max_abs": 0.0,
+            "max_rel": 0.0
+          },
+          "pass": true
+        },
+        {
+          "group": "ndiffs",
+          "series": "air_passengers",
+          "test": "kpss",
+          "py": 1,
+          "r": 1,
+          "pass": true
+        },
+        {
+          "group": "ndiffs",
+          "series": "air_passengers",
+          "test": "adf",
+          "py": 1,
+          "r": 1,
+          "pass": true
+        },
+        {
+          "group": "ndiffs",
+          "series": "co2",
+          "test": "kpss",
+          "py": 1,
+          "r": 1,
+          "pass": true
+        },
+        {
+          "group": "ndiffs",
+          "series": "co2",
+          "test": "adf",
+          "py": 1,
+          "r": 1,
+          "pass": true
+        },
+        {
+          "group": "ndiffs",
+          "series": "nile",
+          "test": "kpss",
+          "py": 1,
+          "r": 1,
+          "pass": true
+        },
+        {
+          "group": "ndiffs",
+          "series": "nile",
+          "test": "adf",
+          "py": 1,
+          "r": 0,
+          "pass": false,
+          "note": "boundary: ADF p at d0 = 0.0561 (~alpha=0.05); default test='kpss' matches R everywhere",
+          "boundary_documented": true
+        },
+        {
+          "group": "ndiffs",
+          "series": "sim_arma11",
+          "test": "kpss",
+          "py": 1,
+          "r": 1,
+          "pass": true
+        },
+        {
+          "group": "ndiffs",
+          "series": "sim_arma11",
+          "test": "adf",
+          "py": 0,
+          "r": 0,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "stationarity",
+      "checks": [
+        {
+          "group": "adf",
+          "series": "sim_arma11",
+          "regression": "ct",
+          "n_lags": 7,
+          "stat_vs_tseries": {
+            "py": -4.705548387153601,
+            "r": -4.705548387153624,
+            "abs": 2.3092638912203256e-14,
+            "rel": 4.907534045393579e-15
+          },
+          "p_vs_statsmodels": {
+            "py": 0.0006828428075170847,
+            "r": 0.0006828428075170368,
+            "abs": 4.7921736023859296e-17,
+            "rel": 7.017974780771732e-14
+          },
+          "pass": true
+        },
+        {
+          "group": "adf",
+          "series": "sim_nearunitroot",
+          "regression": "ct",
+          "n_lags": 6,
+          "stat_vs_tseries": {
+            "py": -1.1426300732138435,
+            "r": -1.142630073213826,
+            "abs": 1.7541523789077473e-14,
+            "rel": 1.5351883518818293e-14
+          },
+          "p_vs_statsmodels": {
+            "py": 0.9216126098972701,
+            "r": 0.921612609897268,
+            "abs": 2.1094237467877974e-15,
+            "rel": 2.288839935711095e-15
+          },
+          "pass": true
+        },
+        {
+          "group": "adf",
+          "series": "nile",
+          "regression": "ct",
+          "n_lags": 4,
+          "stat_vs_tseries": {
+            "py": -3.365713914443696,
+            "r": -3.365713914443707,
+            "abs": 1.1102230246251565e-14,
+            "rel": 3.2986256492588937e-15
+          },
+          "p_vs_statsmodels": {
+            "py": 0.05614014414754821,
+            "r": 0.05614014414754561,
+            "abs": 2.6020852139652106e-15,
+            "rel": 4.63498135510037e-14
+          },
+          "pass": true
+        },
+        {
+          "group": "adf",
+          "series": "lynx",
+          "regression": "ct",
+          "n_lags": 4,
+          "stat_vs_tseries": {
+            "py": -6.306775384074111,
+            "r": -6.30677538407538,
+            "abs": 1.269206961751479e-12,
+            "rel": 2.0124499200593523e-13
+          },
+          "p_vs_statsmodels": {
+            "py": 4.868038811711912e-07,
+            "r": 4.868038811680903e-07,
+            "abs": 3.1008817407795868e-18,
+            "rel": 6.369878837734393e-12
+          },
+          "pass": true
+        },
+        {
+          "group": "adf",
+          "series": "co2",
+          "regression": "ct",
+          "n_lags": 7,
+          "stat_vs_tseries": {
+            "py": -2.829930670833813,
+            "r": -2.829930671063568,
+            "abs": 2.297548817864481e-10,
+            "rel": 8.118745951472364e-11
+          },
+          "p_vs_statsmodels": {
+            "py": 0.18616853655644328,
+            "r": 0.18616853647528386,
+            "abs": 8.115941252384573e-11,
+            "rel": 4.3594591256090486e-10
+          },
+          "pass": true
+        },
+        {
+          "group": "kpss",
+          "series": "sim_arma11",
+          "null": "Level",
+          "lag_py": 5,
+          "lag_r": 5,
+          "stat": {
+            "py": 0.6782309246489056,
+            "r": 0.6782309246489059,
+            "abs": 3.3306690738754696e-16,
+            "rel": 4.910818650151686e-16
+          },
+          "p_py": 0.015524461395554039,
+          "p_r": 0.01552446139555401,
+          "pass": true
+        },
+        {
+          "group": "kpss",
+          "series": "sim_arma11",
+          "null": "Trend",
+          "lag_py": 5,
+          "lag_r": 5,
+          "stat": {
+            "py": 0.21890496004698148,
+            "r": 0.2189049600469811,
+            "abs": 3.885780586188048e-16,
+            "rel": 1.7750993789058443e-15
+          },
+          "p_py": 0.01,
+          "p_r": 0.01,
+          "pass": true
+        },
+        {
+          "group": "kpss",
+          "series": "nile",
+          "null": "Level",
+          "lag_py": 4,
+          "lag_r": 4,
+          "stat": {
+            "py": 0.9654349077526525,
+            "r": 0.9654349077526603,
+            "abs": 7.771561172376096e-15,
+            "rel": 8.049803368376993e-15
+          },
+          "p_py": 0.01,
+          "p_r": 0.01,
+          "pass": true
+        },
+        {
+          "group": "kpss",
+          "series": "nile",
+          "null": "Trend",
+          "lag_py": 4,
+          "lag_r": 4,
+          "stat": {
+            "py": 0.23758697598997314,
+            "r": 0.23758697598997,
+            "abs": 3.1363800445660672e-15,
+            "rel": 1.3200976322449901e-14
+          },
+          "p_py": 0.01,
+          "p_r": 0.01,
+          "pass": true
+        },
+        {
+          "group": "kpss",
+          "series": "co2",
+          "null": "Level",
+          "lag_py": 5,
+          "lag_r": 5,
+          "stat": {
+            "py": 7.817278355024589,
+            "r": 7.81727835502448,
+            "abs": 1.092459456231154e-13,
+            "rel": 1.3974933558928297e-14
+          },
+          "p_py": 0.01,
+          "p_r": 0.01,
+          "pass": true
+        },
+        {
+          "group": "kpss",
+          "series": "co2",
+          "null": "Trend",
+          "lag_py": 5,
+          "lag_r": 5,
+          "stat": {
+            "py": 1.0398311363105608,
+            "r": 1.039831136310324,
+            "abs": 2.3669954885008337e-13,
+            "rel": 2.2763268052346864e-13
+          },
+          "p_py": 0.01,
+          "p_r": 0.01,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "decomposition",
+      "checks": [
+        {
+          "group": "decompose",
+          "series": "air_passengers",
+          "type": "additive",
+          "seasonal": {
+            "n": 144,
+            "max_abs": 1.5987211554602254e-14,
+            "max_rel": 3.764875735111971e-15
+          },
+          "trend": {
+            "n": 132,
+            "max_abs": 1.1368683772161603e-13,
+            "max_rel": 3.368083082729026e-16
+          },
+          "random": {
+            "n": 132,
+            "max_abs": 9.947598300641403e-14,
+            "max_rel": 3.3525522783434497e-13
+          },
+          "pass": true
+        },
+        {
+          "group": "decompose",
+          "series": "air_passengers",
+          "type": "multiplicative",
+          "seasonal": {
+            "n": 144,
+            "max_abs": 6.661338147750939e-16,
+            "max_rel": 6.612627630807265e-16
+          },
+          "trend": {
+            "n": 132,
+            "max_abs": 1.1368683772161603e-13,
+            "max_rel": 3.368083082729026e-16
+          },
+          "random": {
+            "n": 132,
+            "max_abs": 1.1102230246251565e-15,
+            "max_rel": 1.1092546734246797e-15
+          },
+          "pass": true
+        },
+        {
+          "group": "decompose",
+          "series": "co2",
+          "type": "additive",
+          "seasonal": {
+            "n": 468,
+            "max_abs": 1.2656542480726785e-14,
+            "max_rel": 2.3614052364470717e-13
+          },
+          "trend": {
+            "n": 456,
+            "max_abs": 1.1368683772161603e-13,
+            "max_rel": 3.485406268096008e-16
+          },
+          "random": {
+            "n": 456,
+            "max_abs": 1.2989609388114332e-13,
+            "max_rel": 4.236863670280725e-11
+          },
+          "pass": true
+        },
+        {
+          "group": "stl",
+          "series": "co2",
+          "config": "default/periodic",
+          "windows": {
+            "seasonal": 4681,
+            "trend": 19,
+            "lowpass": 13
+          },
+          "seasonal": {
+            "n": 468,
+            "max_abs": 2.353672812205332e-14,
+            "max_rel": 3.639968483703961e-13
+          },
+          "trend": {
+            "n": 468,
+            "max_abs": 7.389644451905042e-13,
+            "max_rel": 2.0322678112307565e-15
+          },
+          "remainder": {
+            "n": 468,
+            "max_abs": 6.820655151784649e-13,
+            "max_rel": 2.9653054008095346e-11
+          },
+          "pass": true
+        },
+        {
+          "group": "stl",
+          "series": "air_passengers",
+          "config": "default/periodic",
+          "windows": {
+            "seasonal": 1441,
+            "trend": 19,
+            "lowpass": 13
+          },
+          "seasonal": {
+            "n": 144,
+            "max_abs": 3.197442310920451e-14,
+            "max_rel": 6.7475646639372074e-15
+          },
+          "trend": {
+            "n": 144,
+            "max_abs": 1.7053025658242404e-13,
+            "max_rel": 5.404543511263553e-16
+          },
+          "remainder": {
+            "n": 144,
+            "max_abs": 1.7053025658242404e-13,
+            "max_rel": 7.065652908914e-13
+          },
+          "pass": true
+        },
+        {
+          "group": "stl",
+          "series": "co2",
+          "config": "s.window=7",
+          "windows": {
+            "seasonal": 7,
+            "trend": 23,
+            "lowpass": 13
+          },
+          "seasonal": {
+            "n": 468,
+            "max_abs": 1.885158695813516e-12,
+            "max_rel": 3.982273801229716e-11
+          },
+          "trend": {
+            "n": 468,
+            "max_abs": 9.492850949754938e-12,
+            "max_rel": 2.6060512990672676e-14
+          },
+          "remainder": {
+            "n": 468,
+            "max_abs": 7.560174708487466e-12,
+            "max_rel": 2.3881885399928137e-10
+          },
+          "pass": true
+        },
+        {
+          "group": "stl",
+          "series": "co2",
+          "config": "s.window=35",
+          "windows": {
+            "seasonal": 35,
+            "trend": 19,
+            "lowpass": 13
+          },
+          "seasonal": {
+            "n": 468,
+            "max_abs": 3.6415315207705135e-14,
+            "max_rel": 9.694450004271024e-14
+          },
+          "trend": {
+            "n": 468,
+            "max_abs": 5.684341886080801e-13,
+            "max_rel": 1.5632528841722567e-15
+          },
+          "remainder": {
+            "n": 468,
+            "max_abs": 5.115491363838487e-13,
+            "max_rel": 4.299411145797947e-09
+          },
+          "pass": true
+        },
+        {
+          "group": "stl",
+          "series": "co2",
+          "config": "robust (inner=1,outer=15)",
+          "windows": {
+            "seasonal": 4681,
+            "trend": 19,
+            "lowpass": 13
+          },
+          "seasonal": {
+            "n": 468,
+            "max_abs": 4.836131495267182e-13,
+            "max_rel": 8.367339846962765e-13
+          },
+          "trend": {
+            "n": 468,
+            "max_abs": 2.177102942368947e-11,
+            "max_rel": 5.981148806198692e-14
+          },
+          "remainder": {
+            "n": 468,
+            "max_abs": 2.2225776774575934e-11,
+            "max_rel": 4.2138866806734775e-09
+          },
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+key,desc,expected,got,pass
+ets_bad_model,ets invalid model string 'XNN',ValidationError,ValidationError,True
+ets_mult_nonpositive,ets multiplicative error on non-positive data,ValidationError,ValidationError,True
+arima_neg_order,arima negative order component,ValidationError,ValidationError,True
+arima_nonconv,arima over-parameterized / non-convergent fails loud,ConvergenceError/ValidationError,ConvergenceError,True
+adf_bad_regression,adf_test invalid regression,ValidationError,ValidationError,True
+kpss_bad_regression,kpss_test invalid regression,ValidationError,ValidationError,True
+stl_period_lt2,stl period < 2,ValidationError,ValidationError,True
+stl_too_short,stl series shorter than two periods,ValidationError,ValidationError,True
+ndiffs_bad_test,ndiffs invalid test,ValidationError,ValidationError,True
+acf_na,acf on series with NA -> fail loud (R uses na.action),ValidationError,ValidationError,True
+arima_na,arima on series with NA -> fail loud (R uses Kalman),ValidationError,ValidationError,True
+batch_nonstationary,arima_batch non-stationary Whittle -> fail loud,ConvergenceError,ConvergenceError,True

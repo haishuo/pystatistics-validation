@@ -1,0 +1,122 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.6.5",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu"
+  },
+  "config": {
+    "suite": "timeseries-fidelity",
+    "reference": "A6 fail-loud / no silent substitution",
+    "tolerance_contract": "every unsupported spec / invalid order / non-convergence / non-finite input must raise"
+  },
+  "records": [
+    {
+      "key": "fidelity",
+      "checks": [
+        {
+          "raised": true,
+          "expected": "ValidationError",
+          "got": "ValidationError",
+          "pass": true,
+          "key": "ets_bad_model",
+          "desc": "ets invalid model string 'XNN'"
+        },
+        {
+          "raised": true,
+          "expected": "ValidationError",
+          "got": "ValidationError",
+          "pass": true,
+          "key": "ets_mult_nonpositive",
+          "desc": "ets multiplicative error on non-positive data"
+        },
+        {
+          "raised": true,
+          "expected": "ValidationError",
+          "got": "ValidationError",
+          "pass": true,
+          "key": "arima_neg_order",
+          "desc": "arima negative order component"
+        },
+        {
+          "raised": true,
+          "expected": "ConvergenceError/ValidationError",
+          "got": "ConvergenceError",
+          "pass": true,
+          "key": "arima_nonconv",
+          "desc": "arima over-parameterized / non-convergent fails loud"
+        },
+        {
+          "raised": true,
+          "expected": "ValidationError",
+          "got": "ValidationError",
+          "pass": true,
+          "key": "adf_bad_regression",
+          "desc": "adf_test invalid regression"
+        },
+        {
+          "raised": true,
+          "expected": "ValidationError",
+          "got": "ValidationError",
+          "pass": true,
+          "key": "kpss_bad_regression",
+          "desc": "kpss_test invalid regression"
+        },
+        {
+          "raised": true,
+          "expected": "ValidationError",
+          "got": "ValidationError",
+          "pass": true,
+          "key": "stl_period_lt2",
+          "desc": "stl period < 2"
+        },
+        {
+          "raised": true,
+          "expected": "ValidationError",
+          "got": "ValidationError",
+          "pass": true,
+          "key": "stl_too_short",
+          "desc": "stl series shorter than two periods"
+        },
+        {
+          "raised": true,
+          "expected": "ValidationError",
+          "got": "ValidationError",
+          "pass": true,
+          "key": "ndiffs_bad_test",
+          "desc": "ndiffs invalid test"
+        },
+        {
+          "raised": true,
+          "expected": "ValidationError",
+          "got": "ValidationError",
+          "pass": true,
+          "key": "acf_na",
+          "desc": "acf on series with NA -> fail loud (R uses na.action)",
+          "note": "R stats::acf handles NA via na.action=na.pass; pystatistics refuses non-finite input \u2014 a deliberate fail-loud scope limit"
+        },
+        {
+          "raised": true,
+          "expected": "ValidationError",
+          "got": "ValidationError",
+          "pass": true,
+          "key": "arima_na",
+          "desc": "arima on series with NA -> fail loud (R uses Kalman)",
+          "note": "R stats::arima skips NA via the Kalman filter; pystatistics refuses non-finite input \u2014 impute or drop NAs first"
+        },
+        {
+          "raised": true,
+          "expected": "ConvergenceError",
+          "got": "ConvergenceError",
+          "pass": true,
+          "key": "batch_nonstationary",
+          "desc": "arima_batch non-stationary Whittle -> fail loud"
+        }
+      ]
+    }
+  ]
+}
