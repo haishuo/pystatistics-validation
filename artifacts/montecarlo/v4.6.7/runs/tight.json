@@ -1,0 +1,185 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.6.7",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.12.1",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ],
+    "r_packages": {
+      "boot": "1.3.32",
+      "stats": "4.5.2"
+    }
+  },
+  "config": {
+    "suite": "montecarlo-tight",
+    "reference": "R boot::boot + boot::boot.ci on SHARED resample indices (genuine R boot, indices exported to pystatistics)",
+    "tolerance_contract": "TIGHT \u2014 statistic/t0/bias/se/normal to machine precision (1e-10); basic/perc to the quantile convention (0.005); BCa z0 exact, acceleration a is a documented jackknife-vs-regression convention (calibration via coverage study)"
+  },
+  "records": [
+    {
+      "key": "boot_tight",
+      "checks": [
+        {
+          "group": "boot_tight",
+          "dataset": "law",
+          "statistic": "corr",
+          "R": 5000,
+          "t_stat": {
+            "n": 5000,
+            "max_abs": 1.1102230246251565e-15,
+            "max_rel": 2.9595361269872036e-15
+          },
+          "t0": {
+            "py": 0.7763744244963864,
+            "r": 0.776374424496386,
+            "abs": 3.3306690738754696e-16,
+            "rel": 4.290029357981477e-16
+          },
+          "bias": {
+            "py": -0.005993683443200837,
+            "r": -0.00599368344320117,
+            "abs": 3.3306690738754696e-16,
+            "rel": 5.556965270919598e-14
+          },
+          "se": {
+            "py": 0.13108645454493179,
+            "r": 0.131086454544932,
+            "abs": 2.220446049250313e-16,
+            "rel": 1.6938790944942516e-15
+          },
+          "ci_normal": {
+            "n": 2,
+            "max_abs": 1.3322676295501878e-15,
+            "max_rel": 2.5355113127297733e-15
+          },
+          "ci_basic": {
+            "n": 2,
+            "max_abs": 0.0008298390738177286,
+            "max_rel": 0.0007615536705973231
+          },
+          "ci_perc": {
+            "n": 2,
+            "max_abs": 0.0008298390738188388,
+            "max_rel": 0.0017919880106273694
+          },
+          "ci_bca": {
+            "n": 2,
+            "max_abs": 0.007678583398061101,
+            "max_rel": 0.02248317494961415
+          },
+          "bca_z0": {
+            "py": -0.061702184885339184,
+            "r": -0.0617021848853392,
+            "abs": 1.3877787807814457e-17
+          },
+          "bca_a": {
+            "py_jack": -0.0756715657980095,
+            "r_jack": -0.0740878683899435,
+            "r_reg_default": -0.081067771689996,
+            "abs_vs_r_jack": 0.0015836974080660066
+          },
+          "bca_note": "pystatistics BCa uses Efron jackknife acceleration; R boot.ci default uses regression influence (a_reg). z0 matches exactly; endpoint gap is this documented convention, amplified in steep tails.",
+          "pass": true
+        },
+        {
+          "group": "boot_tight",
+          "dataset": "city",
+          "statistic": "ratio",
+          "R": 5000,
+          "t_stat": {
+            "n": 5000,
+            "max_abs": 5.10702591327572e-15,
+            "max_rel": 4.169478250541701e-15
+          },
+          "t0": {
+            "py": 1.5203125,
+            "r": 1.5203125,
+            "abs": 0.0,
+            "rel": 0.0
+          },
+          "bias": {
+            "py": 0.035157673975376724,
+            "r": 0.0351576739753767,
+            "abs": 2.0816681711721685e-17,
+            "rel": 5.920949641407169e-16
+          },
+          "se": {
+            "py": 0.22588425984785548,
+            "r": 0.225884259847856,
+            "abs": 5.273559366969494e-16,
+            "rel": 2.3346289690664995e-15
+          },
+          "ci_normal": {
+            "n": 2,
+            "max_abs": 3.1086244689504383e-15,
+            "max_rel": 1.6124575839482666e-15
+          },
+          "ci_basic": {
+            "n": 2,
+            "max_abs": 0.0034182273545591,
+            "max_rel": 0.0037044408785083323
+          },
+          "ci_perc": {
+            "n": 2,
+            "max_abs": 0.003418227354557324,
+            "max_rel": 0.0016139798361741364
+          },
+          "ci_bca": {
+            "n": 2,
+            "max_abs": 0.05467287806896426,
+            "max_rel": 0.02511049128136565
+          },
+          "bca_z0": {
+            "py": 0.024567428181125256,
+            "r": 0.0245674281811253,
+            "abs": 4.5102810375396984e-17
+          },
+          "bca_a": {
+            "py_jack": -0.011203193960233625,
+            "r_jack": -0.021439199474279,
+            "r_reg_default": 0.0133844219802487,
+            "abs_vs_r_jack": 0.010236005514045375
+          },
+          "bca_note": "pystatistics BCa uses Efron jackknife acceleration; R boot.ci default uses regression influence (a_reg). z0 matches exactly; endpoint gap is this documented convention, amplified in steep tails.",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "stud_tight",
+      "checks": [
+        {
+          "group": "stud_tight",
+          "dataset": "seeded_gamma_n80",
+          "statistic": "mean",
+          "R": 5000,
+          "t_stat": {
+            "n": 5000,
+            "max_abs": 5.1514348342607263e-14,
+            "max_rel": 4.87465733275562e-15
+          },
+          "var_t": {
+            "n": 5000,
+            "max_abs": 7.216449660063518e-16,
+            "max_rel": 3.170254008525786e-15
+          },
+          "ci_stud": {
+            "n": 2,
+            "max_abs": 0.003599890196795741,
+            "max_rel": 0.0002872233315966803
+          },
+          "note": "studentized formula reproduces the textbook type-7 result exactly; agreement with R boot.ci is the quantile convention (norm.inter vs type-7), amplified in the pivot's tail",
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

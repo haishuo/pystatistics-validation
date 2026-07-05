@@ -1,0 +1,86 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.6.7",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.12.1",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ]
+  },
+  "config": {
+    "suite": "montecarlo-determinism",
+    "reference": "self (seed contract) \u2014 R6",
+    "tolerance_contract": "bit-identical on same seed; default seed=None non-reproducible by design (t0 always deterministic)"
+  },
+  "records": [
+    {
+      "key": "cpu_reproducibility",
+      "checks": [
+        {
+          "group": "boot_repro",
+          "dataset": "law",
+          "statistic": "corr",
+          "t_identical": true,
+          "ci_identical": true,
+          "pass": true
+        },
+        {
+          "group": "boot_repro",
+          "dataset": "city",
+          "statistic": "ratio",
+          "t_identical": true,
+          "ci_identical": true,
+          "pass": true
+        },
+        {
+          "group": "perm_repro",
+          "dataset": "sleep",
+          "perm_stats_identical": true,
+          "p_identical": true,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "default_nondeterminism",
+      "checks": [
+        {
+          "group": "default_seed",
+          "dataset": "law",
+          "seed": null,
+          "replicates_differ": true,
+          "t0_deterministic": true,
+          "note": "default seed=None is intentionally non-reproducible; pass a seed for R6 determinism (t0 is always deterministic)",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "gpu_reproducibility",
+      "checks": [
+        {
+          "group": "gpu_repro",
+          "op": "boot_mean",
+          "device": "gpu_mps_bootstrap",
+          "t_identical": true,
+          "pass": true
+        },
+        {
+          "group": "gpu_repro",
+          "op": "perm_meandiff",
+          "device": "gpu_mps_permutation",
+          "perm_identical": true,
+          "p_identical": true,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

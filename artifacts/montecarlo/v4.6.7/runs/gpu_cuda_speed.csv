@@ -1,0 +1,7 @@
+op,n,B,gpu_ms,cpu_ms,speedup,verdict
+boot_mean,1000,20000,1.0,165.5,158.5,WIN
+boot_mean,5000,50000,10.4,827.1,79.7,WIN
+boot_mean,20000,100000,80.8,4797.3,59.4,WIN
+perm_meandiff,500,50000,4.6,536.0,116.2,WIN
+perm_meandiff,2000,100000,37.2,2870.8,77.2,WIN
+perm_meandiff,5000,200000,495.0,13911.1,28.1,WIN
