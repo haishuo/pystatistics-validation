@@ -1,0 +1,7 @@
+group,subject,detail,pass
+boot_repro,law,dataset=law; statistic=corr; t_identical=True,True
+boot_repro,city,dataset=city; statistic=ratio; t_identical=True,True
+perm_repro,sleep,dataset=sleep; perm_stats_identical=True; p_identical=True,True
+default_seed,law,dataset=law; seed=None; replicates_differ=True,True
+gpu_repro,boot_mean,op=boot_mean; device=gpu_mps_bootstrap; t_identical=True,True
+gpu_repro,perm_meandiff,op=perm_meandiff; device=gpu_mps_permutation; perm_identical=True,True

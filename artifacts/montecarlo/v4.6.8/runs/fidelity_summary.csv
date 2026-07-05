@@ -1,0 +1,4 @@
+case,detail,pass
+default_invocation,boot_R=999; boot_backend=cpu_bootstrap; perm_R=9999; perm_backend=cpu_permutation,True
+two_sided_convention,"mean_diff={'py': 0.3938160618393816, 'exact_2min': 0.3968253968253968, 'old_abs': 0.3968253968253968, 'py_matches_2min': True}; ratio_noncentered={'py': 0.3938160618393816, 'exact_2min': 0.3968253968253968, 'old_abs': 0.8888888888888888, 'py_matches_2min': True}",True
+gpu_optin_fail_loud,gpu_missing_flag_raises=True; gpu_declared_but_median_raises=True; gpu_balanced_raises=True; perm_gpu_missing_flag_raises=True,True

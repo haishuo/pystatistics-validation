@@ -129,7 +129,7 @@ def _enum_two_sided(x, y, stat):
         mask = np.zeros(n, bool); mask[list(c)] = True
         stats.append(stat(combined[mask], combined[~mask]))
     stats = np.array(stats)
-    p_abs = np.mean(np.abs(stats) >= abs(obs) - 1e-12)          # |T|>=|obs|
+    p_abs = np.mean(np.abs(stats) >= abs(obs) - 1e-12)          # old |T|>=|obs|
     p_tail = 2 * min(np.mean(stats >= obs - 1e-12),
                      np.mean(stats <= obs + 1e-12))             # 2*min tail
     return obs, float(p_abs), float(min(1.0, p_tail))
@@ -163,19 +163,16 @@ def run_fidelity() -> list[dict]:
     py_ra = permutation_test(xs, ys, ratio, n_resamples=100000, seed=1).p_value
     recs.append({
         "group": "fidelity", "case": "two_sided_convention",
-        "mean_diff": {"py": py_md, "exact_abs": pa_md, "exact_tail": pt_md,
-                      "py_matches_abs": abs(py_md - pa_md) < 0.01},
-        "ratio_noncentered": {"py": py_ra, "exact_abs": pa_ra, "exact_tail": pt_ra,
-                              "py_matches_abs": abs(py_ra - pa_ra) < 0.01,
-                              "abs_vs_tail_gap": abs(pa_ra - pt_ra)},
-        "note": "permutation_test two-sided uses |perm|>=|obs|; correct & matches "
-                "exact for a null-centered statistic (mean-diff). For a "
-                "non-centered statistic (ratio ~1) the |.| convention diverges "
-                "from the proper 2*min-tail two-sided — a documented footgun: "
-                "pass a null-centered statistic (a difference), not a ratio.",
-        # pass = pystatistics correctly implements its stated |.|-convention and
-        # it is right for the intended (null-centered) use.
-        "pass": bool(abs(py_md - pa_md) < 0.01),
+        "mean_diff": {"py": py_md, "exact_2min": pt_md, "old_abs": pa_md,
+                      "py_matches_2min": abs(py_md - pt_md) < 0.01},
+        "ratio_noncentered": {"py": py_ra, "exact_2min": pt_ra, "old_abs": pa_ra,
+                              "py_matches_2min": abs(py_ra - pt_ra) < 0.01},
+        "note": "Since 4.6.8 permutation_test two-sided uses the 2*min-tail "
+                "rule, correct for ANY statistic: it matches exact enumeration "
+                "for both a null-centered difference (unchanged from the old "
+                "|.| result) AND a non-centered ratio (was the ~0.89 |.| "
+                "artefact, now the correct ~0.40).",
+        "pass": bool(abs(py_md - pt_md) < 0.01 and abs(py_ra - pt_ra) < 0.01),
     })
 
     # (G2 / R16 fix) GPU opt-in fail-loud — no silent substitution

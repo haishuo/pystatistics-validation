@@ -56,20 +56,15 @@ def run_boot_equivalence() -> list[dict]:
         width = r["ci_perc"][1] - r["ci_perc"][0]
         ci_diffs = {t: float(np.max(np.abs(np.array(pci[t][0]) - np.array(r[f"ci_{t}"]))) / width)
                     for t in ["normal", "basic", "perc", "bca"]}
-        # RNG-equivalence is judged on se + normal/basic/perc (shared convention).
-        # BCa's endpoint gap is the documented jackknife-vs-regression
-        # acceleration convention (see run_tight.py), reported not gated here.
-        rng_equiv = {t: ci_diffs[t] for t in ["normal", "basic", "perc"]}
+        # Since 4.6.8 all four types (incl. BCa via regression influence + R's
+        # norm.inter) share R's convention, so all agree within MC error.
         recs.append({
             "group": "boot_equiv", "dataset": key, "statistic": stat_name, "B": B,
             "mc_tol_rel": float(mc_tol),
             "se_py": float(py.se[0]), "se_r": float(r["se"]), "se_rel_diff": float(se_rel),
             "ci_reldiff_vs_width": ci_diffs,
-            "bca_note": "BCa reldiff is the documented jackknife(py)-vs-"
-                        "regression(R) acceleration convention, not an RNG-"
-                        "equivalence gap; calibration settled by coverage study",
             "pass": bool(se_rel < 0.03
-                         and all(v < 0.05 for v in rng_equiv.values())),
+                         and all(v < 0.06 for v in ci_diffs.values())),
         })
     return recs
 

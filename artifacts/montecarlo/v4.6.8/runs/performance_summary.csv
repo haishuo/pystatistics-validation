@@ -1,0 +1,17 @@
+study,dataset,statistic,axis(B|n),py_ms,r_ms,R_over_py,py_slope
+boot_scaling,law,corr,1000,19.46,8.0,0.41,1.0
+boot_scaling,law,corr,5000,96.56,38.0,0.39,1.0
+boot_scaling,law,corr,20000,384.37,151.0,0.39,1.0
+boot_scaling,law,corr,50000,956.85,389.0,0.41,1.0
+boot_scaling,city,ratio,1000,6.5,2.0,0.31,1.0
+boot_scaling,city,ratio,5000,31.98,8.0,0.25,1.0
+boot_scaling,city,ratio,20000,130.62,37.0,0.28,1.0
+boot_scaling,city,ratio,50000,327.99,93.0,0.28,1.0
+perm_scaling,sleep,mean_diff,1000,4.36,2.0,0.46,1.01
+perm_scaling,sleep,mean_diff,5000,21.71,12.0,0.55,1.01
+perm_scaling,sleep,mean_diff,20000,89.76,51.0,0.57,1.01
+perm_scaling,sleep,mean_diff,50000,223.81,129.0,0.58,1.01
+n_scaling,,corr,10,96.36,38.0,0.39,0
+n_scaling,,corr,100,104.51,54.0,0.52,0
+n_scaling,,corr,1000,164.05,156.0,0.95,0
+n_scaling,,corr,10000,706.1,2391.0,3.39,0

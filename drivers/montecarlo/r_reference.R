@@ -54,10 +54,12 @@ out <- switch(f,
     R <- as.integer(p$R)
     b <- boot(data, stat, R = R)
     idx <- boot.array(b, indices = TRUE)          # R x n, 1-based
+    fa <- boot.array(b)                           # R x n resample frequencies
     res <- list(
       t0 = as.numeric(b$t0),
       t = as.numeric(b$t),
       idx = as.integer(t(idx)),                   # row-major flatten
+      freq = as.integer(t(fa)),                   # row-major R x n frequencies
       n = ncol(idx), R = R,
       bias = as.numeric(mean(b$t) - b$t0),
       se = as.numeric(sd(b$t))
@@ -116,11 +118,12 @@ out <- switch(f,
     stats <- apply(combos, 2, function(ix) {
       s1 <- sum(val[ix]); s1 / n1 - (tot_sum - s1) / s2n
     })
+    pg <- mean(stats >= obs - 1e-12); pl <- mean(stats <= obs + 1e-12)
     list(
       observed = obs, n_perms = total,
-      p_two_sided = mean(abs(stats) >= abs(obs) - 1e-12),
-      p_greater   = mean(stats >= obs - 1e-12),
-      p_less      = mean(stats <= obs + 1e-12)
+      # 2*min-tail two-sided (matches pystatistics >= 4.6.8)
+      p_two_sided = min(1, 2 * min(pg, pl)),
+      p_greater   = pg, p_less = pl
     )
   },
 
@@ -136,12 +139,13 @@ out <- switch(f,
       ix <- sample.int(n, n1); s1 <- sum(val[ix])
       s1 / n1 - (tot_sum - s1) / s2n
     })
-    # Phipson-Smyth (count+1)/(R+1), matching pystatistics
+    # Phipson-Smyth (count+1)/(R+1); 2*min-tail two-sided (matches pystatistics)
+    pg <- (sum(stats >= obs) + 1) / (R + 1)
+    pl <- (sum(stats <= obs) + 1) / (R + 1)
     list(
       observed = obs, R = R,
-      p_two_sided = (sum(abs(stats) >= abs(obs)) + 1) / (R + 1),
-      p_greater   = (sum(stats >= obs) + 1) / (R + 1),
-      p_less      = (sum(stats <= obs) + 1) / (R + 1)
+      p_two_sided = min(1, 2 * min(pg, pl)),
+      p_greater = pg, p_less = pl
     )
   },
 

@@ -1,0 +1,158 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.6.8",
+    "install_source": "pypi",
+    "python": "3.11.14",
+    "numpy": "2.3.5",
+    "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+    "cpu": "x86_64",
+    "device": "cuda",
+    "torch": "2.11.0.dev20251226+cu128",
+    "available_devices": [
+      "cuda",
+      "cpu"
+    ],
+    "gpu_name": "NVIDIA GeForce RTX 5070 Ti",
+    "cuda_version": "12.8"
+  },
+  "config": {
+    "suite": "montecarlo-gpu-cuda",
+    "reference": "CPU fp64 (same estimator); GPU-vs-CPU speed",
+    "tolerance_contract": "GPU beats CPU at large n*B; fp32 reduction within the GPU_FP32 tier (MPS) / exact (CUDA fp64); RNG reproducible + unbiased; opt-in never silently substitutes. montecarlo exposes no gpu_fp64 (honest subset)."
+  },
+  "records": [
+    {
+      "key": "speed",
+      "checks": [
+        {
+          "group": "speed",
+          "op": "boot_mean",
+          "n": 1000,
+          "B": 20000,
+          "gpu_s": 0.0010484419763088226,
+          "cpu_s": 0.16483794059604406,
+          "speedup": 157.22180561329452,
+          "pass": true
+        },
+        {
+          "group": "speed",
+          "op": "boot_mean",
+          "n": 5000,
+          "B": 50000,
+          "gpu_s": 0.010361646302044392,
+          "cpu_s": 0.8143052589148283,
+          "speedup": 78.58840527630854,
+          "pass": true
+        },
+        {
+          "group": "speed",
+          "op": "boot_mean",
+          "n": 20000,
+          "B": 100000,
+          "gpu_s": 0.0808108001947403,
+          "cpu_s": 4.817890682257712,
+          "speedup": 59.619390856759416,
+          "pass": true
+        },
+        {
+          "group": "speed",
+          "op": "perm_meandiff",
+          "n": 500,
+          "B": 50000,
+          "gpu_s": 0.004608421586453915,
+          "cpu_s": 0.5403523510321975,
+          "speedup": 117.25323755546147,
+          "pass": true
+        },
+        {
+          "group": "speed",
+          "op": "perm_meandiff",
+          "n": 2000,
+          "B": 100000,
+          "gpu_s": 0.03721242677420378,
+          "cpu_s": 2.847784579731524,
+          "speedup": 76.52778457613658,
+          "pass": true
+        },
+        {
+          "group": "speed",
+          "op": "perm_meandiff",
+          "n": 5000,
+          "B": 200000,
+          "gpu_s": 0.4948089336976409,
+          "cpu_s": 13.841117874719203,
+          "speedup": 27.972651526896215,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "fp32_drift",
+      "checks": [
+        {
+          "group": "fp32_drift",
+          "n": 100,
+          "dtype": "torch.float64",
+          "max_rel_vs_fp64": 5.939676079597306e-16,
+          "tier": 1e-12,
+          "pass": true
+        },
+        {
+          "group": "fp32_drift",
+          "n": 1000,
+          "dtype": "torch.float64",
+          "max_rel_vs_fp64": 4.242650958065297e-16,
+          "tier": 1e-12,
+          "pass": true
+        },
+        {
+          "group": "fp32_drift",
+          "n": 10000,
+          "dtype": "torch.float64",
+          "max_rel_vs_fp64": 2.8475659856522544e-16,
+          "tier": 1e-12,
+          "pass": true
+        },
+        {
+          "group": "fp32_drift",
+          "n": 100000,
+          "dtype": "torch.float64",
+          "max_rel_vs_fp64": 5.682238976484543e-16,
+          "tier": 1e-12,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "rng_quality",
+      "checks": [
+        {
+          "group": "rng",
+          "check": "boot_reproducible",
+          "identical": true,
+          "pass": true
+        },
+        {
+          "group": "rng",
+          "check": "perm_unbiased_null",
+          "perm_dist_mean": 9.038856865918313e-06,
+          "perm_dist_se": 0.00021692085974581968,
+          "note": "permutation distribution centered at 0 under the null (argsort-key shuffle is unbiased)",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "fail_loud",
+      "checks": [
+        {
+          "group": "fail_loud",
+          "missing_flag_raises": true,
+          "declared_wrong_raises": true,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

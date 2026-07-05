@@ -414,17 +414,31 @@ Every defect found during a validation pass is classified at the moment it is fo
   with no correctness impact, cosmetics/docs. These do **not** each trigger a stop or
   their own release. **Log each to the run's findings ledger and continue the pass.**
 
-**The bundle.** After the pass, the gathered non-showstoppers are fixed together and
-shipped as **one patch release** (e.g. 4.4.0 → **4.4.1**) — not a release per defect.
-The published, blessed report is then the **bundled version**: re-validate the affected
-surface at the new patch (R6's baseline→optimize→re-validate, batched). A validation
-pass may legitimately *complete* on a version carrying known non-showstopper findings,
-**provided** the final blessed report is the bundle that fixes them — never a report
-that silently blesses known inaccuracies (Rule 9 / R5).
+**"Gather" means DEFERRED, not EXCUSED.** Gather is a scheduling decision — *don't slam
+the brakes for this one* — **not** a verdict that the finding is acceptable. Every gathered
+item is a thing we have decided to **fix**; the only question R18 answers is *now (R16) or
+in the bundle (R18)*. "We documented it" is **never** the remedy. A deviation-from-the-
+reference that a disclosure note merely *describes* is still an open defect: the note buys
+time to batch the fix, it does not close the finding. Writing "documented convention
+difference" in a report and moving on — as if disclosure discharged the obligation — is the
+exact failure this rule forbids. If a gathered item is genuinely *not* going to be fixed
+(a true, permanent, justified divergence — e.g. a deliberate fail-loud choice R does not
+make), it is not a "gather" at all; it is a **documented limitation** with its rationale,
+and it must be argued as such, not smuggled in under the gather label.
+
+**The bundle.** After the pass, the gathered non-showstoppers are **fixed** together and
+shipped as **one patch release** (e.g. 4.4.0 → **4.4.1**) — not a release per defect, and
+not "left documented." The published, blessed report is then the **bundled version**:
+re-validate the affected surface at the new patch (R6's baseline→optimize→re-validate,
+batched). A validation pass may legitimately *complete* on a version carrying known
+non-showstopper findings, **provided** the final blessed report is the bundle that fixes
+them — never a report that silently blesses known inaccuracies (Rule 9 / R5), and never one
+that blesses them *loudly* either (a disclosed-but-unfixed deviation is still unfixed).
 
 The line is correctness-to-the-user, not severity-of-effort: *would a user trust a wrong
 number because nothing told them not to?* If yes → showstopper/R16. If the system already
-refuses, warns, or the inaccuracy is bounded and off the default path → gather/R18.
+refuses, warns, or the inaccuracy is bounded and off the default path → gather/R18 — **and
+then the bundle fixes it.**
 
 ## R7 — The seven questions
 

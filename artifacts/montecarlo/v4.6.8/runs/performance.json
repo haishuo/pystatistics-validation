@@ -1,0 +1,173 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.6.8",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.12.1",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ],
+    "r_packages": {
+      "boot": "1.3.32",
+      "stats": "4.5.2"
+    },
+    "blas": "system (Accelerate on macOS)",
+    "cpu_model": "arm"
+  },
+  "config": {
+    "suite": "montecarlo-performance",
+    "reference": "R boot::boot / base-R permutation loop, timed in R",
+    "tolerance_contract": "same O(B) complexity class as R (R1); constant factor reported honestly; vectorized win is GPU-only"
+  },
+  "records": [
+    {
+      "key": "boot_scaling",
+      "checks": [
+        {
+          "group": "boot_scaling",
+          "dataset": "law",
+          "statistic": "corr",
+          "B": [
+            1000,
+            5000,
+            20000,
+            50000
+          ],
+          "py_cpu_s": [
+            0.019463750068098307,
+            0.0965557920280844,
+            0.38436700007878244,
+            0.9568508749362081
+          ],
+          "r_boot_s": [
+            0.00799999999999999,
+            0.038,
+            0.151,
+            0.389
+          ],
+          "speedup_r_over_py": [
+            0.41102048536434094,
+            0.39355484742901026,
+            0.3928537048421171,
+            0.40654192851726667
+          ],
+          "py_slope": 0.9957538010377169,
+          "r_slope": 0.9916171125300683,
+          "note": "both O(B); ratio is the constant factor (per-replicate Python vs R statistic call). Vectorized win is GPU-only.",
+          "pass": true
+        },
+        {
+          "group": "boot_scaling",
+          "dataset": "city",
+          "statistic": "ratio",
+          "B": [
+            1000,
+            5000,
+            20000,
+            50000
+          ],
+          "py_cpu_s": [
+            0.0065049161203205585,
+            0.03198316693305969,
+            0.13062383304350078,
+            0.32798679103143513
+          ],
+          "r_boot_s": [
+            0.002,
+            0.00800000000000001,
+            0.037,
+            0.093
+          ],
+          "speedup_r_over_py": [
+            0.307459767813492,
+            0.25013157754964965,
+            0.28325611902445197,
+            0.2835480041971771
+          ],
+          "py_slope": 1.0031123597193794,
+          "r_slope": 0.990734137596763,
+          "note": "both O(B); ratio is the constant factor (per-replicate Python vs R statistic call). Vectorized win is GPU-only.",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "perm_scaling",
+      "checks": [
+        {
+          "group": "perm_scaling",
+          "dataset": "sleep",
+          "statistic": "mean_diff",
+          "B": [
+            1000,
+            5000,
+            20000,
+            50000
+          ],
+          "py_cpu_s": [
+            0.0043624998070299625,
+            0.021706208121031523,
+            0.08976091700606048,
+            0.22380725014954805
+          ],
+          "r_s": [
+            0.002,
+            0.012,
+            0.051,
+            0.129
+          ],
+          "speedup_r_over_py": [
+            0.4584527423421531,
+            0.5528372313160027,
+            0.5681760135823543,
+            0.5763888342035487
+          ],
+          "py_slope": 1.008355480428855,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "n_scaling",
+      "checks": [
+        {
+          "group": "n_scaling",
+          "statistic": "corr",
+          "B": 5000,
+          "n": [
+            10,
+            100,
+            1000,
+            10000
+          ],
+          "py_cpu_s": [
+            0.09635791694745421,
+            0.10451054200530052,
+            0.16405225009657443,
+            0.7060994589701295
+          ],
+          "r_boot_s": [
+            0.038,
+            0.054,
+            0.156,
+            2.391
+          ],
+          "speedup_r_over_py": [
+            0.39436302904640536,
+            0.5166942871395811,
+            0.9509165519410174,
+            3.3862085144313188
+          ],
+          "note": "constant-factor lag at tiny n is fixed Python per-replicate overhead; it closes as n (per-replicate statistic cost) grows",
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

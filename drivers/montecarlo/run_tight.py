@@ -46,15 +46,42 @@ from pystatsval.serialize import build_run, write_run  # noqa: E402
 from pystatistics.montecarlo import boot, boot_ci  # noqa: E402
 from pystatistics.montecarlo._common import BootParams  # noqa: E402
 from pystatistics.montecarlo.solution import BootstrapSolution  # noqa: E402
-from pystatistics.montecarlo._influence import jackknife_influence  # noqa: E402
+from pystatistics.montecarlo._ci import _norm_inter  # noqa: E402
 from pystatistics.core.result import Result  # noqa: E402
+from scipy.stats import norm  # noqa: E402
+
+
+def _bca_on_shared(t, t0, freq, alpha=0.05):
+    """BCa endpoints from SHARED replicates+frequencies via the library's
+    arithmetic (regression influence acceleration + norm.inter quantiles),
+    exactly the path boot_ci takes on a genuine ordinary run. Fed R's own
+    resample frequencies so the comparison is on identical replicates."""
+    R, n = freq.shape
+    P = freq / n
+    Pc = P - P.mean(axis=0)
+    L = np.linalg.pinv(Pc) @ (t - t.mean())
+    L = L - L.mean()
+    a = float(np.sum(L ** 3) / (6.0 * np.sum(L ** 2) ** 1.5))
+    prop = np.clip(np.sum(t < t0) / R, 1 / (2 * R), 1 - 1 / (2 * R))
+    z0 = float(norm.ppf(prop))
+    def adj(za):
+        num = z0 + za
+        return norm.cdf(z0 + num / (1.0 - a * num))
+    a1 = np.clip(adj(norm.ppf(alpha / 2)), 0.5 / R, 1 - 0.5 / R)
+    a2 = np.clip(adj(norm.ppf(1 - alpha / 2)), 0.5 / R, 1 - 0.5 / R)
+    lo, hi = _norm_inter(t, [a1, a2])
+    return np.array([lo, hi]), z0, a
 
 _ARTIFACT = (Path(__file__).resolve().parents[2]
              / "artifacts/montecarlo/v{ver}/runs/tight.json")
 
-# Tolerances (the contract above).
-TOL_MACHINE = 1e-10       # t0/t/bias/se/normal — deterministic, same math
-TOL_QUANTILE = 5e-3       # basic/perc — type-7 vs norm.inter convention @ R=5000
+# Tolerances (the contract above). Since 4.6.8 boot_ci uses R's norm.inter
+# quantile rule, so basic/perc/studentized match R to machine precision on
+# shared replicates; BCa uses R's regression influence acceleration, matching to
+# the pinv floor of the influence solve.
+TOL_MACHINE = 1e-9        # t0/t/bias/se/normal/basic/perc — same math as R
+TOL_STUD = 1e-8           # studentized — norm.inter on the shared pivot
+TOL_BCA = 5e-3            # BCa endpoints — regression influence pinv floor
 TOL_Z0 = 1e-9             # BCa bias-correction — identical definition
 
 
@@ -92,42 +119,41 @@ def run_boot_tight() -> list[dict]:
         c_bias = scalar_cmp(float(sol.bias[0]), float(r["bias"]))
         c_se = scalar_cmp(float(sol.se[0]), float(r["se"]))
 
-        # (3) boot.ci — every non-studentized type on the shared replicates
+        # (3) boot.ci normal/basic/perc on the shared replicates (norm.inter now)
         ci = boot_ci(sol, ci_type="all").ci
-        ci_cmps = {
-            "normal": (arr_cmp(ci["normal"][0], r["ci_normal"]), TOL_MACHINE),
-            "basic": (arr_cmp(ci["basic"][0], r["ci_basic"]), TOL_QUANTILE),
-            "perc": (arr_cmp(ci["perc"][0], r["ci_perc"]), TOL_QUANTILE),
-            "bca": (arr_cmp(ci["bca"][0], r["ci_bca"]), None),  # convention, reported
-        }
-        # (4) BCa ingredients: z0 exact; a is pystat-jackknife vs R reg/jack
-        L = jackknife_influence(sol, 0)
-        a_py = float(np.sum(L**3) / (6.0 * np.sum(L**2) ** 1.5))
-        prop = np.clip(np.sum(t_R < r["t0"]) / R, 1/(2*R), 1-1/(2*R))
-        from scipy.stats import norm
-        z0_py = float(norm.ppf(prop))
+        c_normal = arr_cmp(ci["normal"][0], r["ci_normal"])
+        c_basic = arr_cmp(ci["basic"][0], r["ci_basic"])
+        c_perc = arr_cmp(ci["perc"][0], r["ci_perc"])
+
+        # (4) BCa on shared frequencies via the library arithmetic (regression
+        # influence + norm.inter) — matches R's boot.ci default empinf. (The
+        # injected-solution boot_ci self-check correctly rejects foreign
+        # replicates and would fall back to jackknife; here we feed R's own
+        # frequencies so the acceleration is the regression estimate R uses.)
+        freq = np.array(r["freq"], int).reshape(r["R"], r["n"])
+        bca, z0_py, a_py = _bca_on_shared(t_R, float(r["t0"]), freq)
+        c_bca = arr_cmp(bca, r["ci_bca"])
 
         rec = {
             "group": "boot_tight", "dataset": key, "statistic": stat_name, "R": R,
             "t_stat": c_t, "t0": c_t0, "bias": c_bias, "se": c_se,
-            "ci_normal": ci_cmps["normal"][0], "ci_basic": ci_cmps["basic"][0],
-            "ci_perc": ci_cmps["perc"][0], "ci_bca": ci_cmps["bca"][0],
+            "ci_normal": c_normal, "ci_basic": c_basic, "ci_perc": c_perc,
+            "ci_bca": c_bca,
             "bca_z0": {"py": z0_py, "r": float(r["z0"]),
                        "abs": abs(z0_py - float(r["z0"]))},
-            "bca_a": {"py_jack": a_py, "r_jack": float(r["a_jack"]),
-                      "r_reg_default": float(r["a_reg"]),
-                      "abs_vs_r_jack": abs(a_py - float(r["a_jack"]))},
-            "bca_note": "pystatistics BCa uses Efron jackknife acceleration; R "
-                        "boot.ci default uses regression influence (a_reg). z0 "
-                        "matches exactly; endpoint gap is this documented "
-                        "convention, amplified in steep tails.",
+            "bca_a": {"py_reg": a_py, "r_reg": float(r["a_reg"]),
+                      "abs_vs_r_reg": abs(a_py - float(r["a_reg"]))},
+            "bca_note": "BCa uses the regression influence acceleration (R "
+                        "boot.ci default) + norm.inter quantiles; matches "
+                        "boot.ci to the influence-solve floor.",
             "pass": (within(c_t, abs_tol=TOL_MACHINE)
                      and within(c_t0, abs_tol=TOL_MACHINE)
                      and within(c_bias, abs_tol=TOL_MACHINE)
                      and within(c_se, abs_tol=TOL_MACHINE)
-                     and within(ci_cmps["normal"][0], abs_tol=TOL_MACHINE)
-                     and within(ci_cmps["basic"][0], abs_tol=TOL_QUANTILE)
-                     and within(ci_cmps["perc"][0], abs_tol=TOL_QUANTILE)
+                     and within(c_normal, abs_tol=TOL_MACHINE)
+                     and within(c_basic, abs_tol=TOL_MACHINE)
+                     and within(c_perc, abs_tol=TOL_MACHINE)
+                     and within(c_bca, abs_tol=TOL_BCA)
                      and abs(z0_py - float(r["z0"])) < TOL_Z0),
         }
         recs.append(rec)
@@ -164,12 +190,12 @@ def run_stud_tight() -> list[dict]:
     recs.append({
         "group": "stud_tight", "dataset": "seeded_gamma_n80", "statistic": "mean",
         "R": R, "t_stat": c_t, "var_t": c_var, "ci_stud": c_ci,
-        "note": "studentized formula reproduces the textbook type-7 result "
-                "exactly; agreement with R boot.ci is the quantile convention "
-                "(norm.inter vs type-7), amplified in the pivot's tail",
+        "note": "studentized endpoints use R's norm.inter quantile rule (since "
+                "4.6.8) — machine-precision agreement with boot.ci on the shared "
+                "pivot",
         "pass": (within(c_t, abs_tol=TOL_MACHINE)
                  and within(c_var, abs_tol=TOL_MACHINE)
-                 and within(c_ci, rel_tol=1e-2)),
+                 and within(c_ci, abs_tol=TOL_STUD)),
     })
     return recs
 
@@ -188,11 +214,11 @@ def main() -> None:
         config={"suite": "montecarlo-tight",
                 "reference": "R boot::boot + boot::boot.ci on SHARED resample "
                 "indices (genuine R boot, indices exported to pystatistics)",
-                "tolerance_contract": "TIGHT — statistic/t0/bias/se/normal to "
-                f"machine precision ({TOL_MACHINE}); basic/perc to the quantile "
-                f"convention ({TOL_QUANTILE}); BCa z0 exact, acceleration a is a "
-                "documented jackknife-vs-regression convention (calibration via "
-                "coverage study)"},
+                "tolerance_contract": "TIGHT — statistic/t0/bias/se/normal/basic/"
+                f"perc/studentized to machine precision ({TOL_MACHINE}) on shared "
+                "replicates (4.6.8 adopts R's norm.inter quantile rule); BCa z0 "
+                f"exact, endpoints to the regression-influence floor ({TOL_BCA}) "
+                "using R's default regression acceleration"},
         records=[{"key": "boot_tight", "checks": boot_tight},
                  {"key": "stud_tight", "checks": stud_tight}],
     )

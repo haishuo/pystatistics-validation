@@ -64,8 +64,8 @@ def tight(runs: Path) -> None:
                          _f(c["t_stat"]["max_abs"], 1), _f(c["t0"]["abs"], 1),
                          _f(c["se"]["abs"], 1), _f(c["ci_normal"]["max_abs"], 1),
                          _f(c["ci_basic"]["max_abs"], 1), _f(c["ci_perc"]["max_abs"], 1),
-                         _f(c["ci_bca"]["max_abs"], 2), _f(c["bca_z0"]["abs"], 1),
-                         _f(c["bca_a"]["py_jack"]), _f(c["bca_a"]["r_reg_default"]),
+                         _f(c["ci_bca"]["max_abs"], 1), _f(c["bca_z0"]["abs"], 1),
+                         _f(c["bca_a"]["py_reg"]), _f(c["bca_a"]["r_reg"]),
                          c["pass"]])
         elif c.get("group") == "stud_tight":
             rows.append([c["dataset"], "mean(stud)", c["R"],
@@ -73,8 +73,8 @@ def tight(runs: Path) -> None:
                          _f(c["ci_stud"]["max_abs"], 1), "", "", "", c["pass"]])
     _w(runs / "tight_summary.csv",
        ["dataset", "statistic", "R", "t_abs", "t0_abs", "se_abs", "normal_abs",
-        "basic_abs", "perc_or_stud_abs", "bca_absdiff", "z0_abs",
-        "a_py_jack", "a_r_reg", "pass"], rows)
+        "basic_abs", "perc_or_stud_abs", "bca_abs", "z0_abs",
+        "a_py_reg", "a_r_reg", "pass"], rows)
 
 
 def equivalence(runs: Path) -> None:
@@ -98,7 +98,7 @@ def equivalence(runs: Path) -> None:
                         c["within_2se_of_nominal"]])
     _w(runs / "equiv_boot_summary.csv",
        ["dataset", "statistic", "B", "se_rel", "normal_rel", "perc_rel",
-        "bca_rel(conv)", "pass"], be)
+        "bca_rel", "pass"], be)
     _w(runs / "equiv_perm_summary.csv",
        ["dataset", "alternative", "B", "p_py", "p_exact", "p_r_mc",
         "abs_vs_exact", "pass"], pe)
@@ -181,16 +181,21 @@ def build_manifest(runs: Path, ver: str, cpu_env: dict, mps_env: dict,
     studies = [
         study("g1_tight", "G1 correctness — TIER: TIGHT (shared resamples, "
               "machine precision): boot t0/t/bias/se + all 5 boot.ci types vs "
-              "R boot::boot/boot.ci on IDENTICAL resample indices", "agreement",
-              "arm+r", "tight_summary.csv",
+              "R boot::boot/boot.ci on IDENTICAL resample indices/frequencies",
+              "agreement", "arm+r", "tight_summary.csv",
               ["dataset", "statistic", "R", "t_abs", "t0_abs", "se_abs",
-               "normal_abs", "basic_abs", "perc_or_stud_abs", "bca_absdiff",
-               "z0_abs", "a_py_jack", "a_r_reg", "pass"], ["cpu"]),
+               "normal_abs", "basic_abs", "perc_or_stud_abs", "bca_abs",
+               "z0_abs", "a_py_reg", "a_r_reg", "pass"], ["cpu"],
+              note="All five CI types match boot.ci on shared replicates: "
+                   "normal/basic/perc/studentized to machine precision (R's "
+                   "norm.inter quantile rule, adopted 4.6.8); BCa to the "
+                   "regression-influence solve floor (~1e-5) using R's default "
+                   "regression acceleration."),
         study("g1_equiv_boot", "G1 correctness — TIER: statistical equivalence "
               "(independent RNG, large B): se + CI agree within MC error vs R",
               "agreement", "arm+r", "equiv_boot_summary.csv",
               ["dataset", "statistic", "B", "se_rel", "normal_rel", "perc_rel",
-               "bca_rel(conv)", "pass"], ["cpu"]),
+               "bca_rel", "pass"], ["cpu"]),
         study("g1_equiv_perm", "G1 correctness — permutation p vs EXACT "
               "enumeration and independent R Monte-Carlo", "agreement", "arm+r",
               "equiv_perm_summary.csv",
@@ -216,10 +221,10 @@ def build_manifest(runs: Path, ver: str, cpu_env: dict, mps_env: dict,
               "convention, GPU opt-in fail-loud (the 4.6.7 fix)", "fail-loud",
               "arm+r", "fidelity_summary.csv", ["case", "detail", "pass"],
               ["cpu"],
-              note="two_sided_convention: |perm|>=|obs| is correct & matches "
-                   "exact for a null-centered statistic (mean-diff); for a "
-                   "non-centered statistic (ratio) it diverges from the proper "
-                   "2*min-tail — pass a difference, documented footgun."),
+              note="two_sided_convention: since 4.6.8 the two-sided p-value uses "
+                   "the 2*min-tail rule, correct for ANY statistic — it matches "
+                   "exact enumeration for both a difference (unchanged) and a "
+                   "ratio (was the ~0.89 |.| artefact, now the correct ~0.40)."),
         study("g3_performance", "G3 performance — pystatistics CPU vs R across "
               "B (and n)", "speed", "arm+r", "performance_summary.csv",
               ["study", "dataset", "statistic", "axis(B|n)", "py_ms", "r_ms",
@@ -295,11 +300,22 @@ def build_manifest(runs: Path, ver: str, cpu_env: dict, mps_env: dict,
             "gpu_statistic opt-in ('mean'/'mean_diff') that is fail-loud "
             "(missing declaration, non-vectorizable config, or a declared "
             "statistic that does not match the data all raise; auto falls back "
-            "to CPU disclosed). Identical float64 inputs feed both engines (law, "
-            "city, sleep from the central HDF5 store; the R reference reads the "
-            "same values and, in the tight tier, the same resample indices). "
-            "Reference: R boot::boot / boot::boot.ci and base-R exact "
-            "permutation enumeration."},
+            "to CPU disclosed). The pass also surfaced two non-showstopper "
+            "(R18-gather) fidelity gaps that were then FIXED and bundled into "
+            "4.6.8 (gather means deferred-not-excused, not documented-away): "
+            "boot_ci used numpy's type-7 quantile and Efron's jackknife BCa "
+            "acceleration, so its intervals differed from R boot.ci on identical "
+            "replicates — 4.6.8 adopts R's norm.inter quantile rule (basic/perc/"
+            "studentized now machine-precision vs boot.ci) and R's default "
+            "regression-influence BCa acceleration (BCa to ~1e-5); and "
+            "permutation_test's two-sided p-value counted |perm|>=|obs| (correct "
+            "only for a null-centred statistic) — 4.6.8 uses the 2*min-tail "
+            "rule, correct for any statistic. This blessed report is the 4.6.8 "
+            "bundle. Identical float64 inputs feed both engines (law, city, "
+            "sleep from the central HDF5 store; the R reference reads the same "
+            "values and, in the tight tier, the same resample indices AND "
+            "frequencies). Reference: R boot::boot / boot::boot.ci and base-R "
+            "exact permutation enumeration."},
         "hosts": hosts,
         "reference": {"name": "R boot::boot / boot.ci + exact enumeration",
                       "kind": "cran"},
@@ -308,7 +324,7 @@ def build_manifest(runs: Path, ver: str, cpu_env: dict, mps_env: dict,
 
 
 def main() -> None:
-    ver = sys.argv[1] if len(sys.argv) > 1 else "4.6.7"
+    ver = sys.argv[1] if len(sys.argv) > 1 else "4.6.8"
     runs = Path(str(_RUNS).format(ver=ver))
     determinism(runs); tight(runs); equivalence(runs); redteam(runs)
     performance(runs)
