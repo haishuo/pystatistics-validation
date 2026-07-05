@@ -164,7 +164,7 @@ def build_manifest(runs: Path, ver: str) -> dict:
         "pystatistics_version": ver,
         "install_source": "pypi",
         "evidence_state": "native-harness",
-        "frozen_utc": "2026-07-05",
+        "frozen_utc": "2026-07-06",
         "provenance": {"note":
             "First-time validation of pystatistics.timeseries (the corpus's "
             "largest module) across its whole public surface. The pass drove two "
@@ -177,7 +177,12 @@ def build_manifest(runs: Path, ver: str) -> dict:
             "model (fixed 4.6.4). Bundled fixes: ETS 'ZZZ' auto-selection, ndiffs "
             "default test kpss, ADF default regression 'ct' + corrected MacKinnon "
             "p-values, KPSS bandwidth. 4.6.5 aligned the arima_batch GPU/CPU "
-            "fail-loud contract. Identical float64 inputs to both engines (each "
+            "fail-loud contract. 4.6.6 JIT-compiled the ETS state-space recursion "
+            "with numba (@njit cache=True fastmath=False, matching the module's "
+            "ARIMA-Kalman/STL kernels), flipping ets from ~10.7x slower than R to "
+            "0.43x with BIT-IDENTICAL estimates (max diff 0.0 vs 4.6.5) — an R6 "
+            "optimize-and-re-validate cycle closing the module's last gap. "
+            "Identical float64 inputs to both engines (each "
             "series dumped from the central HDF5 store; the R reference reads the "
             "same values). References: stats/forecast/tseries; statsmodels as an "
             "independent triangulation for stl and the ADF p-value."},

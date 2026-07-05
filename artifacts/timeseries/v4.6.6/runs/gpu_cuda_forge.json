@@ -1,0 +1,179 @@
+{
+ "schema": "timeseries-gpu-cuda/v1",
+ "device": "NVIDIA GeForce RTX 5070 Ti",
+ "env": {
+  "pystatistics": "4.6.6",
+  "torch": "2.11.0.dev20251226+cu128",
+  "cuda": "12.8",
+  "device": "NVIDIA GeForce RTX 5070 Ti",
+  "numpy": "2.3.5"
+ },
+ "reference": "arima_batch Whittle: gpu(fp32)/gpu_fp64 vs cpu(fp64); exact single-series arima CSS-ML as fp64 ground truth",
+ "scaling": [
+  {
+   "K": 10,
+   "n": 1000,
+   "cpu_s": 0.011477350257337093,
+   "gpu_s": 0.4050844106823206,
+   "gpu_fp64_s": 0.18247592821717262,
+   "speedup_gpu_vs_cpu": 0.02833323118508744,
+   "speedup_gpu64_vs_cpu": 0.06289788669373088,
+   "fp32_ar_rel": 0.009116394821396659,
+   "fp32_ma_rel": 0.01989542512651602,
+   "fp32_sigma2_rel": 3.385524127753292e-07,
+   "fp64_ar_rel": 0.009116210040645861,
+   "fp64_sigma2_rel": 1.9766181858874337e-08
+  },
+  {
+   "K": 50,
+   "n": 1000,
+   "cpu_s": 0.0490657826885581,
+   "gpu_s": 0.20045155566185713,
+   "gpu_fp64_s": 0.19143572822213173,
+   "speedup_gpu_vs_cpu": 0.24477626290577384,
+   "speedup_gpu64_vs_cpu": 0.25630420791475667,
+   "fp32_ar_rel": 0.01787999314267929,
+   "fp32_ma_rel": 0.041488617348885884,
+   "fp32_sigma2_rel": 4.4633434309246e-07,
+   "fp64_ar_rel": 0.017880084502043883,
+   "fp64_sigma2_rel": 1.5434469751505232e-07
+  },
+  {
+   "K": 100,
+   "n": 1000,
+   "cpu_s": 0.09746835101395845,
+   "gpu_s": 0.1974052395671606,
+   "gpu_fp64_s": 0.19463526271283627,
+   "speedup_gpu_vs_cpu": 0.49374753794616516,
+   "speedup_gpu64_vs_cpu": 0.5007743697387594,
+   "fp32_ar_rel": 0.01787999314267929,
+   "fp32_ma_rel": 0.06030988609103753,
+   "fp32_sigma2_rel": 4.4633434309246e-07,
+   "fp64_ar_rel": 0.017880084502043883,
+   "fp64_sigma2_rel": 2.0428845390344014e-07
+  },
+  {
+   "K": 500,
+   "n": 1000,
+   "cpu_s": 0.4854272659868002,
+   "gpu_s": 0.2134455144405365,
+   "gpu_fp64_s": 0.20036378782242537,
+   "speedup_gpu_vs_cpu": 2.2742444003058906,
+   "speedup_gpu64_vs_cpu": 2.4227295324293605,
+   "fp32_ar_rel": 0.021794004802626523,
+   "fp32_ma_rel": 0.07834365257796422,
+   "fp32_sigma2_rel": 4.907610745697411e-07,
+   "fp64_ar_rel": 0.021794066377084868,
+   "fp64_sigma2_rel": 2.723720395740969e-07
+  },
+  {
+   "K": 1000,
+   "n": 1000,
+   "cpu_s": 0.974471926689148,
+   "gpu_s": 0.2244306579232216,
+   "gpu_fp64_s": 0.2034741435199976,
+   "speedup_gpu_vs_cpu": 4.341973310181703,
+   "speedup_gpu64_vs_cpu": 4.7891683426271605,
+   "fp32_ar_rel": 0.02640766652813601,
+   "fp32_ma_rel": 0.11111532793187956,
+   "fp32_sigma2_rel": 2.226927550094884e-06,
+   "fp64_ar_rel": 0.02640761059497377,
+   "fp64_sigma2_rel": 1.8709207176696776e-06
+  },
+  {
+   "K": 2000,
+   "n": 1000,
+   "cpu_s": 1.9550179513171315,
+   "gpu_s": 0.23915511183440685,
+   "gpu_fp64_s": 0.31698924861848354,
+   "speedup_gpu_vs_cpu": 8.174686028332957,
+   "speedup_gpu64_vs_cpu": 6.167458233481345,
+   "fp32_ar_rel": 0.02640766652813601,
+   "fp32_ma_rel": 0.11111532793187956,
+   "fp32_sigma2_rel": 2.226927550094884e-06,
+   "fp64_ar_rel": 0.02640761059497377,
+   "fp64_sigma2_rel": 1.8709207176696776e-06
+  }
+ ],
+ "stress_r12_r13": [
+  {
+   "tag": "near_unit_root",
+   "ar": 0.97,
+   "ma": 0.3,
+   "cpu_result": "fit",
+   "gpu_result": "fit",
+   "fp32_ar_rel": 0.005481303755518924,
+   "fp32_ma_rel": 0.2400668588989047,
+   "gpu_converged": 0,
+   "cpu_converged": 17,
+   "contract_parity": true,
+   "gpu_no_nonstationary_number": true
+  },
+  {
+   "tag": "near_noninvertible",
+   "ar": 0.3,
+   "ma": 0.95,
+   "cpu_result": "fit",
+   "gpu_result": "fit",
+   "fp32_ar_rel": 0.043830419488018614,
+   "fp32_ma_rel": 0.08512997217395195,
+   "gpu_converged": 0,
+   "cpu_converged": 64,
+   "contract_parity": true,
+   "gpu_no_nonstationary_number": true
+  },
+  {
+   "tag": "both_extreme",
+   "ar": 0.95,
+   "ma": 0.9,
+   "cpu_result": "fit",
+   "gpu_result": "fit",
+   "fp32_ar_rel": 0.0038229666717019615,
+   "fp32_ma_rel": 0.36545383963942657,
+   "gpu_converged": 0,
+   "cpu_converged": 10,
+   "contract_parity": true,
+   "gpu_no_nonstationary_number": true
+  }
+ ],
+ "nonstationary_fidelity": {
+  "near_unit_root": {
+   "ar_true": 0.97,
+   "ma_true": 0.3,
+   "cpu": "fit",
+   "gpu": "fit",
+   "gpu_detail": {
+    "result": "fit",
+    "converged": 0,
+    "n_nan": 39,
+    "n_finite_ar_gt1": 0,
+    "ar_max_finite": 0.982074499130249,
+    "warned": 1
+   },
+   "contract_matches_cpu": true,
+   "gpu_no_nonstationary_number": true
+  },
+  "both_extreme": {
+   "ar_true": 0.95,
+   "ma_true": 0.9,
+   "cpu": "fit",
+   "gpu": "fit",
+   "gpu_detail": {
+    "result": "fit",
+    "converged": 0,
+    "n_nan": 49,
+    "n_finite_ar_gt1": 0,
+    "ar_max_finite": 0.9654490351676941,
+    "warned": 1
+   },
+   "contract_matches_cpu": true,
+   "gpu_no_nonstationary_number": true
+  }
+ },
+ "findings": {
+  "speedup": "GPU beats CPU beyond K~300; 8.2x (fp32)/6.2x (fp64) at K=2000, n=1000. Fixed GPU dispatch overhead => slower for small K (expected).",
+  "accuracy": "gpu fp32 and gpu_fp64 show the SAME gap vs exact => the difference is the Adam(GPU) vs L-BFGS-B(CPU) OPTIMIZER, not precision (R11 pivot). No silent-wrong on well-behaved batches.",
+  "cf1": "Whittle is a spectral/periodogram likelihood (no normal-equations Gram); the CF-1 fp32-Gram pattern does not apply.",
+  "contract": "RESOLVED at 4.6.5: GPU honors the SAME failure contract as CPU \u2014 all-fail raises ConvergenceError, partial -> NaN+warn, and a non-stationary AR is NEVER returned as a plain number (n_finite_ar_gt1 == 0 on every 'fit'). Host-side fp64 stationarity gate (R14, version-stable)."
+ }
+}

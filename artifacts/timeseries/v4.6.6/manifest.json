@@ -1,0 +1,197 @@
+{
+  "schema": "validation-artifact-manifest/v1",
+  "subsystem": "timeseries",
+  "pystatistics_version": "4.6.6",
+  "install_source": "pypi",
+  "evidence_state": "native-harness",
+  "frozen_utc": "2026-07-06",
+  "provenance": {
+    "note": "First-time validation of pystatistics.timeseries (the corpus's largest module) across its whole public surface. The pass drove two R16 emergency stops for silent-wrong defects: stl (4.6.1) returned a trend-leakage decomposition on strongly-trending series (fixed 4.6.3, now machine-precision vs stats::stl, confirmed against statsmodels); seasonal ARIMA information criteria (4.6.3) counted the expanded multiplicative-polynomial coefficients instead of free parameters, silently inflating AIC/AICc and mis-selecting auto_arima's seasonal model (fixed 4.6.4). Bundled fixes: ETS 'ZZZ' auto-selection, ndiffs default test kpss, ADF default regression 'ct' + corrected MacKinnon p-values, KPSS bandwidth. 4.6.5 aligned the arima_batch GPU/CPU fail-loud contract. 4.6.6 JIT-compiled the ETS state-space recursion with numba (@njit cache=True fastmath=False, matching the module's ARIMA-Kalman/STL kernels), flipping ets from ~10.7x slower than R to 0.43x with BIT-IDENTICAL estimates (max diff 0.0 vs 4.6.5) \u2014 an R6 optimize-and-re-validate cycle closing the module's last gap. Identical float64 inputs to both engines (each series dumped from the central HDF5 store; the R reference reads the same values). References: stats/forecast/tseries; statsmodels as an independent triangulation for stl and the ADF p-value."
+  },
+  "hosts": {
+    "arm+r": {
+      "device": "CPU (numpy 2.4.6) + R stats/forecast 9.0.0/tseries 0.10.61"
+    },
+    "forge-cuda": {
+      "device": "NVIDIA GeForce RTX 5070 Ti (torch 2.11.0.dev20251226+cu128, CUDA 12.8)"
+    }
+  },
+  "reference": {
+    "name": "R stats/forecast/tseries",
+    "kind": "cran"
+  },
+  "studies": [
+    {
+      "id": "g1_deterministic",
+      "title": "G1 correctness \u2014 TIER 1 (tight): deterministic quantities vs R (machine precision)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/g1_deterministic_summary.csv",
+      "summary_cols": [
+        "group",
+        "series",
+        "case",
+        "quantity",
+        "max_abs",
+        "max_rel"
+      ]
+    },
+    {
+      "id": "g1_stationarity",
+      "title": "G1 correctness \u2014 stationarity tests vs tseries (statistic tight; p vs statsmodels MacKinnon)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/g1_stationarity_summary.csv",
+      "summary_cols": [
+        "test",
+        "series",
+        "spec",
+        "stat_py",
+        "stat_r",
+        "stat_abs",
+        "p_py",
+        "p_ref",
+        "lag",
+        "pass"
+      ]
+    },
+    {
+      "id": "g1_ndiffs",
+      "title": "G1 correctness \u2014 ndiffs vs forecast::ndiffs (default test=kpss)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/g1_ndiffs_summary.csv",
+      "summary_cols": [
+        "series",
+        "test",
+        "py",
+        "r",
+        "pass",
+        "note"
+      ]
+    },
+    {
+      "id": "g1_mle",
+      "title": "G1 correctness \u2014 TIER 2 (two-tier): arima / ets / auto_arima MLE vs R (matched method)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/g1_mle_summary.csv",
+      "summary_cols": [
+        "group",
+        "series",
+        "spec",
+        "loglik_py",
+        "loglik_r",
+        "loglik_abs",
+        "aic_abs",
+        "coef_or_fit_abs",
+        "selected",
+        "pass"
+      ]
+    },
+    {
+      "id": "g2_fidelity",
+      "title": "G2 fidelity \u2014 fail-loud, no silent substitution",
+      "device": [
+        "cpu"
+      ],
+      "claim": "fail-loud",
+      "host": "arm+r",
+      "summary": "runs/g2_fidelity_summary.csv",
+      "summary_cols": [
+        "key",
+        "desc",
+        "expected",
+        "got",
+        "pass"
+      ]
+    },
+    {
+      "id": "g3_performance",
+      "title": "G3 performance \u2014 CPU vs R across series length",
+      "device": [
+        "cpu"
+      ],
+      "claim": "speed",
+      "host": "arm+r",
+      "summary": "runs/g3_performance_summary.csv",
+      "summary_cols": [
+        "func",
+        "n",
+        "py_ms",
+        "r_ms",
+        "ratio_py_over_r",
+        "py_slope",
+        "r_slope"
+      ]
+    },
+    {
+      "id": "batch_contract",
+      "title": "arima_batch failure contract (CPU) + correctness vs single-series",
+      "device": [
+        "cpu"
+      ],
+      "claim": "fail-loud",
+      "host": "arm+r",
+      "summary": "runs/batch_contract_summary.csv",
+      "summary_cols": [
+        "key",
+        "desc",
+        "pass",
+        "detail"
+      ]
+    },
+    {
+      "id": "gpu_scaling",
+      "title": "arima_batch Whittle GPU (CUDA) \u2014 scaling vs CPU; fp32\u2261fp64 accuracy (R11)",
+      "device": [
+        "cuda"
+      ],
+      "claim": "speed",
+      "host": "forge-cuda",
+      "summary": "runs/gpu_scaling_summary.csv",
+      "summary_cols": [
+        "K",
+        "n",
+        "cpu_ms",
+        "gpu_fp32_ms",
+        "gpu_fp64_ms",
+        "speedup_fp32_vs_cpu",
+        "speedup_fp64_vs_cpu",
+        "fp32_ar_rel",
+        "fp64_ar_rel"
+      ],
+      "note": "GPU beats CPU beyond K~500 (7.6x fp32 / 6.0x fp64 at K=2000). fp32_ar_rel == fp64_ar_rel at every K => the gap vs exact ML is the Adam optimizer, not precision (R11)."
+    },
+    {
+      "id": "gpu_fidelity",
+      "title": "arima_batch GPU/CPU contract parity on non-stationary batches (R12/R13/R14)",
+      "device": [
+        "cuda"
+      ],
+      "claim": "fail-loud",
+      "host": "forge-cuda",
+      "summary": "runs/gpu_fidelity_summary.csv",
+      "summary_cols": [
+        "tag",
+        "cpu_result",
+        "gpu_result",
+        "contract_parity",
+        "gpu_no_nonstationary_number"
+      ],
+      "note": "4.6.5: GPU honors the same contract as CPU \u2014 no non-stationary AR returned as a plain number (gpu_no_nonstationary_number=True everywhere)."
+    }
+  ]
+}
