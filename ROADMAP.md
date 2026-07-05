@@ -21,7 +21,13 @@ perf (F1/F2a/F2b) + the new `grm_lmm()` GPU model + `CONVENTIONS.md` A7 (depende
 tiering) + the Prime Directive reframe; **4.5.1** F3 fix (an extreme-variance-ratio
 silent-wrong the mixed red-team caught — R16).
 
-**Current library version:** pystatistics **4.6.6** (on PyPI). **timeseries** (the
+**Current library version:** pystatistics **4.6.8** (on PyPI). **montecarlo** first-time
+validation drove an **R16 showstopper fix at 4.6.7** (GPU backends inferred the statistic
+form from a single resample → could silently compute the wrong statistic → fixed via an
+explicit fail-loud `gpu_statistic` opt-in) and an **R18 gather bundle at 4.6.8** (boot_ci
+`norm.inter` quantile + regression-influence BCa acceleration → all 5 CI types now match
+`boot.ci`; two-sided permutation p-value → 2·min-tail, correct for non-centered stats).
+Prior — **timeseries** (the
 largest module) first-time validation across the whole surface drove a fix cascade
 **4.6.2→4.6.5** (STL loess rewrite — trend-leak; `ndiffs` default KPSS-not-ADF; ADF
 p-value in the fail-to-reject region; **seasonal AIC counting free params not expanded
@@ -50,8 +56,8 @@ also DONE + red-teamed — gam's first-time validation caught a DEFAULT-path sil
 (H0) + the CF-1 GPU silent-wrong (H1), driving a full rewrite. **`timeseries` (v4.6.6)**
 is also DONE + red-teamed — whole surface vs `stats`/`forecast`/`tseries`, several real
 correctness defects caught (seasonal-AIC/auto_arima, STL trend-leak, ndiffs default).
-**8 of 9 done. HOME STRETCH — `montecarlo` (#7) DONE + red-teamed (v4.6.7); 1 more after:
-ordinal+multinomial (#8), anova/descriptive/hypothesis (#9).**
+**8 of 9 done. HOME STRETCH — `montecarlo` (#7) DONE + red-teamed (v4.6.8). 2 modules
+left: ordinal+multinomial (#8, next NEW module), anova/descriptive/hypothesis (#9).**
 
 ## Order + status
 
@@ -67,17 +73,17 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 | 5 | gam | ✅ **DONE + red-teamed (v4.6.1)** — first-time validation drove a full numerical rewrite | vs `mgcv::gam`. No baseline → first-time run found the SHOWSTOPPER (H0): pre-4.6.0 smooths had no identifiability constraint → exactly-singular design → garbage EDF (`total_edf=−3.12`) → silently-wrong GCV/REML smoothing selection on the DEFAULT path (unvalidated module shipped through 4.5.7). Full rewrite at **4.6.0**: mgcv-exact constrained cr/tp bases + augmented-QR PIRLS + Laplace REML + real posterior SEs; two-tier contract met (tier-1 fixed-sp ≤1e-9, tier-2 free sp ~1e-5). **CF-1 materialised for gam** (fp32 GPU Gram band, silent-wrong on CUDA+MPS, negative EDF) → **GPU path REMOVED** (H1; no shippable GPU win per the CUDA-first investigation). H2 (scale-invariant GCV) + H3 (names mislabel) fixed in adversarial review pre-release. **H4 resolved at 4.6.1** — Gaussian analytic sp-gradient (mixed-A.3 pattern); GLM families keep finite-diff (documented). CPU-only. |
 | 6 | timeseries (ARIMA/ETS/STL) | ✅ **DONE + red-teamed (v4.6.6)** — first-time whole-surface validation | vs `stats`/`forecast`/`tseries` (+ statsmodels as an independent 3rd reference). Whole surface: acf/pacf/diff/ndiffs, adf/kpss, arima/auto_arima/arima_batch, ets, stl/decompose. Deterministic pieces machine-precision (acf ~1e-16, stl ~1e-13, exact test stats); MLE fits (arima/ets/auto_arima) optimizer-tier, method-matched. Fix cascade **4.6.2→4.6.5**: STL loess rewrite (trend-leak), ndiffs default KPSS, ADF p-value, **seasonal AIC free-param count (was silently mis-driving auto_arima seasonal selection)**. 4.6.6 ETS numba R6. `arima_batch` GPU = batched Whittle spectral → **CF-1 N/A** (no Gram); host-fp64 stationarity gate (R14). |
 | 7 | montecarlo (bootstrap/permutation) | ✅ **DONE + red-teamed (v4.6.8)** — first-time whole-surface validation + red-team; R18 bundle re-blessed at 4.6.8 | `boot`/`boot_ci`/`permutation_test` vs `boot::boot`/`boot.ci` + base-R exact permutation enumeration. Three-part STOCHASTIC contract: R6 seed determinism; TIGHT tier feeding R's genuine resample indices to pystatistics (statistic 1e-15, all 5 CI types machine-precision/documented-convention, BCa z0 exact ~1e-17); statistical-equivalence tier (independent-RNG large-B within MC error) + exact-enumeration permutation + known-DGP coverage study (BCa best-calibrated). **Drove one R16 showstopper**: GPU backends inferred the statistic form from a SINGLE resample → could silently compute the mean for a different statistic on `backend='gpu'`. Fixed **4.6.7** (published): explicit `gpu_statistic` opt-in, fail-loud, no silent substitution. GPU real win — MPS fp32 25–43× (drift ~1e-7 within tier), CUDA fp64 exact 59–158×. **CF-1 N/A** (no Gram). **R18 gather bundle → 4.6.8 (fixed, not documented-away):** boot_ci now uses R's `norm.inter` quantile (basic/perc/stud machine-precision vs boot.ci) + regression-influence BCa acceleration (BCa ~1e-5); `permutation_test` two-sided now 2·min-tail (correct for non-centered stats). All 5 CI types now match boot.ci on shared replicates. Remaining R2: tiny-n CPU lag reverses by n~1000 (3.4× at n=10000). |
-| 8 | ordinal (polr) + multinomial | ⬜ pending | IRLS-family; de-risked by the optimized kernel |
+| 8 | ordinal (polr) + multinomial | ⬜ next NEW module — FULL run + red-team in ONE chip | IRLS-family; de-risked by the optimized kernel. R refs `MASS::polr` (ordinal) / `nnet::multinom` (multinomial). **⚠️ CARRIES THE CF-1 FLAG** — the IRLS Gram `X'WX`; if it exposes an fp32 GPU path, that's a live CF-1 exposure (gam materialised it). MUST check, not assume. No baseline → first-time validation AND red-team. Starts on user go. |
 | 9 | anova, descriptive, hypothesis | ⬜ pending | correctness-dominant, optimization-light; corpus completeness; batch last |
 
 Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-**`mixed` (v4.5.7), `gam` (v4.6.1), and `timeseries` (v4.6.6) are COMPLETE. HOME STRETCH:
-3 modules left** — montecarlo (#7, next), ordinal+multinomial (#8), anova/descriptive/
-hypothesis (#9) — then the A7 packaging migration + tail items, then the downstreams. The
-two `mixed` BLOCKER bullets below are kept for history.
+**`mixed` (v4.5.7), `gam` (v4.6.1), `timeseries` (v4.6.6), and `montecarlo` (v4.6.8) are
+COMPLETE. HOME STRETCH: 2 modules left** — ordinal+multinomial (#8, next), anova/
+descriptive/hypothesis (#9) — then the A7 packaging migration + tail items, then the
+downstreams. The two `mixed` BLOCKER bullets below are kept for history.
 
 - **⚠️ ordinal+multinomial (#8) carries the CF-1 flag.** It's the IRLS-family module — if
   it exposes a GPU path forming `X'WX` in fp32, that's a live CF-1 exposure (gam
@@ -136,7 +142,7 @@ two `mixed` BLOCKER bullets below are kept for history.
 ## Standing coordination constraints
 
 - **Release-hold: CLEARED.** The `pystatsbio`/`sgcbio` consistency releases have
-  landed and pystatistics has since shipped through **4.6.6**. No active hold. Re-check
+  landed and pystatistics has since shipped through **4.6.8**. No active hold. Re-check
   before any new library release; reinstate this line if a downstream consistency
   release is mid-flight again.
 - **Standing allowance — the validation testing env always tracks the latest PyPI
