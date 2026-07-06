@@ -85,15 +85,16 @@ Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-**`mixed` (v4.5.7), `gam` (v4.6.1), `timeseries` (v4.6.6), and `montecarlo` (v4.6.8) are
-COMPLETE. HOME STRETCH: 2 modules left** — ordinal+multinomial (#8, next), anova/
-descriptive/hypothesis (#9) — then the A7 packaging migration + tail items, then the
-downstreams. The two `mixed` BLOCKER bullets below are kept for history.
+**8 of 9 COMPLETE (through `ordinal+multinomial` v4.6.10). HOME STRETCH: ONE module left —
+anova/descriptive/hypothesis (#9)** — then the A7 packaging migration + tail items, then
+the downstreams. The two `mixed` BLOCKER bullets below are kept for history.
 
-- **⚠️ ordinal+multinomial (#8) carries the CF-1 flag.** It's the IRLS-family module — if
-  it exposes a GPU path forming `X'WX` in fp32, that's a live CF-1 exposure (gam
-  materialised it; SVD-immunity doesn't transfer). The ordinal chip MUST check it, not
-  assume. (montecarlo/anova don't form a Gram → CF-1 N/A.)
+- **✅ CF-1 (ordinal+multinomial) — RESOLVED (closed at 4.6.9, in `CARRY_FORWARD.md`).**
+  The flag was correct: `polr`/`multinom` inverted `X'WX` in fp32 on GPU → silent
+  negative-variance SEs (R16). Fixed by moving the vcov to fp64 and KEEPING the winning
+  GPU path (~50×/~120×) — unlike gam (removed). Lesson refined: remove-vs-fix by whether
+  the GPU path wins. **`anova`/`descriptive`/`hypothesis` (#9) don't form a Gram → CF-1
+  N/A.**
 
 - **CF-1 gam instance — CLOSED (gam GPU path removed at 4.6.0).** The gam fp32 GPU Gram
   band materialised (silent-wrong EDF on CUDA+MPS, no gate) and was closed by removing the
@@ -147,7 +148,7 @@ downstreams. The two `mixed` BLOCKER bullets below are kept for history.
 ## Standing coordination constraints
 
 - **Release-hold: CLEARED.** The `pystatsbio`/`sgcbio` consistency releases have
-  landed and pystatistics has since shipped through **4.6.8**. No active hold. Re-check
+  landed and pystatistics has since shipped through **4.6.10**. No active hold. Re-check
   before any new library release; reinstate this line if a downstream consistency
   release is mid-flight again.
 - **Standing allowance — the validation testing env always tracks the latest PyPI
