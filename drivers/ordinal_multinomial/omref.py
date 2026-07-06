@@ -187,6 +187,52 @@ cat(toJSON(list(elapsed=best),auto_unbox=TRUE))
     return float(_run_r(script, timeout_s)["elapsed"])
 
 
+def r_predict_polr(y_tr, X_tr, X_te, link: str,
+                   timeout_s: float = 600.0) -> dict[str, Any]:
+    """predict.polr on held-out X_te (type='probs' and 'class'); returns the
+    (n_te, K) probability matrix and the 0-based class codes."""
+    tmp = Path(tempfile.mkdtemp(prefix="om_ppolr_"))
+    np.savetxt(tmp / "Xtr.csv", np.asarray(X_tr, float), delimiter=",")
+    np.savetxt(tmp / "ytr.csv", np.asarray(y_tr, int), fmt="%d")
+    np.savetxt(tmp / "Xte.csv", np.asarray(X_te, float), delimiter=",")
+    K = int(np.max(y_tr)) + 1
+    script = rf"""
+suppressMessages({{library(MASS); library(jsonlite)}})
+Xtr<-as.matrix(read.csv("{tmp}/Xtr.csv",header=FALSE))
+ytr<-factor(scan("{tmp}/ytr.csv",quiet=TRUE),levels=0:{K-1},ordered=TRUE)
+Xte<-as.matrix(read.csv("{tmp}/Xte.csv",header=FALSE))
+m<-polr(ytr~.,data=data.frame(ytr=ytr,Xtr),method="{link}")
+nd<-data.frame(Xte); colnames(nd)<-colnames(data.frame(Xtr))
+pr<-predict(m,newdata=nd,type="probs")
+cl<-as.integer(predict(m,newdata=nd,type="class"))-1L
+cat(toJSON(list(probs=as.matrix(pr),cls=cl),digits=14,auto_unbox=TRUE))
+"""
+    return _run_r(script, timeout_s)
+
+
+def r_predict_multinom(y_tr, Xf_tr, Xf_te, r_levels: list[int],
+                       maxit: int = 2000, timeout_s: float = 600.0) -> dict[str, Any]:
+    """predict.multinom on held-out Xf_te (no intercept col; nnet adds it);
+    returns the probability matrix (with column labels) and 0-based class codes."""
+    tmp = Path(tempfile.mkdtemp(prefix="om_pmulti_"))
+    np.savetxt(tmp / "Xtr.csv", np.asarray(Xf_tr, float), delimiter=",")
+    np.savetxt(tmp / "ytr.csv", np.asarray(y_tr, int), fmt="%d")
+    np.savetxt(tmp / "Xte.csv", np.asarray(Xf_te, float), delimiter=",")
+    rlev = ",".join(str(v) for v in r_levels)
+    script = rf"""
+suppressMessages({{library(nnet); library(jsonlite)}})
+Xtr<-as.matrix(read.csv("{tmp}/Xtr.csv",header=FALSE))
+ytr<-factor(scan("{tmp}/ytr.csv",quiet=TRUE),levels=c({rlev}))
+Xte<-as.matrix(read.csv("{tmp}/Xte.csv",header=FALSE))
+m<-multinom(ytr~.,data=data.frame(ytr=ytr,Xtr),decay=0,maxit={maxit},trace=FALSE)
+nd<-data.frame(Xte); colnames(nd)<-colnames(data.frame(Xtr))
+pr<-predict(m,newdata=nd,type="probs")
+cl<-as.integer(as.character(predict(m,newdata=nd,type="class")))
+cat(toJSON(list(probs=as.matrix(pr),cls=cl,cols=colnames(pr)),digits=14,auto_unbox=TRUE))
+"""
+    return _run_r(script, timeout_s)
+
+
 def r_package_versions() -> dict[str, str]:
     script = r"""
 library(jsonlite)

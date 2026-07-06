@@ -1,7 +1,7 @@
-# ordinal + multinomial validation — findings ledger (COMPLETE @ 4.6.9)
+# ordinal + multinomial validation — findings ledger (COMPLETE @ 4.6.10)
 
-**DONE.** All findings resolved in 4.6.9 (released to PyPI); report blessed at
-`reports/ordinal-multinomial-v4.6.9.md`. CF-1 fixed (fp64 vcov + PD gate, GPU kept).
+**DONE.** CF-1 showstopper fixed at 4.6.9; predict() added at 4.6.10 (closes F-C).
+Report blessed at `reports/ordinal-multinomial-v4.6.10.md`.
 
 
 Running ledger for the combined ordinal (`polr`) + multinomial (`multinom`)

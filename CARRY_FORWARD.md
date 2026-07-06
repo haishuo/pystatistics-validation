@@ -46,9 +46,9 @@ _(none)_
   fp64), multinom forms its closed-form softmax Hessian on the host in fp64 — inverted
   once in fp64 with a positive-definiteness gate. The fast fp32 fit is unchanged, so the
   speedup stands. CUDA-verified: no negative variances, SE error <2% across cond(X)
-  1e1..1e4. Evidence: `artifacts/ordinal_multinomial/v4.6.9/runs/cf1_summary.csv`
+  1e1..1e4. Evidence: `artifacts/ordinal_multinomial/v4.6.10/runs/cf1_summary.csv`
   (+ `v4.6.8/runs/cf1_cuda.json` defect proof). Reported in
-  `reports/ordinal-multinomial-v4.6.9.md` (finding F-0).
+  `reports/ordinal-multinomial-v4.6.10.md` (finding F-0).
 - **Lesson refinement:** the CF-1 fp32-Gram exposure is real for ANY small-p MLE that
   inverts an `X'WX` Hessian for its SEs (not just penalized-IRLS like gam). The remedy
   is remove-vs-fix by whether the GPU path *wins*: gam didn't (removed), polr/multinom

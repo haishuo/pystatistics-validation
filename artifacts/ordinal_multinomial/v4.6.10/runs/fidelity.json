@@ -1,7 +1,7 @@
 {
   "schema": "validation-run/v1",
   "env": {
-    "pystatistics_version": "4.6.9",
+    "pystatistics_version": "4.6.10",
     "install_source": "pypi",
     "python": "3.13.13",
     "numpy": "2.4.3",

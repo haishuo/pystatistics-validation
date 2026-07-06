@@ -107,6 +107,22 @@ def hardcases(runs: Path, polr_hard: list, mn_hard: list) -> None:
          ["surface", "case", "detail", "pass"], rows)
 
 
+def predict(runs: Path) -> None:
+    doc = _load(runs, "predict.json")
+    rows = []
+    for c in _checks(doc):
+        if c.get("group") == "polr_predict":
+            rows.append(["polr", c["link"], c["n_test"],
+                         _r(c["probs"]["max_abs"]),
+                         f"{c['class_match']}/{c['class_total']}", c["pass"]])
+        elif c.get("group") == "multinom_predict":
+            rows.append(["multinom", c["dataset"], c["n_test"],
+                         _r(c["probs"]["max_abs"]),
+                         f"{c['class_match']}/{c['class_total']}", c["pass"]])
+    _csv(runs / "predict_summary.csv",
+         ["surface", "case", "n_test", "probs_maxabs", "class_match", "pass"], rows)
+
+
 def fidelity(runs: Path) -> None:
     doc = _load(runs, "fidelity.json")
     rows = [[c["key"], c["surface"], c["desc"], c["got"], c["pass"]]
@@ -195,10 +211,14 @@ def build_manifest(runs: Path, ver: str) -> dict:
                 "(NotPositiveDefiniteError) on complete/quasi separation instead of "
                 "returning a negative-variance covariance (matching polr); the "
                 "unsupported-link error reads 'Unknown link' not 'Unknown method'; "
-                "MultinomialSolution gains a .warnings accessor. Identical float64 "
-                "inputs to both engines (each design dumped to CSV read by R). "
-                "Baseline 4.6.8 (defect) evidence retained under v4.6.8/runs/; this "
-                "report is the re-validation at the fixed 4.6.9."
+                "MultinomialSolution gains a .warnings accessor. 4.6.10 then added "
+                "a predict() method to both models (matching R's predict.polr / "
+                "predict.multinom — type='class'/'probs') plus polr fitted_probs / "
+                "predicted_class, validated on held-out data (probs ~1e-5 vs R, "
+                "classes exact). Identical float64 inputs to both engines (each "
+                "design dumped to CSV read by R). Baseline 4.6.8 (defect) evidence "
+                "retained under v4.6.8/runs/; this report is the validation at "
+                "4.6.10 (the CF-1 fix landed at 4.6.9, predict at 4.6.10)."
             ),
         },
         "hosts": {
@@ -227,6 +247,12 @@ def build_manifest(runs: Path, ver: str) -> dict:
              "device": ["cpu"], "claim": "agreement", "host": "arm+r",
              "summary": "runs/r10_r15_summary.csv",
              "summary_cols": ["surface", "case", "detail", "pass"]},
+            {"id": "predict", "title": "G1 correctness — predict() on held-out "
+             "data vs R predict.polr / predict.multinom (probs tight, class exact)",
+             "device": ["cpu"], "claim": "agreement", "host": "arm+r",
+             "summary": "runs/predict_summary.csv",
+             "summary_cols": ["surface", "case", "n_test", "probs_maxabs",
+                              "class_match", "pass"]},
             {"id": "fidelity", "title": "G2 fidelity — fail-loud, no silent "
              "substitution (unsupported links, l2-on-GPU, backend, bad y/X)",
              "device": ["cpu"], "claim": "fail-loud", "host": "arm+r",
@@ -274,6 +300,7 @@ def main() -> None:
     polr_hard = g1_polr(runs)
     mn_hard = g1_multinom(runs)
     hardcases(runs, polr_hard, mn_hard)
+    predict(runs)
     fidelity(runs)
     cpu_speed(runs)
     gpu(runs)

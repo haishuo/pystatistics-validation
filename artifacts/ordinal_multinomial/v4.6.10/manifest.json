@@ -1,12 +1,12 @@
 {
   "schema": "validation-artifact-manifest/v1",
   "subsystem": "ordinal_multinomial",
-  "pystatistics_version": "4.6.9",
+  "pystatistics_version": "4.6.10",
   "install_source": "pypi",
   "evidence_state": "native-harness",
   "frozen_utc": "2026-07-06",
   "provenance": {
-    "note": "First-time whole-surface validation of pystatistics.ordinal.polr (vs MASS::polr) and pystatistics.multinomial.multinom (vs nnet::multinom), grouped as one corpus item. The pass drove one R16 emergency stop: the GPU (float32) path of BOTH models inverted the model information matrix (X'WX) in single precision, silently losing accuracy on ill-conditioned designs \u2014 at cond(X)~1e4 (a design the CPU/fp64 path fits correctly) polr returned a negative-variance, 100%-wrong standard error with converged=True, and multinom ~40% wrong SEs, proven on CUDA (RTX 5070 Ti). Fixed in 4.6.9: the variance-covariance is computed in float64 (polr forms the observed-information Hessian on-device in fp64 on CUDA / on host on MPS; multinom forms its closed-form softmax Hessian on the host in fp64), inverted once in fp64 with a positive-definiteness gate. The fast float32 GPU fit is unchanged, so the large-n GPU speedup is preserved (polr ~50x, multinom ~120x over CPU at n=100k). Bundled fixes: multinom now fails loud (NotPositiveDefiniteError) on complete/quasi separation instead of returning a negative-variance covariance (matching polr); the unsupported-link error reads 'Unknown link' not 'Unknown method'; MultinomialSolution gains a .warnings accessor. Identical float64 inputs to both engines (each design dumped to CSV read by R). Baseline 4.6.8 (defect) evidence retained under v4.6.8/runs/; this report is the re-validation at the fixed 4.6.9."
+    "note": "First-time whole-surface validation of pystatistics.ordinal.polr (vs MASS::polr) and pystatistics.multinomial.multinom (vs nnet::multinom), grouped as one corpus item. The pass drove one R16 emergency stop: the GPU (float32) path of BOTH models inverted the model information matrix (X'WX) in single precision, silently losing accuracy on ill-conditioned designs \u2014 at cond(X)~1e4 (a design the CPU/fp64 path fits correctly) polr returned a negative-variance, 100%-wrong standard error with converged=True, and multinom ~40% wrong SEs, proven on CUDA (RTX 5070 Ti). Fixed in 4.6.9: the variance-covariance is computed in float64 (polr forms the observed-information Hessian on-device in fp64 on CUDA / on host on MPS; multinom forms its closed-form softmax Hessian on the host in fp64), inverted once in fp64 with a positive-definiteness gate. The fast float32 GPU fit is unchanged, so the large-n GPU speedup is preserved (polr ~50x, multinom ~120x over CPU at n=100k). Bundled fixes: multinom now fails loud (NotPositiveDefiniteError) on complete/quasi separation instead of returning a negative-variance covariance (matching polr); the unsupported-link error reads 'Unknown link' not 'Unknown method'; MultinomialSolution gains a .warnings accessor. 4.6.10 then added a predict() method to both models (matching R's predict.polr / predict.multinom \u2014 type='class'/'probs') plus polr fitted_probs / predicted_class, validated on held-out data (probs ~1e-5 vs R, classes exact). Identical float64 inputs to both engines (each design dumped to CSV read by R). Baseline 4.6.8 (defect) evidence retained under v4.6.8/runs/; this report is the validation at 4.6.10 (the CF-1 fix landed at 4.6.9, predict at 4.6.10)."
   },
   "hosts": {
     "arm+r": {
@@ -76,6 +76,24 @@
         "surface",
         "case",
         "detail",
+        "pass"
+      ]
+    },
+    {
+      "id": "predict",
+      "title": "G1 correctness \u2014 predict() on held-out data vs R predict.polr / predict.multinom (probs tight, class exact)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/predict_summary.csv",
+      "summary_cols": [
+        "surface",
+        "case",
+        "n_test",
+        "probs_maxabs",
+        "class_match",
         "pass"
       ]
     },
