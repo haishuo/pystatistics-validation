@@ -28,6 +28,33 @@ _(none)_
 
 ## Cleared
 
+### CF-1 — polr/multinom fp32 GPU Hessian band → CLOSED at 4.6.9 (GPU vcov moved to fp64; path KEPT)
+- **The ordinal/multinomial instance of CF-1 materialised, and was closed by FIXING
+  the path (not removing it — unlike gam).** Both `polr` and `multinom` fit the
+  coefficient variance-covariance by inverting the model information matrix
+  (`X'WX`-structured Hessian) in the working dtype; on `backend='gpu'` (fp32) that
+  single-precision inverse silently lost precision on ill-conditioned designs. Proven
+  on **CUDA** (RTX 5070 Ti): at cond(X)~1e4 (a near-collinear design the CPU/fp64 path
+  fits correctly, and where `gpu_fp64` correctly fails to converge) `backend='gpu'`
+  returned `converged=True` with a **100%-wrong, NEGATIVE-variance** SE for polr, and
+  ~40% wrong (white-box 160% + negative variance) for multinom. **No gate.** The fp64
+  GPU pivot was machine-precision vs CPU (R11) → pure fp32 defect. Treated as an R16
+  showstopper mid-run.
+- **Remedy differed from gam because the GPU path WINS** (polr ~50×, multinom ~120× over
+  CPU at n=100k): the vcov is now computed in **float64** — polr forms the
+  observed-information Hessian on-device in fp64 on CUDA (host finite-diff on MPS, no
+  fp64), multinom forms its closed-form softmax Hessian on the host in fp64 — inverted
+  once in fp64 with a positive-definiteness gate. The fast fp32 fit is unchanged, so the
+  speedup stands. CUDA-verified: no negative variances, SE error <2% across cond(X)
+  1e1..1e4. Evidence: `artifacts/ordinal_multinomial/v4.6.9/runs/cf1_summary.csv`
+  (+ `v4.6.8/runs/cf1_cuda.json` defect proof). Reported in
+  `reports/ordinal-multinomial-v4.6.9.md` (finding F-0).
+- **Lesson refinement:** the CF-1 fp32-Gram exposure is real for ANY small-p MLE that
+  inverts an `X'WX` Hessian for its SEs (not just penalized-IRLS like gam). The remedy
+  is remove-vs-fix by whether the GPU path *wins*: gam didn't (removed), polr/multinom
+  do (fixed with fp64 vcov). Compute the vcov Hessian in fp64 (on-device on CUDA, host
+  on MPS) and gate on positive-definiteness.
+
 ### CF-1 — gam fp32 GPU Gram band → CLOSED at gam 4.6.0 (GPU path removed)
 - **The gam instance of CF-1 materialised, and was closed by removing the path.**
   gam's penalized IRLS formed the normal-equations Gram `X'WX + λS` in fp32 on

@@ -68,6 +68,20 @@ and fine. We are not chasing peak FLOPs — just a non-embarrassing, genuinely u
 speedup; an honest "no GPU path, and why" is a correct result. Do not manufacture a showcase, and do not ship a
 GPU path that never wins.
 
+**CUDA is first-class; MPS is second-class — test CUDA FIRST, always.** The Mac is
+MPS-only, but MPS is a developer convenience; **CUDA is the datacenter target the
+regulated-buyer trust story rests on.** Any GPU-involved code MUST be validated on
+CUDA (Forge) before MPS, in this strict order: **(1)** CUDA must work, period — a GPU
+defect on CUDA is catastrophic and blocks the release; **(2)** once CUDA works, check
+MPS; **(3)** if MPS does not work, make a best-effort fix; **(4)** if best-effort
+doesn't do it, dive; **(5)** worst case, eliminate MPS. A pure-MPS failure is
+acceptable (and sometimes an MPS path does not exist at all — e.g. no fp64 on Metal);
+a CUDA failure is not. **Never bless a GPU path, or run the CF-1 fp32-Hessian check,
+on MPS evidence alone** — MPS is suggestive, Forge/CUDA is the authoritative check
+(cf. the gam GPU-investigation lesson: never substitute MPS/carried evidence for a
+CUDA question). This ordering is why the ordinal/multinomial CF-1 showstopper (4.6.8→
+4.6.9) was proven and fixed on CUDA first, with MPS following.
+
 ## R1 — Parity with the reference means SPEED too, not just numbers
 
 Numerical agreement with R/SAS is necessary but **not sufficient**. Every module
