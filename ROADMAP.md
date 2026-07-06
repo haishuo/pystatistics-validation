@@ -62,8 +62,8 @@ GPU float32 paths inverted the `X'WX` Hessian in single precision, silently retu
 negative-variance / 100%-wrong standard errors (CUDA-proven, R16 showstopper). Fixed in
 **4.6.9** (fp64 vcov + PD gate; GPU path KEPT — it wins ~50×/~120× at n=100k — unlike gam
 which removed it). Blessed at `reports/ordinal-multinomial-v4.6.10.md`.
-**8 of 9 done. FINAL module CHIP SPAWNED (task_0f9bf91f): anova/descriptive/hypothesis
-(#9) — completing it = 9/9 corpus done, then the A7 packaging migration + tail.**
+**9 of 9 DONE. FINAL module `anova`/`descriptive`/`hypothesis` (#9) validated + blessed at
+4.6.11 — the whole module corpus is complete. Next: the A7 packaging migration + tail.**
 
 ## Order + status
 
@@ -80,15 +80,15 @@ rideable methods → heaviest optimization headroom → correctness-dominant tai
 | 6 | timeseries (ARIMA/ETS/STL) | ✅ **DONE + red-teamed (v4.6.6)** — first-time whole-surface validation | vs `stats`/`forecast`/`tseries` (+ statsmodels as an independent 3rd reference). Whole surface: acf/pacf/diff/ndiffs, adf/kpss, arima/auto_arima/arima_batch, ets, stl/decompose. Deterministic pieces machine-precision (acf ~1e-16, stl ~1e-13, exact test stats); MLE fits (arima/ets/auto_arima) optimizer-tier, method-matched. Fix cascade **4.6.2→4.6.5**: STL loess rewrite (trend-leak), ndiffs default KPSS, ADF p-value, **seasonal AIC free-param count (was silently mis-driving auto_arima seasonal selection)**. 4.6.6 ETS numba R6. `arima_batch` GPU = batched Whittle spectral → **CF-1 N/A** (no Gram); host-fp64 stationarity gate (R14). |
 | 7 | montecarlo (bootstrap/permutation) | ✅ **DONE + red-teamed (v4.6.8)** — first-time whole-surface validation + red-team; R18 bundle re-blessed at 4.6.8 | `boot`/`boot_ci`/`permutation_test` vs `boot::boot`/`boot.ci` + base-R exact permutation enumeration. Three-part STOCHASTIC contract: R6 seed determinism; TIGHT tier feeding R's genuine resample indices to pystatistics (statistic 1e-15, all 5 CI types machine-precision/documented-convention, BCa z0 exact ~1e-17); statistical-equivalence tier (independent-RNG large-B within MC error) + exact-enumeration permutation + known-DGP coverage study (BCa best-calibrated). **Drove one R16 showstopper**: GPU backends inferred the statistic form from a SINGLE resample → could silently compute the mean for a different statistic on `backend='gpu'`. Fixed **4.6.7** (published): explicit `gpu_statistic` opt-in, fail-loud, no silent substitution. GPU real win — MPS fp32 25–43× (drift ~1e-7 within tier), CUDA fp64 exact 59–158×. **CF-1 N/A** (no Gram). **R18 gather bundle → 4.6.8 (fixed, not documented-away):** boot_ci now uses R's `norm.inter` quantile (basic/perc/stud machine-precision vs boot.ci) + regression-influence BCa acceleration (BCa ~1e-5); `permutation_test` two-sided now 2·min-tail (correct for non-centered stats). All 5 CI types now match boot.ci on shared replicates. Remaining R2: tiny-n CPU lag reverses by n~1000 (3.4× at n=10000). |
 | 8 | ordinal (`polr`) + multinomial (`multinom`) | ✅ **DONE + red-teamed @ 4.6.10** | `polr` vs `MASS::polr` (3 links), `multinom` vs `nnet::multinom` (decay=0, baseline releveled). CPU clean + beats R at every size. **CF-1 MATERIALISED** — both GPU fp32 paths inverted `X'WX` in single precision → silent negative-variance SEs (CUDA-proven, R16). Fixed 4.6.9: fp64 vcov + PD gate; GPU KEPT (wins ~50×/~120×). Bundled: multinom fail-loud on separation, "Unknown link", `.warnings` accessor. `reports/ordinal-multinomial-v4.6.10.md`. |
-| 9 | anova + descriptive + hypothesis | 🔄 **CHIP SPAWNED** (task_0f9bf91f) — FINAL module, FULL run + red-team | three modules (anova/anova_oneway/posthoc/rm/levene; describe/cor/cov/var/quantile/summary; t/chisq/fisher/wilcox/ks/prop/var tests + p_adjust) vs base R/stats/car (+ scipy 3rd ref). DETERMINISTIC → TIGHT tolerance; the work is exact R-convention matching (quantile type 7, cor method, Welch t default, Yates/continuity correction, exact-vs-asymptotic + ties, **ANOVA SS Type I/II/III**, TukeyHSD, Levene center=median, p.adjust methods). CF-1 N/A; no GPU path. **Completing this = 9/9 corpus done.** Target PyPI 4.6.10. |
+| 9 | anova + descriptive + hypothesis | ✅ **DONE + red-teamed @ 4.6.11** — FINAL module; first-time whole-surface validation | three modules (anova/anova_oneway/posthoc/rm/levene; describe/cor/cov/var/quantile/summary; t/chisq/fisher/wilcox/ks/prop/var tests + p_adjust) vs base R/stats/car/afex/e1071/TukeyHSD (+ scipy 3rd ref). DETERMINISTIC → every statistic and default p-value machine-precision vs R; exact R-convention matching throughout (quantile type 7, kendall tau-b, Welch t default, Yates, exact-vs-asymptotic + ties, **ANOVA SS Type I/II/III proven to diverge & each match its R type — no silent substitution**, TukeyHSD, Levene center=median, all 8 p.adjust). CF-1 N/A; **no GPU path** (documented, not manufactured). First-time pass surfaced **five R-convention divergences** (F1 wilcox HL CI; F2 prop 2-sample CI continuity cap; F3 one-sample KS ties warning; F4 Mauchly second-order p correction; F5 quantile fail-loud on out-of-range probs) — **all fixed & re-validated in the 4.6.11 patch** (RIGOR R18: documented ≠ fixed; bless is on the fixing version). `reports/anova-descriptive-hypothesis-v4.6.11.md`. **9/9 corpus complete.** |
 
 Done already (pre-order): mvnmle (v3.18.0), mice (v3.16.3 / v3.18.0).
 
 ## Open work
 
-**8 of 9 COMPLETE (through `ordinal+multinomial` v4.6.10). HOME STRETCH: ONE module left —
-anova/descriptive/hypothesis (#9)** — then the A7 packaging migration + tail items, then
-the downstreams. The two `mixed` BLOCKER bullets below are kept for history.
+**9 of 9 COMPLETE (through `anova`/`descriptive`/`hypothesis` v4.6.11). The module corpus is
+DONE.** Next: the A7 packaging migration + tail items, then the downstreams. The two `mixed`
+BLOCKER bullets below are kept for history.
 
 - **✅ CF-1 (ordinal+multinomial) — RESOLVED (closed at 4.6.9, in `CARRY_FORWARD.md`).**
   The flag was correct: `polr`/`multinom` inverted `X'WX` in fp32 on GPU → silent

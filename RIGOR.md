@@ -411,6 +411,24 @@ central store** — they do not carry their own copies.
 R16 is the emergency stop; R6 is the routine fix-and-re-validate. R18 is the **triage
 rule that decides which one applies** and prevents version-thrash from minor defects.
 
+> ### Bless precondition (non-negotiable, no exceptions)
+>
+> **A report may be blessed only when its findings ledger contains no open fixable
+> finding.** Every finding is either (a) **fixed** in the version the report blesses, or
+> (b) a **true permanent documented limitation** whose rationale has been argued and
+> accepted as such (see below) — there is no third state. **"Documented" is not a state a
+> finding can rest in.** Documenting a bug does not fix it, and nothing on this Earth
+> makes a report with a known, fixable defect blessable — not that the defect is "bounded,"
+> not that it is "off the default path," not that it is "gather-class," not that it is
+> "disclosed," not that it is "conservative," not that a note describes it. There is no
+> "technically blessable with the findings documented." That sentence is forbidden. If you
+> catch yourself reaching for it, you have already failed the rule: **stop, fix the
+> finding, and only then bless the version that fixes it.**
+>
+> Severity (R16 vs gather) decides *when* a finding is fixed — now or in the bundle — never
+> *whether*. The bless gate is the same for both: fixed, or accepted as a permanent
+> limitation. Nothing else opens it.
+
 Every defect found during a validation pass is classified at the moment it is found:
 
 - **Showstopper → R16, immediately.** A correctness defect that would mislead a user:

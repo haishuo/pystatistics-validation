@@ -1,0 +1,1109 @@
+{
+  "module": "hypothesis",
+  "guarantee": "G1_correctness",
+  "engine": "pystatistics",
+  "py_version": "4.6.11",
+  "r_versions": {
+    "R": "R version 4.5.2 (2025-10-31)",
+    "car": "3.1.5",
+    "afex": "1.5.1"
+  },
+  "reference": "R stats; scipy third ref",
+  "summary": {
+    "n_cases": 75,
+    "n_clean": 75,
+    "n_clean_pass": 75,
+    "n_clean_fail": 0,
+    "clean_all_pass": true,
+    "worst_clean_max_abs": 0.003781262747755587,
+    "findings": [],
+    "n_finding_cases": 0
+  },
+  "cases": [
+    {
+      "case": "t:welch(default):stat",
+      "quantity": "statistic",
+      "tol": 1e-09,
+      "py": -1.8608134585075526,
+      "r": -1.86081345850755,
+      "max_abs": 2.6645352591003757e-15,
+      "max_rel": 1.4319195978072107e-15,
+      "pass": true,
+      "scipy": -1.8608134585075526,
+      "scipy_max_abs": 0.0
+    },
+    {
+      "case": "t:welch(default):df",
+      "quantity": "df",
+      "tol": 1e-09,
+      "py": 17.77647358702242,
+      "r": 17.7764735870224,
+      "max_abs": 1.7763568394002505e-14,
+      "max_rel": 9.992740296349148e-16,
+      "pass": true
+    },
+    {
+      "case": "t:welch(default):p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.07939414144957893,
+      "r": 0.0793941414495789,
+      "max_abs": 2.7755575615628914e-17,
+      "max_rel": 3.4959223827939163e-16,
+      "pass": true,
+      "scipy": 0.07939414144957893,
+      "scipy_max_abs": 0.0
+    },
+    {
+      "case": "t:welch(default):ci",
+      "quantity": "conf_int",
+      "tol": 1e-09,
+      "py": [
+        -3.3654832524589535,
+        0.20548323964395476
+      ],
+      "r": [
+        -3.36548325245895,
+        0.205483239643955
+      ],
+      "max_abs": 3.552713678800501e-15,
+      "max_rel": 1.2156718035665297e-15,
+      "pass": true
+    },
+    {
+      "case": "t:welch(default):est",
+      "quantity": "estimate",
+      "tol": 1e-12,
+      "py": [
+        0.7500000067055226,
+        2.330000013113022
+      ],
+      "r": [
+        0.750000006705523,
+        2.33000001311302
+      ],
+      "max_abs": 1.7763568394002505e-15,
+      "max_rel": 7.623849053232111e-16,
+      "pass": true
+    },
+    {
+      "case": "t:pooled:stat",
+      "quantity": "statistic",
+      "tol": 1e-09,
+      "py": -1.8608134585075526,
+      "r": -1.86081345850755,
+      "max_abs": 2.6645352591003757e-15,
+      "max_rel": 1.4319195978072107e-15,
+      "pass": true
+    },
+    {
+      "case": "t:pooled:df",
+      "quantity": "df",
+      "tol": 1e-12,
+      "py": 18.0,
+      "r": 18.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "t:pooled:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.07918671554411308,
+      "r": 0.0791867155441131,
+      "max_abs": 2.7755575615628914e-17,
+      "max_rel": 3.505079788309558e-16,
+      "pass": true
+    },
+    {
+      "case": "t:pooled:ci",
+      "quantity": "conf_int",
+      "tol": 1e-09,
+      "py": [
+        -3.363874054537415,
+        0.20387404172241652
+      ],
+      "r": [
+        -3.36387405453742,
+        0.203874041722417
+      ],
+      "max_abs": 4.884981308350689e-15,
+      "max_rel": 2.314393639716663e-15,
+      "pass": true
+    },
+    {
+      "case": "t:paired:stat",
+      "quantity": "statistic",
+      "tol": 1e-09,
+      "py": -4.062127793051723,
+      "r": -4.06212779305172,
+      "max_abs": 3.552713678800501e-15,
+      "max_rel": 8.745942667971764e-16,
+      "pass": true
+    },
+    {
+      "case": "t:paired:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.002832889731343451,
+      "r": 0.00283288973134345,
+      "max_abs": 8.673617379884035e-19,
+      "max_rel": 3.0617560874036276e-16,
+      "pass": true
+    },
+    {
+      "case": "t:paired:ci",
+      "quantity": "conf_int",
+      "tol": 1e-09,
+      "py": [
+        -2.459885749497518,
+        -0.7001142633174804
+      ],
+      "r": [
+        -2.45988574949752,
+        -0.70011426331748
+      ],
+      "max_abs": 1.7763568394002505e-15,
+      "max_rel": 7.221298142660107e-16,
+      "pass": true
+    },
+    {
+      "case": "t:one-sample:greater:stat",
+      "quantity": "statistic",
+      "tol": 1e-09,
+      "py": 0.08506002233296182,
+      "r": 0.0850600223329618,
+      "max_abs": 2.7755575615628914e-17,
+      "max_rel": 3.2630576449864497e-16,
+      "pass": true
+    },
+    {
+      "case": "t:one-sample:greater:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.4663803257174722,
+      "r": 0.466380325717472,
+      "max_abs": 1.6653345369377348e-16,
+      "max_rel": 3.570764985370708e-16,
+      "pass": true
+    },
+    {
+      "case": "t:one-sample:greater:ci",
+      "quantity": "conf_int",
+      "tol": 1e-09,
+      "py": [
+        18.284178607726826,
+        Infinity
+      ],
+      "r": [
+        18.2841786077268,
+        Infinity
+      ],
+      "max_abs": 2.4868995751603507e-14,
+      "max_rel": 1.3601374327580675e-15,
+      "pass": true
+    },
+    {
+      "case": "var_test:stat",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 0.38656146936168273,
+      "r": 0.386561469361683,
+      "max_abs": 2.7755575615628914e-16,
+      "max_rel": 7.180119545142674e-16,
+      "pass": true
+    },
+    {
+      "case": "var_test:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.06690590481422468,
+      "r": 0.0669059048142247,
+      "max_abs": 2.7755575615628914e-17,
+      "max_rel": 4.14844933234172e-16,
+      "pass": true
+    },
+    {
+      "case": "var_test:ci",
+      "quantity": "conf_int",
+      "tol": 1e-09,
+      "py": [
+        0.12437204634121171,
+        1.0703428420775414
+      ],
+      "r": [
+        0.124372046341212,
+        1.07034284207754
+      ],
+      "max_abs": 1.3322676295501878e-15,
+      "max_rel": 2.3432399203641147e-15,
+      "pass": true
+    },
+    {
+      "case": "var_test:est",
+      "quantity": "ratio",
+      "tol": 1e-09,
+      "py": [
+        0.38656146936168273
+      ],
+      "r": [
+        0.386561469361683
+      ],
+      "max_abs": 2.7755575615628914e-16,
+      "max_rel": 7.180119545142674e-16,
+      "pass": true
+    },
+    {
+      "case": "prop:2samp:correct=True:stat",
+      "quantity": "X2",
+      "tol": 1e-09,
+      "py": 0.0,
+      "r": 8.35388894480257e-30,
+      "max_abs": 8.35388894480257e-30,
+      "max_rel": 1.0,
+      "pass": true
+    },
+    {
+      "case": "prop:2samp:correct=True:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 1.0,
+      "r": 0.999999999999998,
+      "max_abs": 1.9984014443252818e-15,
+      "max_rel": 1.9984014443252857e-15,
+      "pass": true
+    },
+    {
+      "case": "prop:2samp:correct=True:ci",
+      "quantity": "conf_int",
+      "tol": 1e-09,
+      "py": [
+        -0.05810303497263733,
+        0.05285172214443032
+      ],
+      "r": [
+        -0.0581030349726373,
+        0.0528517221444303
+      ],
+      "max_abs": 2.7755575615628914e-17,
+      "max_rel": 4.776957972797799e-16,
+      "pass": true
+    },
+    {
+      "case": "prop:2samp:correct=False:stat",
+      "quantity": "X2",
+      "tol": 1e-09,
+      "py": 0.009508518748184681,
+      "r": 0.00950851874818416,
+      "max_abs": 5.221517662690189e-16,
+      "max_rel": 5.491410177518283e-14,
+      "pass": true
+    },
+    {
+      "case": "prop:2samp:correct=False:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.9223200957342664,
+      "r": 0.922320095734269,
+      "max_abs": 2.55351295663786e-15,
+      "max_rel": 2.7685756479207805e-15,
+      "pass": true
+    },
+    {
+      "case": "prop:2samp:correct=False:ci",
+      "quantity": "conf_int",
+      "tol": 1e-09,
+      "py": [
+        -0.055477378558533824,
+        0.05022606573032681
+      ],
+      "r": [
+        -0.0554773785585338,
+        0.0502260657303268
+      ],
+      "max_abs": 2.0816681711721685e-17,
+      "max_rel": 3.752282867828397e-16,
+      "pass": true
+    },
+    {
+      "case": "prop:1samp:stat",
+      "quantity": "X2",
+      "tol": 1e-09,
+      "py": 3.0,
+      "r": 3.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "prop:1samp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.08326451666355052,
+      "r": 0.0832645166635504,
+      "max_abs": 1.1102230246251565e-16,
+      "max_rel": 1.333368725493562e-15,
+      "pass": true
+    },
+    {
+      "case": "prop:1samp:ci",
+      "quantity": "conf_int",
+      "tol": 1e-09,
+      "py": [
+        0.7389130454557147,
+        0.8950665546512223
+      ],
+      "r": [
+        0.738913045455715,
+        0.895066554651222
+      ],
+      "max_abs": 3.3306690738754696e-16,
+      "max_rel": 4.50752506585037e-16,
+      "pass": true
+    },
+    {
+      "case": "prop:k=4:stat",
+      "quantity": "X2",
+      "tol": 1e-09,
+      "py": 12.600411297127671,
+      "r": 12.6004112971276,
+      "max_abs": 7.105427357601002e-14,
+      "max_rel": 5.639043988366285e-15,
+      "pass": true
+    },
+    {
+      "case": "prop:k=4:df",
+      "quantity": "df",
+      "tol": 1e-12,
+      "py": 3.0,
+      "r": 3.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "prop:k=4:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.005585476661626943,
+      "r": 0.00558547666162702,
+      "max_abs": 7.719519468096792e-17,
+      "max_rel": 1.3820699531574331e-14,
+      "pass": true
+    },
+    {
+      "case": "chisq:indep4x4:stat",
+      "quantity": "X2",
+      "tol": 1e-09,
+      "py": 138.28984162600824,
+      "r": 138.289841626008,
+      "max_abs": 2.2737367544323206e-13,
+      "max_rel": 1.6441820510442334e-15,
+      "pass": true
+    },
+    {
+      "case": "chisq:indep4x4:df",
+      "quantity": "df",
+      "tol": 1e-12,
+      "py": 9.0,
+      "r": 9.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "chisq:indep4x4:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 2.325286787098839e-25,
+      "r": 2.32528678709884e-25,
+      "max_abs": 1.3775324423698682e-40,
+      "max_rel": 5.924139981410877e-16,
+      "pass": true
+    },
+    {
+      "case": "chisq:indep4x4:expected",
+      "quantity": "expected",
+      "tol": 1e-09,
+      "py": [
+        40.13513513513514,
+        39.222972972972975,
+        16.966216216216218,
+        11.675675675675675,
+        106.28378378378379,
+        103.86824324324324,
+        44.929054054054056,
+        30.91891891891892,
+        26.385135135135137,
+        25.785472972972972,
+        11.153716216216216,
+        7.675675675675675,
+        47.195945945945944,
+        46.123310810810814,
+        19.951013513513512,
+        13.72972972972973
+      ],
+      "r": [
+        40.1351351351351,
+        39.222972972973,
+        16.9662162162162,
+        11.6756756756757,
+        106.283783783784,
+        103.868243243243,
+        44.9290540540541,
+        30.9189189189189,
+        26.3851351351351,
+        25.785472972973,
+        11.1537162162162,
+        7.67567567567568,
+        47.1959459459459,
+        46.1233108108108,
+        19.9510135135135,
+        13.7297297297297
+      ],
+      "max_abs": 2.4158453015843406e-13,
+      "max_rel": 2.3258748065342867e-15,
+      "pass": true
+    },
+    {
+      "case": "chisq:2x2:correct=True:stat",
+      "quantity": "X2",
+      "tol": 1e-09,
+      "py": 8.504860190145234,
+      "r": 8.50486019014523,
+      "max_abs": 3.552713678800501e-15,
+      "max_rel": 4.1772746398783944e-16,
+      "pass": true
+    },
+    {
+      "case": "chisq:2x2:correct=True:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.003541991259022665,
+      "r": 0.00354199125902266,
+      "max_abs": 4.7704895589362195e-18,
+      "max_rel": 1.3468383206153191e-15,
+      "pass": true
+    },
+    {
+      "case": "chisq:2x2:correct=False:stat",
+      "quantity": "X2",
+      "tol": 1e-09,
+      "py": 9.299279873731285,
+      "r": 9.29927987373129,
+      "max_abs": 5.329070518200751e-15,
+      "max_rel": 5.730627092162662e-16,
+      "pass": true
+    },
+    {
+      "case": "chisq:2x2:correct=False:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.0022924395175706624,
+      "r": 0.00229243951757066,
+      "max_abs": 2.6020852139652106e-18,
+      "max_rel": 1.1350725696452345e-15,
+      "pass": true
+    },
+    {
+      "case": "chisq:gof:stat",
+      "quantity": "X2",
+      "tol": 1e-09,
+      "py": 15.294117647058822,
+      "r": 15.2941176470588,
+      "max_abs": 2.3092638912203256e-14,
+      "max_rel": 1.5099033134902152e-15,
+      "pass": true
+    },
+    {
+      "case": "chisq:gof:df",
+      "quantity": "df",
+      "tol": 1e-12,
+      "py": 5.0,
+      "r": 5.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "chisq:gof:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.009176837433704671,
+      "r": 0.00917683743370467,
+      "max_abs": 1.734723475976807e-18,
+      "max_rel": 1.8903282187450748e-16,
+      "pass": true
+    },
+    {
+      "case": "fisher:2x2(lady_tea):p",
+      "quantity": "p_value",
+      "tol": 1e-12,
+      "py": 0.48571428571428565,
+      "r": 0.485714285714286,
+      "max_abs": 3.3306690738754696e-16,
+      "max_rel": 6.857259857978904e-16,
+      "pass": true
+    },
+    {
+      "case": "fisher:2x2(wellcond):p",
+      "quantity": "p_value",
+      "tol": 1e-12,
+      "py": 0.00017797798036750073,
+      "r": 0.000177977980367501,
+      "max_abs": 2.710505431213761e-19,
+      "max_rel": 1.5229442572709983e-15,
+      "pass": true
+    },
+    {
+      "case": "fisher:2x2(wellcond):OR",
+      "quantity": "odds_ratio_cmle",
+      "tol": 0.0001,
+      "py": 6.741925594781482,
+      "r": 6.74193046725385,
+      "max_abs": 4.87247236780064e-06,
+      "max_rel": 7.227117502125938e-07,
+      "pass": true
+    },
+    {
+      "case": "fisher:2x2(wellcond):ci",
+      "quantity": "conf_int",
+      "tol": 0.0001,
+      "py": [
+        2.2714548479742835,
+        21.82424041475685
+      ],
+      "r": [
+        2.27142764827993,
+        21.823083836066
+      ],
+      "max_abs": 0.001156578690849841,
+      "max_rel": 5.299794930624868e-05,
+      "pass": true
+    },
+    {
+      "case": "fisher:zerocell:p",
+      "quantity": "p_value",
+      "tol": 1e-12,
+      "py": 0.0010319917440660474,
+      "r": 0.00103199174406605,
+      "max_abs": 2.6020852139652106e-18,
+      "max_rel": 2.5214205723322828e-15,
+      "pass": true
+    },
+    {
+      "case": "fisher:zerocell:OR",
+      "quantity": "odds_ratio_cmle",
+      "tol": 0.0001,
+      "py": Infinity,
+      "r": [
+        Infinity
+      ],
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "fisher:2x2:greater:p",
+      "quantity": "p_value",
+      "tol": 1e-12,
+      "py": 0.24285714285714283,
+      "r": 0.242857142857143,
+      "max_abs": 1.6653345369377348e-16,
+      "max_rel": 6.857259857978904e-16,
+      "pass": true
+    },
+    {
+      "case": "fisher:2x3:p(MC vs exact)",
+      "quantity": "p_value_mc",
+      "tol": 0.01,
+      "py": 0.16141929035482258,
+      "r": 0.157638027607067,
+      "max_abs": 0.003781262747755587,
+      "max_rel": 0.023986996064051688,
+      "pass": true,
+      "extra": {
+        "note": "py simulated p (B=1e4, seed=1) vs R exact; agreement within Monte-Carlo error, not machine precision",
+        "py_method": "Fisher's Exact Test for Count Data with simulated p-value\n\t(based on 2000 replicates)"
+      }
+    },
+    {
+      "case": "wilcox:exact:stat",
+      "quantity": "W",
+      "tol": 1e-12,
+      "py": 17.0,
+      "r": 17.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "wilcox:exact:p",
+      "quantity": "p_value",
+      "tol": 1e-12,
+      "py": 0.42063492063492064,
+      "r": 0.420634920634921,
+      "max_abs": 3.3306690738754696e-16,
+      "max_rel": 7.918194402043563e-16,
+      "pass": true
+    },
+    {
+      "case": "wilcox:exact:est",
+      "quantity": "HL_estimate",
+      "tol": 1e-09,
+      "py": 0.77,
+      "r": 0.77,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "wilcox:exact:ci",
+      "quantity": "conf_int",
+      "tol": 1e-09,
+      "py": [
+        -0.4299999999999997,
+        1.6019999999999999
+      ],
+      "r": [
+        -0.43,
+        1.602
+      ],
+      "max_abs": 2.7755575615628914e-16,
+      "max_rel": 6.454785026890445e-16,
+      "pass": true
+    },
+    {
+      "case": "wilcox:exact:less:ci",
+      "quantity": "conf_int",
+      "tol": 1e-09,
+      "py": [
+        -Infinity,
+        1.2320000000000002
+      ],
+      "r": [
+        -Infinity,
+        1.232
+      ],
+      "max_abs": 2.220446049250313e-16,
+      "max_rel": 1.8023101049109684e-16,
+      "pass": true
+    },
+    {
+      "case": "wilcox:exact:greater:ci",
+      "quantity": "conf_int",
+      "tol": 1e-09,
+      "py": [
+        -0.3699999999999999,
+        Infinity
+      ],
+      "r": [
+        -0.37,
+        Infinity
+      ],
+      "max_abs": 1.1102230246251565e-16,
+      "max_rel": 3.00060276925718e-16,
+      "pass": true
+    },
+    {
+      "case": "wilcox:ties:stat",
+      "quantity": "W",
+      "tol": 1e-12,
+      "py": 15.0,
+      "r": 15.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "wilcox:ties:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.24170065241763428,
+      "r": 0.241700652417634,
+      "max_abs": 2.7755575615628914e-16,
+      "max_rel": 1.1483450846326272e-15,
+      "pass": true,
+      "extra": {
+        "py_warnings": [
+          "cannot compute exact p-value with ties"
+        ],
+        "r_warnings": [
+          "cannot compute exact p-value with ties",
+          "cannot compute exact confidence intervals with ties"
+        ]
+      }
+    },
+    {
+      "case": "wilcox:ties:ci(approx)",
+      "quantity": "conf_int",
+      "tol": 0.001,
+      "py": [
+        -2.999999995340263,
+        0.9999999953402634
+      ],
+      "r": [
+        -2.99997564290381,
+        0.999975642903806
+      ],
+      "max_abs": 2.4352436457375504e-05,
+      "max_rel": 2.435302962646073e-05,
+      "pass": true
+    },
+    {
+      "case": "wilcox:paired:stat",
+      "quantity": "V",
+      "tol": 1e-12,
+      "py": 27.0,
+      "r": 27.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "wilcox:paired:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.6352893188352069,
+      "r": 0.635289318835207,
+      "max_abs": 1.1102230246251565e-16,
+      "max_rel": 1.7475864802209063e-16,
+      "pass": true,
+      "extra": {
+        "py_warnings": [
+          "cannot compute exact p-value with zeroes",
+          "cannot compute exact p-value with ties"
+        ],
+        "r_warnings": [
+          "cannot compute exact p-value with ties",
+          "cannot compute exact confidence interval with ties",
+          "cannot compute exact p-value with zeroes",
+          "cannot compute exact confidence interval with zeroes"
+        ]
+      }
+    },
+    {
+      "case": "wilcox:paired:est",
+      "quantity": "pseudomedian",
+      "tol": 0.001,
+      "py": 3.5,
+      "r": 3.50001035218566,
+      "max_abs": 1.0352185659812108e-05,
+      "max_rel": 2.957758583013177e-06,
+      "pass": true
+    },
+    {
+      "case": "wilcox:paired:ci(approx)",
+      "quantity": "conf_int",
+      "tol": 0.001,
+      "py": [
+        -9.499999997634365,
+        15.000000001489928
+      ],
+      "r": [
+        -9.49994967999262,
+        15.0000506032604
+      ],
+      "max_abs": 5.0601770471558893e-05,
+      "max_rel": 5.296621923340297e-06,
+      "pass": true
+    },
+    {
+      "case": "ks:2samp:stat",
+      "quantity": "D",
+      "tol": 1e-12,
+      "py": 0.6000000000000001,
+      "r": 0.6,
+      "max_abs": 1.1102230246251565e-16,
+      "max_rel": 1.8503717077085943e-16,
+      "pass": true
+    },
+    {
+      "case": "ks:2samp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.35714285714285715,
+      "r": 0.357142857142857,
+      "max_abs": 1.6653345369377348e-16,
+      "max_rel": 4.66293670342566e-16,
+      "pass": true
+    },
+    {
+      "case": "ks:1samp-norm(exact):stat",
+      "quantity": "D",
+      "tol": 1e-09,
+      "py": 0.1459284502351087,
+      "r": 0.145928450235109,
+      "max_abs": 3.0531133177191805e-16,
+      "max_rel": 2.0921988226423517e-15,
+      "pass": true
+    },
+    {
+      "case": "ks:1samp-norm(exact):p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.92841046316308,
+      "r": 0.92841046316308,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "p_adjust:holm",
+      "quantity": "adjusted",
+      "tol": 1e-12,
+      "py": [
+        0.01,
+        0.07200000000000001,
+        0.312,
+        0.312,
+        0.312,
+        0.312,
+        0.312,
+        0.615,
+        0.615,
+        0.615
+      ],
+      "r": [
+        0.01,
+        0.072,
+        0.312,
+        0.312,
+        0.312,
+        0.312,
+        0.312,
+        0.615,
+        0.615,
+        0.615
+      ],
+      "max_abs": 1.3877787807814457e-17,
+      "max_rel": 1.927470528863119e-16,
+      "pass": true
+    },
+    {
+      "case": "p_adjust:hochberg",
+      "quantity": "adjusted",
+      "tol": 1e-12,
+      "py": [
+        0.01,
+        0.07200000000000001,
+        0.252,
+        0.252,
+        0.252,
+        0.296,
+        0.296,
+        0.424,
+        0.424,
+        0.5
+      ],
+      "r": [
+        0.01,
+        0.072,
+        0.252,
+        0.252,
+        0.252,
+        0.296,
+        0.296,
+        0.424,
+        0.424,
+        0.5
+      ],
+      "max_abs": 1.3877787807814457e-17,
+      "max_rel": 1.927470528863119e-16,
+      "pass": true
+    },
+    {
+      "case": "p_adjust:hommel",
+      "quantity": "adjusted",
+      "tol": 1e-12,
+      "py": [
+        0.01,
+        0.07200000000000001,
+        0.185,
+        0.185,
+        0.185,
+        0.24,
+        0.2826666666666667,
+        0.41,
+        0.424,
+        0.5
+      ],
+      "r": [
+        0.01,
+        0.072,
+        0.185,
+        0.185,
+        0.185,
+        0.24,
+        0.282666666666667,
+        0.41,
+        0.424,
+        0.5
+      ],
+      "max_abs": 3.3306690738754696e-16,
+      "max_rel": 1.1783027383993392e-15,
+      "pass": true
+    },
+    {
+      "case": "p_adjust:bonferroni",
+      "quantity": "adjusted",
+      "tol": 1e-12,
+      "py": [
+        0.01,
+        0.08,
+        0.39,
+        0.41000000000000003,
+        0.42000000000000004,
+        0.6,
+        0.74,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "r": [
+        0.01,
+        0.08,
+        0.39,
+        0.41,
+        0.42,
+        0.6,
+        0.74,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "max_abs": 5.551115123125783e-17,
+      "max_rel": 1.3539305178355567e-16,
+      "pass": true
+    },
+    {
+      "case": "p_adjust:BH",
+      "quantity": "adjusted",
+      "tol": 1e-12,
+      "py": [
+        0.01,
+        0.04,
+        0.084,
+        0.084,
+        0.084,
+        0.09999999999999999,
+        0.10571428571428572,
+        0.23555555555555557,
+        0.23555555555555557,
+        0.5
+      ],
+      "r": [
+        0.01,
+        0.04,
+        0.084,
+        0.084,
+        0.084,
+        0.1,
+        0.105714285714286,
+        0.235555555555556,
+        0.235555555555556,
+        0.5
+      ],
+      "max_abs": 4.163336342344337e-16,
+      "max_rel": 2.6255274231000253e-15,
+      "pass": true
+    },
+    {
+      "case": "p_adjust:BY",
+      "quantity": "adjusted",
+      "tol": 1e-12,
+      "py": [
+        0.029289682539682536,
+        0.11715873015873014,
+        0.24603333333333333,
+        0.24603333333333333,
+        0.24603333333333333,
+        0.2928968253968254,
+        0.30963378684807247,
+        0.6899347442680774,
+        0.6899347442680774,
+        1.0
+      ],
+      "r": [
+        0.0292896825396825,
+        0.11715873015873,
+        0.246033333333333,
+        0.246033333333333,
+        0.246033333333333,
+        0.292896825396825,
+        0.309633786848073,
+        0.689934744268078,
+        0.689934744268078,
+        1.0
+      ],
+      "max_abs": 5.551115123125783e-16,
+      "max_rel": 1.7928001913594557e-15,
+      "pass": true
+    },
+    {
+      "case": "p_adjust:fdr",
+      "quantity": "adjusted",
+      "tol": 1e-12,
+      "py": [
+        0.01,
+        0.04,
+        0.084,
+        0.084,
+        0.084,
+        0.09999999999999999,
+        0.10571428571428572,
+        0.23555555555555557,
+        0.23555555555555557,
+        0.5
+      ],
+      "r": [
+        0.01,
+        0.04,
+        0.084,
+        0.084,
+        0.084,
+        0.1,
+        0.105714285714286,
+        0.235555555555556,
+        0.235555555555556,
+        0.5
+      ],
+      "max_abs": 4.163336342344337e-16,
+      "max_rel": 2.6255274231000253e-15,
+      "pass": true
+    },
+    {
+      "case": "p_adjust:none",
+      "quantity": "adjusted",
+      "tol": 1e-12,
+      "py": [
+        0.001,
+        0.008,
+        0.039,
+        0.041,
+        0.042,
+        0.06,
+        0.074,
+        0.205,
+        0.212,
+        0.5
+      ],
+      "r": [
+        0.001,
+        0.008,
+        0.039,
+        0.041,
+        0.042,
+        0.06,
+        0.074,
+        0.205,
+        0.212,
+        0.5
+      ],
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    }
+  ]
+}
