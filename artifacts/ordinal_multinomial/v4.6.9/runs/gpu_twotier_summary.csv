@@ -1,0 +1,3 @@
+surface,n,coef_relerr,se_relerr,probs_relerr
+polr,5000,5.960e-01,2.611e-02,
+multinom,5000,1.345e-01,6.458e-03,4.028e-02

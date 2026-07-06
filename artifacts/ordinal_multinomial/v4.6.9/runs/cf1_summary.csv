@@ -1,0 +1,9 @@
+surface,cond_X,xtx_cond,fp32_se_relerr,fp32_neg_var,fp64_se_relerr
+polr,1e+01,1.0e+02,1.740e-03,False,2.427e-06
+polr,1e+02,1.0e+04,8.718e-05,False,2.226e-05
+polr,1e+03,1.0e+06,3.830e-04,False,1.759e-05
+polr,1e+04,1.0e+08,1.513e-02,False,
+multinom,1e+01,4.0e+03,7.799e-03,False,5.695e-05
+multinom,1e+02,1.0e+04,1.642e-03,False,7.734e-05
+multinom,1e+03,1.0e+06,1.473e-03,False,1.351e-04
+multinom,1e+04,1.0e+08,1.225e-02,False,2.153e-04

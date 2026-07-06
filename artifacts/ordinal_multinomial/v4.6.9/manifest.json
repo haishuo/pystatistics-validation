@@ -1,0 +1,177 @@
+{
+  "schema": "validation-artifact-manifest/v1",
+  "subsystem": "ordinal_multinomial",
+  "pystatistics_version": "4.6.9",
+  "install_source": "pypi",
+  "evidence_state": "native-harness",
+  "frozen_utc": "2026-07-06",
+  "provenance": {
+    "note": "First-time whole-surface validation of pystatistics.ordinal.polr (vs MASS::polr) and pystatistics.multinomial.multinom (vs nnet::multinom), grouped as one corpus item. The pass drove one R16 emergency stop: the GPU (float32) path of BOTH models inverted the model information matrix (X'WX) in single precision, silently losing accuracy on ill-conditioned designs \u2014 at cond(X)~1e4 (a design the CPU/fp64 path fits correctly) polr returned a negative-variance, 100%-wrong standard error with converged=True, and multinom ~40% wrong SEs, proven on CUDA (RTX 5070 Ti). Fixed in 4.6.9: the variance-covariance is computed in float64 (polr forms the observed-information Hessian on-device in fp64 on CUDA / on host on MPS; multinom forms its closed-form softmax Hessian on the host in fp64), inverted once in fp64 with a positive-definiteness gate. The fast float32 GPU fit is unchanged, so the large-n GPU speedup is preserved (polr ~50x, multinom ~120x over CPU at n=100k). Bundled fixes: multinom now fails loud (NotPositiveDefiniteError) on complete/quasi separation instead of returning a negative-variance covariance (matching polr); the unsupported-link error reads 'Unknown link' not 'Unknown method'; MultinomialSolution gains a .warnings accessor. Identical float64 inputs to both engines (each design dumped to CSV read by R). Baseline 4.6.8 (defect) evidence retained under v4.6.8/runs/; this report is the re-validation at the fixed 4.6.9."
+  },
+  "hosts": {
+    "arm+r": {
+      "device": "CPU (numpy) + R MASS 7.3.65 / nnet 7.3.20"
+    },
+    "forge-cuda": {
+      "device": "NVIDIA GeForce RTX 5070 Ti (torch 2.11.0.dev20251226+cu128, CUDA)"
+    }
+  },
+  "reference": {
+    "name": "R MASS::polr / nnet::multinom",
+    "kind": "cran"
+  },
+  "studies": [
+    {
+      "id": "g1_polr",
+      "title": "G1 correctness \u2014 polr vs MASS::polr (two-tier: coef/zeta/loglik optimizer, implied probs tight)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/g1_polr_summary.csv",
+      "summary_cols": [
+        "dataset",
+        "link",
+        "n",
+        "K",
+        "coef_maxabs",
+        "zeta_maxabs",
+        "se_beta_maxrel",
+        "loglik_abs",
+        "probs_maxabs",
+        "pass"
+      ]
+    },
+    {
+      "id": "g1_multinom",
+      "title": "G1 correctness \u2014 multinom vs nnet::multinom (decay=0, baseline releveled)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/g1_multinom_summary.csv",
+      "summary_cols": [
+        "dataset",
+        "n",
+        "K",
+        "coef_maxabs",
+        "se_maxrel",
+        "loglik_abs",
+        "probs_maxabs",
+        "pass"
+      ]
+    },
+    {
+      "id": "r10_r15",
+      "title": "G1 hard cases \u2014 R10 separation / rare category + R15 default invocation (match R's failures)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/r10_r15_summary.csv",
+      "summary_cols": [
+        "surface",
+        "case",
+        "detail",
+        "pass"
+      ]
+    },
+    {
+      "id": "fidelity",
+      "title": "G2 fidelity \u2014 fail-loud, no silent substitution (unsupported links, l2-on-GPU, backend, bad y/X)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "fail-loud",
+      "host": "arm+r",
+      "summary": "runs/fidelity_summary.csv",
+      "summary_cols": [
+        "key",
+        "surface",
+        "desc",
+        "got",
+        "pass"
+      ]
+    },
+    {
+      "id": "cpu_speed",
+      "title": "G3 performance \u2014 CPU vs R across n and #categories (empirical complexity)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "speed",
+      "host": "arm+r",
+      "summary": "runs/cpu_speed_summary.csv",
+      "summary_cols": [
+        "func",
+        "n",
+        "p",
+        "K",
+        "py_ms",
+        "r_ms",
+        "ratio_py_over_r",
+        "py_slope",
+        "r_slope",
+        "pass"
+      ]
+    },
+    {
+      "id": "cf1",
+      "title": "CF-1 \u2014 fp32 GPU standard errors vs CPU across a cond(X) sweep (4.6.9 fix: no negative variance, fp32 tier)",
+      "device": [
+        "cuda"
+      ],
+      "claim": "fail-loud",
+      "host": "forge-cuda",
+      "summary": "runs/cf1_summary.csv",
+      "summary_cols": [
+        "surface",
+        "cond_X",
+        "xtx_cond",
+        "fp32_se_relerr",
+        "fp32_neg_var",
+        "fp64_se_relerr"
+      ],
+      "note": "4.6.8 returned negative variances / 100%-wrong SE with converged=True here; 4.6.9 computes the vcov in fp64 \u2014 fp32_neg_var=False everywhere, SE_relerr at the fp32 tier. The gpu_fp64-vs-cpu pivot (R11) is machine-precision, so the residual is fp32, not hardware."
+    },
+    {
+      "id": "gpu_twotier",
+      "title": "GPU_FP32 two-tier correctness \u2014 fp32 GPU vs CPU fp64 on a well-conditioned design",
+      "device": [
+        "cuda"
+      ],
+      "claim": "agreement",
+      "host": "forge-cuda",
+      "summary": "runs/gpu_twotier_summary.csv",
+      "summary_cols": [
+        "surface",
+        "n",
+        "coef_relerr",
+        "se_relerr",
+        "probs_relerr"
+      ]
+    },
+    {
+      "id": "gpu_perf",
+      "title": "GPU performance \u2014 CPU vs gpu_fp32 vs gpu_fp64 across n (Guarantee-3 GPU corollary)",
+      "device": [
+        "cuda"
+      ],
+      "claim": "speed",
+      "host": "forge-cuda",
+      "summary": "runs/gpu_perf_summary.csv",
+      "summary_cols": [
+        "surface",
+        "n",
+        "cpu_ms",
+        "gpu_fp32_ms",
+        "gpu_fp64_ms",
+        "speedup_fp32_vs_cpu"
+      ],
+      "note": "The float32 GPU fit is unchanged by the CF-1 fix (only the post-fit vcov moved to fp64), so the large-n speedup stands: polr ~50x, multinom ~120x over CPU at n=100k."
+    }
+  ]
+}

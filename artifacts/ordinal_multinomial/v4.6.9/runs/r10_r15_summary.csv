@@ -1,0 +1,7 @@
+surface,case,detail,pass
+polr,R15 default link,"default link=logistic, matches explicit logistic (max|Δ| 0.000e+00)",True
+polr,R10 complete separation,py fail-loud=True; R refuses=True (glm.fit separation warnings + error),True
+multinom,R10 iris_multinom,"quasi-separation: loglik|Δ| 1.266e-05, probs|Δ| 5.520e-05; coef non-identified (py 46 vs R 43)",True
+multinom,R10 fgl,"quasi-separation: loglik|Δ| 1.462e-02, probs|Δ| 2.347e-03; coef non-identified (py 118 vs R 354)",True
+multinom,R15 default (decay=0),"coef|Δ| 7.394e-05, loglik|Δ| 9.146e-07",True
+multinom,R10 complete separation,py fail-loud=True (NotPositiveDefiniteError); R conv=1,True

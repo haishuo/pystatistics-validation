@@ -1,0 +1,14 @@
+key,surface,desc,got,pass
+polr_link_cauchit,polr,unsupported link 'cauchit' must raise (not silently logistic),ValidationError,True
+polr_link_loglog,polr,unsupported link 'loglog' must raise,ValidationError,True
+polr_l2_on_gpu,polr,l2>0 with backend='gpu' must raise (not silently dropped),ValidationError,True
+polr_unknown_backend,polr,unknown backend must raise,ValidationError,True
+polr_gpu_fp64_non_cuda,polr,gpu_fp64 without CUDA must raise (MPS has no fp64),RuntimeError,True
+polr_y_gap,polr,y with a missing level must raise,ValidationError,True
+polr_y_nonzero_start,polr,y not starting at 0 must raise,ValidationError,True
+polr_y_noninteger,polr,non-integer y must raise,ValidationError,True
+polr_X_nonfinite,polr,non-finite X must raise,ValidationError,True
+multinom_unknown_backend,multinom,unknown backend must raise,ValidationError,True
+multinom_gpu_fp64_non_cuda,multinom,gpu_fp64 without CUDA must raise,RuntimeError,True
+multinom_y_gap,multinom,y with a missing class must raise,ValidationError,True
+multinom_X_nonfinite,multinom,non-finite X must raise,ValidationError,True

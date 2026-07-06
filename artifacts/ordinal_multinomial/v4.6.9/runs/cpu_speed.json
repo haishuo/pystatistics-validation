@@ -1,0 +1,188 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.6.9",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.3",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.12.1",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ],
+    "r_packages": {
+      "MASS": "7.3.65",
+      "nnet": "7.3.20",
+      "R": "4.5.2"
+    }
+  },
+  "config": {
+    "suite": "ordinal-multinomial-cpu-speed",
+    "reference": "R MASS::polr (optim BFGS) / nnet::multinom (BFGS)",
+    "note": "best-of-5 fit wall time; both engines fit identical data"
+  },
+  "records": [
+    {
+      "key": "polr_scaling",
+      "checks": [
+        {
+          "func": "polr",
+          "n": 500,
+          "p": 4,
+          "K": 4,
+          "py_ms": 4.401958081871271,
+          "r_ms": 5.0,
+          "ratio_py_over_r": 0.8803916163742542,
+          "py_slope": 0.8827609484509386,
+          "r_slope": 0.9917237383438644,
+          "pass": true
+        },
+        {
+          "func": "polr",
+          "n": 2000,
+          "p": 4,
+          "K": 4,
+          "py_ms": 9.409917052835226,
+          "r_ms": 17.0,
+          "ratio_py_over_r": 0.5535245325197191,
+          "py_slope": 0.8827609484509386,
+          "r_slope": 0.9917237383438644,
+          "pass": true
+        },
+        {
+          "func": "polr",
+          "n": 8000,
+          "p": 4,
+          "K": 4,
+          "py_ms": 41.169082978740335,
+          "r_ms": 71.0,
+          "ratio_py_over_r": 0.5798462391371879,
+          "py_slope": 0.8827609484509386,
+          "r_slope": 0.9917237383438644,
+          "pass": true
+        },
+        {
+          "func": "polr",
+          "n": 20000,
+          "p": 4,
+          "K": 4,
+          "py_ms": 108.11879206448793,
+          "r_ms": 193.0,
+          "ratio_py_over_r": 0.5602009951527872,
+          "py_slope": 0.8827609484509386,
+          "r_slope": 0.9917237383438644,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "multinom_n_scaling",
+      "checks": [
+        {
+          "func": "multinom(n)",
+          "n": 500,
+          "p": 4,
+          "K": 3,
+          "py_ms": 1.3625409919768572,
+          "r_ms": 2.0,
+          "ratio_py_over_r": 0.6812704959884286,
+          "py_slope": 0.7945394754264776,
+          "r_slope": 1.0031591498963437,
+          "pass": true
+        },
+        {
+          "func": "multinom(n)",
+          "n": 2000,
+          "p": 4,
+          "K": 3,
+          "py_ms": 3.1516661401838064,
+          "r_ms": 6.0,
+          "ratio_py_over_r": 0.5252776900306344,
+          "py_slope": 0.7945394754264776,
+          "r_slope": 1.0031591498963437,
+          "pass": true
+        },
+        {
+          "func": "multinom(n)",
+          "n": 8000,
+          "p": 4,
+          "K": 3,
+          "py_ms": 11.63870794698596,
+          "r_ms": 30.0,
+          "ratio_py_over_r": 0.3879569315661987,
+          "py_slope": 0.7945394754264776,
+          "r_slope": 1.0031591498963437,
+          "pass": true
+        },
+        {
+          "func": "multinom(n)",
+          "n": 20000,
+          "p": 4,
+          "K": 3,
+          "py_ms": 24.043959099799395,
+          "r_ms": 76.0,
+          "ratio_py_over_r": 0.31636788289209733,
+          "py_slope": 0.7945394754264776,
+          "r_slope": 1.0031591498963437,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "multinom_k_scaling",
+      "checks": [
+        {
+          "func": "multinom(K)",
+          "n": 4000,
+          "p": 5,
+          "K": 3,
+          "py_ms": 6.441500037908554,
+          "r_ms": 17.0,
+          "ratio_py_over_r": 0.37891176693579726,
+          "py_slope": 1.0847335180684263,
+          "r_slope": 1.6077904589162726,
+          "pass": true
+        },
+        {
+          "func": "multinom(K)",
+          "n": 4000,
+          "p": 5,
+          "K": 5,
+          "py_ms": 10.554875014349818,
+          "r_ms": 34.0,
+          "ratio_py_over_r": 0.3104375004220535,
+          "py_slope": 1.0847335180684263,
+          "r_slope": 1.6077904589162726,
+          "pass": true
+        },
+        {
+          "func": "multinom(K)",
+          "n": 4000,
+          "p": 5,
+          "K": 8,
+          "py_ms": 18.91837501898408,
+          "r_ms": 73.0,
+          "ratio_py_over_r": 0.2591558221778641,
+          "py_slope": 1.0847335180684263,
+          "r_slope": 1.6077904589162726,
+          "pass": true
+        },
+        {
+          "func": "multinom(K)",
+          "n": 4000,
+          "p": 5,
+          "K": 12,
+          "py_ms": 28.286708053201437,
+          "r_ms": 159.0,
+          "ratio_py_over_r": 0.1779038242339713,
+          "py_slope": 1.0847335180684263,
+          "r_slope": 1.6077904589162726,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

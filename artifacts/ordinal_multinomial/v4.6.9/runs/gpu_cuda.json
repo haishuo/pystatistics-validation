@@ -1,0 +1,140 @@
+{
+  "device": "cuda",
+  "has_fp64": true,
+  "pystatistics_version": "4.6.9",
+  "torch_version": "2.11.0.dev20251226+cu128",
+  "gpu_name": "NVIDIA GeForce RTX 5070 Ti",
+  "cf1": {
+    "polr": [
+      {
+        "cond": 10.0,
+        "xtx_cond": 99.99999999998353,
+        "fp32_se_relerr": 0.0017396558090721932,
+        "fp32_neg_var": false,
+        "fp32_converged": true,
+        "fp64_se_relerr": 2.4265678037306442e-06
+      },
+      {
+        "cond": 100.0,
+        "xtx_cond": 9999.999999935722,
+        "fp32_se_relerr": 8.718382919959157e-05,
+        "fp32_neg_var": false,
+        "fp32_converged": true,
+        "fp64_se_relerr": 2.22586226683455e-05
+      },
+      {
+        "cond": 1000.0,
+        "xtx_cond": 999999.9996812643,
+        "fp32_se_relerr": 0.00038302550775206197,
+        "fp32_neg_var": false,
+        "fp32_converged": true,
+        "fp64_se_relerr": 1.7587992179325826e-05
+      },
+      {
+        "cond": 10000.0,
+        "xtx_cond": 100000005.32423353,
+        "fp32_se_relerr": 0.015132037462492585,
+        "fp32_neg_var": false,
+        "fp32_converged": true,
+        "error": "ConvergenceError"
+      }
+    ],
+    "multinom": [
+      {
+        "cond": 10.0,
+        "xtx_cond": 3999.9999999993747,
+        "fp32_se_relerr": 0.007798933942628187,
+        "fp32_neg_var": false,
+        "fp32_converged": true,
+        "fp64_se_relerr": 5.69497657448938e-05
+      },
+      {
+        "cond": 100.0,
+        "xtx_cond": 9999.9999999399,
+        "fp32_se_relerr": 0.0016424391866331559,
+        "fp32_neg_var": false,
+        "fp32_converged": true,
+        "fp64_se_relerr": 7.734408091751367e-05
+      },
+      {
+        "cond": 1000.0,
+        "xtx_cond": 999999.9996568469,
+        "fp32_se_relerr": 0.0014730817073721105,
+        "fp32_neg_var": false,
+        "fp32_converged": true,
+        "fp64_se_relerr": 0.0001350539932492162
+      },
+      {
+        "cond": 10000.0,
+        "xtx_cond": 100000005.37535861,
+        "fp32_se_relerr": 0.01224847042192081,
+        "fp32_neg_var": false,
+        "fp32_converged": true,
+        "fp64_se_relerr": 0.00021530024339463564
+      }
+    ]
+  },
+  "twotier": [
+    {
+      "surface": "polr",
+      "n": 5000,
+      "coef_relerr": 0.5960014251951368,
+      "se_relerr": 0.02611357150823706
+    },
+    {
+      "surface": "multinom",
+      "n": 5000,
+      "coef_relerr": 0.13453764991602515,
+      "se_relerr": 0.006457730872487853,
+      "probs_relerr": 0.04027539290359674
+    }
+  ],
+  "perf": {
+    "polr": [
+      {
+        "n": 2000,
+        "cpu_ms": 14.905751682817936,
+        "gpu_fp32_ms": 23.56034331023693,
+        "gpu_fp64_ms": 30.549838207662106,
+        "speedup_fp32": 0.6326627539566204
+      },
+      {
+        "n": 20000,
+        "cpu_ms": 177.21813544631004,
+        "gpu_fp32_ms": 21.141971461474895,
+        "gpu_fp64_ms": 41.77327826619148,
+        "speedup_fp32": 8.382289975617395
+      },
+      {
+        "n": 100000,
+        "cpu_ms": 874.8630741611123,
+        "gpu_fp32_ms": 17.537150532007217,
+        "gpu_fp64_ms": 57.52560403198004,
+        "speedup_fp32": 49.886272719413085
+      }
+    ],
+    "multinom": [
+      {
+        "n": 2000,
+        "cpu_ms": 12.30489183217287,
+        "gpu_fp32_ms": 9.89025179296732,
+        "gpu_fp64_ms": 30.030001886188984,
+        "speedup_fp32": 1.244143434338298
+      },
+      {
+        "n": 20000,
+        "cpu_ms": 470.9266982972622,
+        "gpu_fp32_ms": 20.539927296340466,
+        "gpu_fp64_ms": 44.25500892102718,
+        "speedup_fp32": 22.92737902636908
+      },
+      {
+        "n": 100000,
+        "cpu_ms": 2509.713134728372,
+        "gpu_fp32_ms": 20.664196461439133,
+        "gpu_fp64_ms": 260.73524355888367,
+        "speedup_fp32": 121.45224903429835
+      }
+    ]
+  }
+}
