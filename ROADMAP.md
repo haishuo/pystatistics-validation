@@ -21,7 +21,12 @@ perf (F1/F2a/F2b) + the new `grm_lmm()` GPU model + `CONVENTIONS.md` A7 (depende
 tiering) + the Prime Directive reframe; **4.5.1** F3 fix (an extreme-variance-ratio
 silent-wrong the mixed red-team caught — R16).
 
-**Current library version:** pystatistics **4.6.10** (on PyPI). **montecarlo** first-time
+**Current library version:** pystatistics **4.6.11** (on PyPI). 🎉 **THE MODULE CORPUS IS
+COMPLETE — 9 of 9 modules validated + red-teamed against R.** 4.6.11 is the final module's
+fix bundle: `anova`/`descriptive`/`hypothesis` first-time validation surfaced five
+R-convention divergences (F1 wilcox HL CI, F2 prop CI cap, F3 KS ties warning, F4 Mauchly
+p, F5 quantile fail-loud), all FIXED & re-validated (RIGOR R18: documented ≠ fixed). Prior
+— **montecarlo** first-time
 validation drove an **R16 showstopper fix at 4.6.7** (GPU backends inferred the statistic
 form from a single resample → could silently compute the wrong statistic → fixed via an
 explicit fail-loud `gpu_statistic` opt-in) and an **R18 gather bundle at 4.6.8** (boot_ci
@@ -149,7 +154,7 @@ BLOCKER bullets below are kept for history.
 ## Standing coordination constraints
 
 - **Release-hold: CLEARED.** The `pystatsbio`/`sgcbio` consistency releases have
-  landed and pystatistics has since shipped through **4.6.10**. No active hold. Re-check
+  landed and pystatistics has since shipped through **4.6.11**. No active hold. Re-check
   before any new library release; reinstate this line if a downstream consistency
   release is mid-flight again.
 - **Standing allowance — the validation testing env always tracks the latest PyPI
