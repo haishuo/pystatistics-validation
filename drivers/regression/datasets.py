@@ -19,8 +19,11 @@ Three real datasets, each chosen because it is the textbook target for its famil
 
 The California derivations are deterministic functions of the raw data (percentile
 and median cutpoints — no randomness), so R and Python land on identical rows. The
-airquality/quine CSVs are emitted once from R (so Python sees R's exact model
-matrix, including factor coding) and committed under ``data/`` for reproducibility.
+airquality and quine designs are produced from R (so Python sees R's exact model
+matrix, including factor coding) and live in the central HDF5 store, read here via
+``MVNMLE_DATA_DIR`` — no CSV in the driver (R17). airquality is stored float64
+(``Wind`` is not fp32-exact, and the Gamma fit matches R to ~1e-15); quine is
+float32 (model-matrix dummies + integer counts, fp32-exact).
 
 Contract: every loader returns ``(X, y, spec)`` where ``X`` includes a leading
 intercept column, ``y`` is the response, and ``spec`` documents the model.
@@ -28,7 +31,6 @@ intercept column, ``y`` is the response, and ``spec`` documents the model.
 
 from __future__ import annotations
 
-import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -36,11 +38,11 @@ import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
 
+from drivers._shared.store_io import read_store_matrix, store_column_names
+
 _HERE = Path(__file__).resolve().parent
-_DATA = _HERE / "data"
 _REPO = _HERE.parent.parent  # pystatistics-validation/
 _RAW_CALIFORNIA = _REPO / "data" / "california_housing.csv"
-_R_PREP = _HERE / "_r" / "prep_datasets.R"
 
 
 @dataclass(frozen=True)
@@ -136,35 +138,19 @@ def load_california_poisson() -> tuple[NDArray[np.float64], NDArray[np.float64],
     return X, y, spec
 
 
-# ── airquality (Gamma) and quine (NegBin): emitted from R, read here ───────────
-
-def _ensure_r_prepped() -> None:
-    """Emit airquality.csv and quine_mm.csv from R if not already present.
-
-    The CSVs are committed; this only runs on a fresh checkout / regeneration. We
-    read the model matrix R itself built (``model.matrix``) for quine so Python
-    sees the exact factor coding R used.
-    """
-    airq = _DATA / "airquality.csv"
-    quine = _DATA / "quine_mm.csv"
-    if airq.is_file() and quine.is_file():
-        return
-    if not _R_PREP.is_file():
-        raise FileNotFoundError(f"R prep script missing: {_R_PREP}")
-    proc = subprocess.run(["Rscript", str(_R_PREP), str(_DATA)],
-                          capture_output=True, text=True)
-    if proc.returncode != 0:
-        raise RuntimeError(
-            f"R dataset prep failed (exit {proc.returncode}):\n{proc.stderr[-2000:]}")
+# ── airquality (Gamma) and quine (NegBin): read from the central HDF5 store ────
+# The reference designs live in the central store as airquality.h5 (float64 —
+# Wind is not fp32-exact) and quine.h5 (float32 — model.matrix dummies + integer
+# counts, fp32-exact). The R prep script (drivers/regression/_r/prep_datasets.R)
+# is retained as the SOURCE the store generator runs; drivers carry no CSVs (R17).
 
 
 def load_airquality_gamma() -> tuple[NDArray[np.float64], NDArray[np.float64], ModelSpec]:
     """Gamma(log) GLM: ``Ozone ~ Solar.R + Temp + Wind`` on complete cases."""
-    _ensure_r_prepped()
-    df = pd.read_csv(_DATA / "airquality.csv")
     cols = ["Solar.R", "Temp", "Wind"]
-    X = np.column_stack([np.ones(len(df))] + [df[c].to_numpy(float) for c in cols])
-    y = df["Ozone"].to_numpy(float)
+    M = read_store_matrix("airquality", ["Ozone", *cols])
+    y = M[:, 0]
+    X = np.column_stack([np.ones(len(y)), M[:, 1:]])
     spec = ModelSpec(
         key="glm_gamma", family="gamma", r_family="Gamma", link="log",
         formula="Ozone ~ Solar.R + Temp + Wind",
@@ -178,12 +164,10 @@ def load_airquality_gamma() -> tuple[NDArray[np.float64], NDArray[np.float64], M
 
 def load_quine_negbin() -> tuple[NDArray[np.float64], NDArray[np.float64], ModelSpec]:
     """Negative-binomial GLM: ``Days ~ Eth + Sex + Age + Lrn`` (R model matrix)."""
-    _ensure_r_prepped()
-    df = pd.read_csv(_DATA / "quine_mm.csv")
-    predictors = [c for c in df.columns if c != "Days"]
-    X = np.column_stack([np.ones(len(df))] +
-                        [df[c].to_numpy(float) for c in predictors])
-    y = df["Days"].to_numpy(float)
+    predictors = [c for c in store_column_names("quine") if c != "Days"]
+    M = read_store_matrix("quine", ["Days", *predictors])
+    y = M[:, 0]
+    X = np.column_stack([np.ones(len(y)), M[:, 1:]])
     spec = ModelSpec(
         key="glm_negbin", family="negative.binomial", r_family="negbin", link="log",
         formula="Days ~ Eth + Sex + Age + Lrn",

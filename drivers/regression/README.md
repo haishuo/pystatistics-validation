@@ -11,7 +11,7 @@ enforces it) and the R reference on the shared `pystatsval` harness.
 | `datasets.py` | curate the canonical designs: California Housing (OLS/binomial/Poisson), `datasets::airquality` (Gamma/log), `MASS::quine` (negative binomial). Deterministic; intercept column included. |
 | `run_pystatistics.py` | fit + time one `fit(design, family=…, backend=…)` → a `validation-run/v1` record with the full estimate vectors. |
 | `run_r_regression.py` + `_r/regression_run.R` | fit the R reference (`lm`/`glm`/`glm.nb`), timing inside R, → a comparable record. |
-| `_r/prep_datasets.R` | emit `data/airquality.csv` + `data/quine_mm.csv` from R (committed). |
+| `_r/prep_datasets.R` | emit the airquality + quine designs from R; run by the store generator into the central HDF5 store (`airquality.h5`, `quine.h5`). The driver loads them from the store via `MVNMLE_DATA_DIR` — no committed CSV (R17). |
 | `generate_correctness.py` | OLS + 5 GLM families, pystatistics vs R, on real data → `correctness_<device>_<host>.{json,csv}`. |
 | `generate_scaling.py` | synthetic (n × p) sweep per device → `scaling_<device>_<host>.{json,csv}` for the device pivots. |
 | `generate_hardcases.py` + `_r/hardcase_run.R` | RIGOR R10 adversarial grid: collinear/GPU-refusal boundary, logistic separation, factor/contrast coding, weights/offset, rank-deficient — match R's *behaviour* (failures + warnings), not just coefficients → `hardcases_<host>.json` + `hardcases_behavior_*`/`hardcases_collinear_*` CSVs. |

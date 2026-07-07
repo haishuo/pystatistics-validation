@@ -12,6 +12,7 @@ shared harness `pystatsval`; the paper is now a downstream consumer (see its
 | `bench_endtoend.py` | end-to-end GPU fits across surveys × p (Table 1 / CUDA + MPS) |
 | `factorial_ablation.py` | trace × gradient per-evaluation factorial (Fig. 2) |
 | `trace_backend_compare.py` | per-pattern trace-term microbenchmark (Fig. 3) |
+| `collinearity_screening.py` | census of columns replaced by the collinearity screen per (survey, p) — curation-only, no `pystatistics` (Setup §) |
 | (shared) `../_shared/survey_io.py`, `curate.py` | survey `.h5` → curated MVN problem |
 
 ## Requirements (PyPI only — never a local pystatistics checkout)

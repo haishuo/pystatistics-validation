@@ -26,8 +26,11 @@ from __future__ import annotations
 import argparse
 import csv
 import socket
+import tempfile
 from pathlib import Path
 from typing import Any
+
+import numpy as np
 
 from pystatsval.device import env_manifest, require_pypi
 from pystatsval.serialize import build_run, write_run
@@ -40,7 +43,19 @@ from drivers.survival.run_r_survival import (
     run_r_coxph, run_r_discrete, run_r_km, run_r_logrank)
 
 _REPO = Path(__file__).resolve().parent.parent.parent
-_DATA = Path(__file__).resolve().parent / "data"
+
+
+def _write_ref_csv(path: Path, header: list[str], columns: list) -> None:
+    """Write a header + numeric matrix as a plain CSV for the R reference worker.
+
+    R reads the lung reference design from a CSV; we materialize it here from the
+    central-store arrays so R and pystatistics fit the identical store bytes
+    (R17 "same bytes feed pystatistics and R"). ``check.names=FALSE`` on the R
+    side keeps the dotted ``ph.ecog`` header intact.
+    """
+    mat = np.column_stack([np.asarray(c, dtype=np.float64) for c in columns])
+    np.savetxt(path, mat, delimiter=",", header=",".join(header),
+               comments="", fmt="%.17g")
 
 
 def _timing_row(procedure: str, dataset: str, sut: dict[str, Any],
@@ -69,9 +84,6 @@ def generate(host: str, *, reps: int, n_bins: int) -> Path:
     env = env_manifest(device="cpu", host=host)
     require_pypi(env)
 
-    km_csv = _DATA / "lung_km.csv"
-    cox_csv = _DATA / "lung_coxph.csv"
-
     t, e, sex = datasets.load_lung_km()
     tc, ec, X, names = datasets.load_lung_cox()
     bounds = datasets.discrete_interval_bounds(tc, ec, n_bins=n_bins)
@@ -80,26 +92,36 @@ def generate(host: str, *, reps: int, n_bins: int) -> Path:
     agreement_rows: list[dict[str, Any]] = []
     timing_rows: list[dict[str, Any]] = []
 
-    # --- Kaplan-Meier ---
-    km_sut = run_km_record(t, e, reps=reps)
-    km_ref, _ = run_r_km(km_csv, reps=reps)
-    records += [km_sut, km_ref]
-    agreement_rows += agreement.km_rows(km_sut, km_ref)
-    timing_rows.append(_timing_row("kaplan_meier", "lung_km", km_sut, km_ref))
+    # R reads the lung reference designs from CSV. The designs now live in the
+    # central HDF5 store (loaded above); materialize them to temp CSVs so R fits
+    # the identical store bytes — no committed CSV in the driver (R17).
+    with tempfile.TemporaryDirectory() as _td:
+        km_csv = Path(_td) / "lung_km.csv"
+        cox_csv = Path(_td) / "lung_coxph.csv"
+        _write_ref_csv(km_csv, ["time", "event", "sex"], [t, e, sex])
+        _write_ref_csv(cox_csv, ["time", "event", "age", "sex", "ph.ecog"],
+                       [tc, ec, X[:, 0], X[:, 1], X[:, 2]])
 
-    # --- Log-rank by sex ---
-    lr_sut = run_logrank_record(t, e, sex, reps=reps)
-    lr_ref, _ = run_r_logrank(km_csv, reps=reps)
-    records += [lr_sut, lr_ref]
-    agreement_rows += agreement.logrank_rows(lr_sut, lr_ref)
-    timing_rows.append(_timing_row("survdiff", "lung_km", lr_sut, lr_ref))
+        # --- Kaplan-Meier ---
+        km_sut = run_km_record(t, e, reps=reps)
+        km_ref, _ = run_r_km(km_csv, reps=reps)
+        records += [km_sut, km_ref]
+        agreement_rows += agreement.km_rows(km_sut, km_ref)
+        timing_rows.append(_timing_row("kaplan_meier", "lung_km", km_sut, km_ref))
 
-    # --- Cox PH ---
-    cox_sut = run_coxph_record(tc, ec, X, names, reps=reps)
-    cox_ref, _ = run_r_coxph(cox_csv, reps=reps)
-    records += [cox_sut, cox_ref]
-    agreement_rows += agreement.coxph_rows(cox_sut, cox_ref)
-    timing_rows.append(_timing_row("coxph", "lung_coxph", cox_sut, cox_ref))
+        # --- Log-rank by sex ---
+        lr_sut = run_logrank_record(t, e, sex, reps=reps)
+        lr_ref, _ = run_r_logrank(km_csv, reps=reps)
+        records += [lr_sut, lr_ref]
+        agreement_rows += agreement.logrank_rows(lr_sut, lr_ref)
+        timing_rows.append(_timing_row("survdiff", "lung_km", lr_sut, lr_ref))
+
+        # --- Cox PH ---
+        cox_sut = run_coxph_record(tc, ec, X, names, reps=reps)
+        cox_ref, _ = run_r_coxph(cox_csv, reps=reps)
+        records += [cox_sut, cox_ref]
+        agreement_rows += agreement.coxph_rows(cox_sut, cox_ref)
+        timing_rows.append(_timing_row("coxph", "lung_coxph", cox_sut, cox_ref))
 
     # --- Discrete-time (person-period logistic), with the expansion guard ---
     dt_sut = run_discrete_record(tc, ec, X, names, bounds, reps=reps)

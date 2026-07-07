@@ -10,12 +10,14 @@ log-rank compares survival by sex, and Cox PH regresses on age + sex + ph.ecog.
 It is a real survival process (unlike a housing-age proxy), so Cox PH converges
 and the comparison against R is meaningful.
 
-The CSVs are emitted once from R (``_r/prep_lung.R``) with the documented
-complete-case NA drop and committed under ``data/``, so Python reads the EXACT
-rows R fit. Two designs, each complete-cased over only the columns it uses:
+The designs are produced from R (``_r/prep_lung.R``) with the documented
+complete-case NA drop and live in the central HDF5 store (schema 1.0.0), read
+here via ``MVNMLE_DATA_DIR`` — no CSV in the driver (R17). Both are stored
+float32 (all values are integers, so fp32 is lossless). Two designs, each
+complete-cased over only the columns it uses:
 
-- ``lung_km.csv``    — time, event, sex  (n=228, 165 events): KM + log-rank.
-- ``lung_coxph.csv`` — time, event, age, sex, ph.ecog  (n=227, 164 events):
+- ``lung_km.h5``    — time, event, sex  (n=228, 165 events): KM + log-rank.
+- ``lung_coxph.h5`` — time, event, age, sex, ph.ecog  (n=227, 164 events):
   Cox PH + discrete-time.
 
 Contract: ``load_lung_km()`` returns ``(time, event, sex)``; ``load_lung_cox()``
@@ -34,16 +36,14 @@ discrete-time GPU claim is made.
 from __future__ import annotations
 
 import os
-import subprocess
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 from numpy.typing import NDArray
 
+from drivers._shared.store_io import read_store_matrix
+
 _HERE = Path(__file__).resolve().parent
-_DATA = _HERE / "data"
-_R_PREP = _HERE / "_r" / "prep_lung.R"
 
 COX_COVARIATES = ["age", "sex", "ph.ecog"]
 
@@ -58,31 +58,16 @@ _FLCHAIN_BINARY = {"sex", "mgus"}
 _FLCHAIN_DROPPED = {"creat"}
 
 
-def _ensure_r_prepped() -> None:
-    """Emit lung_km.csv + lung_coxph.csv from R if not already present.
-
-    The CSVs are committed; this only runs on a fresh checkout / regeneration.
-    """
-    km = _DATA / "lung_km.csv"
-    cox = _DATA / "lung_coxph.csv"
-    if km.is_file() and cox.is_file():
-        return
-    if not _R_PREP.is_file():
-        raise FileNotFoundError(f"R prep script missing: {_R_PREP}")
-    proc = subprocess.run(["Rscript", str(_R_PREP), str(_DATA)],
-                          capture_output=True, text=True)
-    if proc.returncode != 0:
-        raise RuntimeError(
-            f"R lung prep failed (exit {proc.returncode}):\n{proc.stderr[-2000:]}")
-
-
 def load_lung_km() -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.intp]]:
-    """KM / log-rank design: ``(time, event, sex)`` on survival::lung (n=228)."""
-    _ensure_r_prepped()
-    df = pd.read_csv(_DATA / "lung_km.csv")
-    return (df["time"].to_numpy(float),
-            df["event"].to_numpy(float),
-            df["sex"].to_numpy(np.intp))
+    """KM / log-rank design: ``(time, event, sex)`` on survival::lung (n=228).
+
+    Read from the central store's ``lung_km.h5`` (float32 — time/event/sex are
+    all integers, so fp32 is lossless). The R prep script
+    (``drivers/survival/_r/prep_lung.R``) is retained as the SOURCE the store
+    generator runs; the driver carries no CSV (R17).
+    """
+    M = read_store_matrix("lung_km", ["time", "event", "sex"])
+    return M[:, 0], M[:, 1], M[:, 2].astype(np.intp)
 
 
 def load_lung_cox() -> tuple[NDArray[np.float64], NDArray[np.float64],
@@ -90,14 +75,11 @@ def load_lung_cox() -> tuple[NDArray[np.float64], NDArray[np.float64],
     """Cox / discrete-time design: ``(time, event, X, names)`` (n=227).
 
     ``X`` is the (n, 3) covariate matrix age + sex + ph.ecog with NO intercept
-    column — Cox and discrete-time models have no intercept.
+    column — Cox and discrete-time models have no intercept. Read from the
+    central store's ``lung_coxph.h5`` (float32 — all integer-valued, lossless).
     """
-    _ensure_r_prepped()
-    df = pd.read_csv(_DATA / "lung_coxph.csv")
-    time_ = df["time"].to_numpy(float)
-    event = df["event"].to_numpy(float)
-    X = df[COX_COVARIATES].to_numpy(float)
-    return time_, event, X, list(COX_COVARIATES)
+    M = read_store_matrix("lung_coxph", ["time", "event", *COX_COVARIATES])
+    return M[:, 0], M[:, 1], M[:, 2:], list(COX_COVARIATES)
 
 
 def _flchain_h5_path() -> Path:
