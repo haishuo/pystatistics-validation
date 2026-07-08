@@ -359,6 +359,32 @@ Consequences for this ledger:
 **Sequence agreed:** VERIFY sweep (lock scope) → A0 mvnmle/mice re-validation (R16 risk +
 version floor) → bundle remaining closes into **4.7.0** → single whole-library bless.
 
+### Locked decision (user, 2026-07-08) — finish pystatistics BEFORE any downstream vertical; 5.0 is the pre-launch sweep
+
+- **`pystatistics` is finished COMPLETELY before PyStatsBio (or any `pystats*` vertical) is
+  validated.** No downstream vertical is validated against a pystatistics API that will still
+  change under it. "Finished" = the whole close-out below **plus** the `5.0` pre-launch
+  consistency sweep, ending in the single whole-library bless.
+- **`5.0` = the pre-launch consistency sweep**, cut once the library is feature-complete — NOT
+  for any single deprecation. It removes everything in the ROADMAP "Deprecations & scheduled
+  removals" table (currently `backend='cpu-reference'`) plus any other v1-regret API smells a
+  final pass surfaces. A major = any breaking change (semver); the "major must be a big event"
+  framing is explicitly rejected. Recorded in `pystatistics/CONVENTIONS.md` → "Versioning policy".
+- **Consequence for this ledger:** the A-list / VA-list close-out proceeds as planned (mostly
+  additive 4.x minors), and a NEW workstream is added at the end — **the pre-launch API sweep +
+  5.0** — before the whole-library bless. During every remaining close item, watch for breaking
+  API smells and park them in the ROADMAP 5.0 punch-list.
+
+**Remaining pystatistics work before 5.0 (the "finish" scope):** A1 (stratified Cox/KM) +
+VA-8 survival cluster · A2 (gam GLM-family gradient) · A3/VA-2/VA-3 (gam cc/ps, by=, usable nb) ·
+VA-1 (gam tensor smooths) · VA-4 (timeseries xreg+drift, +VA-4b fixed=) · VA-5 (regression
+links+families) · A4 (glmm offset/weights) · VA-6 (regression anova/drop1/diagnostics, profile
+CIs) · A5 (polr loglog/cauchit) · A6 (glmm is_singular) · VA-7 (glmm ||) · VA-10 (FA scores,
+prcomp tol) · VA-11 (anova omega²/Cohen's d/Games-Howell) · A7 (montecarlo BCa empinf) · A8
+(survival Breslow row + prior-art trawl) · A9 (timeseries 4.6.12 re-bless) · the JUSTIFY-B
+`CONVENTIONS.md` "Capability scope" section · then the **pre-launch API sweep + 5.0** · then the
+**single whole-library bless**. A0 (mvnmle/mice) is DONE.
+
 ---
 
 ## VERIFY sweep results
