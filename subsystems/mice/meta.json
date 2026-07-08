@@ -3,33 +3,40 @@
   "subsystem": "mice",
   "title": "Multiple Imputation by Chained Equations (MICE)",
   "module": "pystatistics.mice",
-  "procedure": "Multiple imputation of missing data by chained equations: each incomplete variable is imputed in turn from a regression on the others, cycling for several iterations to produce m completed datasets. Analyses are run on each completed dataset and combined by Rubin's rules, propagating imputation uncertainty into the final standard errors. Entry point: mice(data, seed, m=5, maxit=5, method='pmm', backend='cpu'|'gpu') -> MICESolution; pooling via pool(estimates, variances, dfcom) -> PooledResult.",
+  "procedure": "Multiple imputation of missing data by chained equations: each incomplete variable is imputed in turn from a regression on the others, cycling for several iterations to produce n_imputations completed datasets. Analyses are run on each completed dataset and combined by Rubin's rules, propagating imputation uncertainty into the final standard errors. Entry point: mice(data, *, seed, n_imputations=5, max_iter=5, method='pmm', backend='cpu'|'gpu'|'gpu_fp64'|'auto') -> MICESolution; pooling via pool(estimates, variances, dfcom=) -> PooledSolution.",
   "algorithms": [
-    "Chained equations: initialize missing cells by column mean, then for maxit iterations visit each incomplete column and impute it from a model fit on the observed rows; repeat for m independent chains with separate RNG streams.",
+    "Chained equations: initialize missing cells by column mean, then for max_iter iterations visit each incomplete column and impute it from a model fit on the observed rows; repeat for n_imputations independent chains with separate RNG streams (seed mandatory).",
     "Per-column methods mirror R mice: pmm (predictive mean matching, default for numeric), norm (Bayesian linear regression), logreg (binary), polyreg (unordered categorical, via the multinomial module), polr (ordered, proportional-odds with a ridge penalty on slopes to stay stable under chained-equation separation).",
     "Inference by Rubin's rules: total variance T = Ubar + (1 + 1/m) B, Barnard-Rubin degrees of freedom, with relative increase in variance, lambda, and fraction of missing information reported.",
-    "Backends: CPU (NumPy/SciPy, fp64, the R-validated reference path) and GPU (PyTorch, batched chains on CUDA/MPS, fp32 by default; fp64 available on CUDA via use_fp64).",
-    "A seed is mandatory (reproducibility is enforced, not optional)."
+    "Backends: CPU (NumPy/SciPy, fp64, the R-validated reference path) and GPU (PyTorch, batched chains on CUDA/MPS). The GPU sweep is fp32, but the separation-prone DISCRETE fits (logreg/polyreg/polr) are computed in fp64 on CUDA/CPU (Metal keeps fp32) so single-precision cannot collapse an imputation onto one category; the numeric norm/pmm draw uses a ridged Gram with an end-of-sweep non-finite fail-loud guard. gpu_fp64 runs the whole sweep in fp64 on CUDA."
   ],
   "reference": {
     "name": "R mice",
-    "what": "The CRAN mice package (van Buuren & Groothuis-Oudshoorn, JSS 2011), the de-facto reference for chained-equation imputation. pystatistics mirrors its defaults (m=5, maxit=5, pmm for numeric) and method names; the head-to-head pins R mice 3.19.0. Agreement is assessed by per-variable imputed-distribution distance (mean/quantile differences for numeric, Wasserstein for mixed types) rather than exact equality, since imputation is stochastic.",
+    "what": "The CRAN mice package (van Buuren & Groothuis-Oudshoorn, JSS 2011), the de-facto reference for chained-equation imputation. pystatistics mirrors its defaults (n_imputations=5, max_iter=5, pmm for numeric) and method names. Agreement is assessed by per-variable imputed-distribution distance (mean/quantile differences for numeric, Wasserstein for mixed types) rather than exact equality, since imputation is stochastic.",
     "also_compared": ["miceforest (LightGBM-based ML imputer) for large-scale speed"]
   },
   "tolerances": {
-    "fidelity_vs_r": "Imputation is stochastic, so agreement is distributional, not exact: per-variable imputed means/quantiles (numeric) and Wasserstein distance (mixed) are compared and expected small. The CPU path is the reference; the numeric path is version-stable across 3.13-3.16.",
-    "rubin_coverage": "Validity is judged by Monte-Carlo CI coverage of the analysis-model slopes under MCAR/MAR: MICE should recover ~0.95 nominal coverage, where naive arms (complete-case, listwise, mean imputation) under-cover.",
-    "gpu_vs_cpu": "fp32 GPU imputations match the fp64 CPU path within the GPU/fp32 tolerance tier; MPS rejects fp64."
+    "fidelity_vs_r": "Imputation is stochastic, so agreement is distributional, not exact: per-variable imputed means/quantiles (numeric) and 1-Wasserstein distance are compared and expected small. Measured at 4.6.13 on a mixed DGP (numeric/binary/ordered): |mean diff| <= 0.05 and W1 <= 0.05 across pmm/logreg/polr, matching R.",
+    "rubin_coverage": "Validity is judged by Monte-Carlo CI coverage of the analysis-model slopes: MICE recovers ~0.95 nominal coverage. Measured (40 reps, MCAR): cpu 0.955, gpu-fp32 0.935 (CUDA) / 0.945 (MPS), gpu_fp64 0.920 -- all at the target within Monte-Carlo error.",
+    "gpu_vs_cpu": "fp32 GPU imputations preserve Rubin coverage and pooled point estimates within the GPU/fp32 tolerance tier; the pooled mean SE matches the CPU path to ~2%. Large single-replication pooled-SE differences (up to ~30%) are RNG/Monte-Carlo noise in the between-imputation variance B (numpy vs torch streams), NOT fp32 bias -- proven because gpu_fp64 (fp64) shows the same single-rep spread vs cpu. MPS rejects fp64."
   },
   "limitations": [
     "Assumes missing-at-random (MAR); MNAR requires auxiliary information the model does not include.",
-    "GPU default is fp32 (fp64 only on CUDA); MPS has no fp64.",
+    "GPU default is fp32 (fp64 only on CUDA via backend='gpu_fp64'); MPS has no fp64. The discrete fits are computed in fp64 on CUDA regardless, so separation cannot silently collapse an imputation.",
     "polr under chained equations can drive a column toward (quasi-)complete separation; a ridge penalty on slopes stabilizes it, but extreme designs remain hard.",
     "Fully-missing columns are rejected (unimputable); columns with no missing values are skipped.",
     "Categorical columns are handled as integer codes with tracked level maps; very high-cardinality nominal variables stress polyreg."
   ],
+  "audit": {
+    "intro": "Constitutional-compliance audit (R4) of the public surface at 4.6.13. mice uses the canonical names: n_imputations (not m), max_iter (not maxit), backend= device+precision ('cpu'/'gpu'/'gpu_fp64'/'auto', no use_fp64), seed required. Results are MICESolution objects (completed_datasets(), imputations(col), backend_name, warnings); pooling returns PooledSolution (estimate/se/df/ci_low/ci_high/riv/lambda_/fmi). Errors use core.exceptions (ValidationError). The v3.18.0 report documented the pre-4.0 API (m/maxit/use_fp64) and covered only the scaling study, with correctness carried from the bootstrap 3.16.3 headline; this report re-establishes correctness under the modern regime and supersedes it.",
+    "gpu_reconciliation": "mice's fp32 exposure is the CF-1 class (per-chain Gram inversion in single precision), but it is PRE-MITIGATED in the code and that mitigation was verified on CUDA (authoritative) + MPS: the separation-prone discrete fits run in fp64 (discrete_glm_compute_dtype), and a perfectly-separated binary column imputes to a non-degenerate ~0.49 class-1 fraction on cpu/gpu/gpu_fp64 alike -- no silent collapse. The numeric norm/pmm fp32 path preserves Rubin coverage (0.935-0.955 vs the 0.95 target) and pooled estimates (mean-SE within ~2% of cpu). No R16 showstopper; the version floor is not raised by mice.",
+    "findings": [
+      {"id": "Mi-R4-1", "title": "v3.18.0 report documented the dead API and lacked modern-regime correctness", "status": "FIXED at 4.6.13 (this report)", "detail": "The v3.18.0 report described mice(data, seed, m=5, maxit=5, ...) and 'fp64 via use_fp64', and only covered the scaling study (correctness at the bootstrap 3.16.3 headline). This 4.6.13 report documents the live API (n_imputations/max_iter/backend='gpu_fp64') and carries fresh modern-regime evidence: fp32 gate (R12), Rubin coverage, separation hard case (R10), default invocation (R15), and CPU-vs-R fidelity."},
+      {"id": "Mi-R4-2", "title": "validation driver used the dead API", "status": "FIXED at 4.6.13", "detail": "drivers/mice/run_pystatistics.py called mice(..., m=, maxit=, use_fp64=), which TypeErrors against 4.6.12+. Updated to n_imputations=/max_iter= and use_fp64 -> backend='gpu_fp64'. (Validation-repo change, not a library change.)"},
+      {"id": "Mi-1", "title": "fp32 GPU no-silent-wrong + separation + default", "status": "CLEAN (no code change needed)", "detail": "The pre-existing CF-1 mitigation holds: coverage preserved under fp32, no silent collapse on separation (fp64 discrete fits on CUDA), the naive mice(data, seed=0) default works, and CPU matches R distributionally across pmm/logreg/polr."}
+    ]
+  },
   "datasets": [
-    {"name": "synthetic (dgp.py)", "what": "Seeded data-generating processes with known coefficients: complete linear models (validity/coverage) and mixed-type latent-AR(1) data (categorical), with MCAR/MAR missingness imposed. Seed 20260617."},
-    {"name": "CSES / GSS surveys", "what": "Real survey microdata (Comparative Study of Electoral Systems; General Social Survey) for row-scaling and real-data fidelity at 76k-396k rows."}
+    {"name": "synthetic (dgp.py)", "what": "Seeded data-generating processes with known coefficients: complete linear models (validity/coverage), separated binary columns (R10), and mixed-type latent-AR(1) data (CPU-vs-R fidelity), with MCAR missingness imposed. Seed 20260707."}
   ]
 }

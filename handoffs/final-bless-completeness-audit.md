@@ -460,9 +460,28 @@ good reason to omit); **never leave named-but-broken.** Every item below is IMPL
 nothing rests undocumented.
 
 ### Workstream 0 — gating re-validation / doc (not implement-vs-justify; do FIRST)
-- **A0** mvnmle + mice modern-regime re-validation at 4.6.12 (R10/R12/R13/R15/R4/R18). Sets the
-  version floor; own separate-session chip. *(No silent-wrong found by the VERIFY sweep, but the
-  fp32 covariance gate is still unproven at the modern bar — that's A0's job.)*
+- **A0** mvnmle + mice modern-regime re-validation — **DONE, BLESSED at 4.6.13** (2026-07-08).
+  **NO R16 showstopper; the version floor was NOT raised (a routine additive patch, not a
+  stop-fix-restart).** Both re-validated at the modern bar (R10/R12/R13/R15/R4/R18) on CUDA
+  (Forge, authoritative) + MPS + CPU-vs-R, from PyPI `pystatistics==4.6.13`.
+  Reports: `reports/mvnmle-v4.6.13.md`, `reports/mice-v4.6.13.md` (supersede v3.18.0/3.16.3).
+  - **mvnmle fp32 GPU gate = true safe-side classifier** (R12/R13): the fp32 accept-set is a
+    subset of the fp64 accept-set (at cond~1e6 fp64 accepts, fp32 refuses; raw-scale survey
+    cond~1.5e12 fp32 refuses "scale your data") — never the dangerous direction. The audit's
+    "|Δloglik| 113-146" decomposes as the real fp32 arithmetic floor (disclosed opt-in, exact
+    CPU default), not a silent-wrong. CPU-vs-R reproduces bit-identically (gss p15 16.69094,
+    wvs p15 0.0002805), ~90-320x faster.
+  - **mice fp32 = validity-preserving** (Rubin coverage 0.935-0.955 vs 0.95 target; the large
+    single-rep SE spread is RNG noise, proven because gpu_fp64 shows it too); separation never
+    collapses (discrete fits fp64 on CUDA); default works; CPU matches R across pmm/logreg/polr.
+  - **Findings — all closed (R18): M1** (mvnmle constant/zero-variance column silently accepted
+    by the default call) FIXED in 4.6.13 (new input-boundary guard, fail-loud, force= recovers);
+    **M2** (fp32 tolerance docs understated ~few-% covariance error) fixed in the report; **R4-3**
+    (`backend='cpu-reference'` non-canonical) → canonical `solver='reference'`, old spelling
+    deprecated; **Mi-R4-1/Mi-R4-2** (mice report + driver dead API) fixed; **Mi-1** clean.
+  - **4.6.13 published to PyPI + GitHub** (user-authorized); the mvnmle numeric paths are
+    byte-unchanged from 4.6.12 (gate/CPU-R numbers reproduce), so 4.6.13 is a safe patch that
+    additionally closes M1. **This sets 4.6.13 as the whole-library version floor.**
 - **A9** timeseries re-bless at 4.6.12 (code moved via the A7-1 fix). Trivial.
 - **A8** survival Breslow-ties validation row (cheap) + owed prior-art trawl (non-code, pre-paper).
 

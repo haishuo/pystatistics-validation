@@ -51,11 +51,15 @@ def run_mice_record(data: NDArray[np.floating], *,
     design = (MICEDesign.from_array(data, method="auto", column_kinds=list(column_kinds))
               if column_kinds is not None else None)
 
+    # 4.0 consistency API: m->n_imputations, maxit->max_iter, and precision is
+    # encoded in backend= (no use_fp64): fp64 on GPU is backend='gpu_fp64'.
+    effective_backend = "gpu_fp64" if (backend == "gpu" and use_fp64) else backend
+
     def _call():
         target = design if design is not None else data
         kwargs = {} if design is not None else {"method": method}
-        return mice(target, m=m, maxit=maxit, seed=seed, backend=backend,
-                    use_fp64=use_fp64, **kwargs)
+        return mice(target, n_imputations=m, max_iter=maxit, seed=seed,
+                    backend=effective_backend, **kwargs)
 
     try:
         summary, _sol = measure(_call, device=device, repeats=repeats,

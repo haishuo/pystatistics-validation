@@ -3,12 +3,12 @@
   "subsystem": "mvnmle",
   "title": "Multivariate-normal MLE with incomplete data",
   "module": "pystatistics.mvnmle",
-  "procedure": "Maximum-likelihood estimation of the mean vector mu and covariance matrix Sigma of a multivariate normal distribution from data with arbitrary item-level missingness (missing-at-random). Each observation contributes the marginal log-likelihood over its observed coordinates; the estimator maximizes the summed observed-data log-likelihood.",
+  "procedure": "Maximum-likelihood estimation of the mean vector mu and covariance matrix Sigma of a multivariate normal distribution from data with arbitrary item-level missingness (missing-at-random). Each observation contributes the marginal log-likelihood over its observed coordinates; the estimator maximizes the summed observed-data log-likelihood. Entry point: mlest(data, *, method='direct'|'em'|'monotone', backend='cpu'|'gpu'|'gpu_fp64'|'auto', solver=None, force=False, ...) -> MVNSolution.",
   "algorithms": [
     "Forward-Cholesky parameterization of Sigma: the optimizer works in the unconstrained space of a Cholesky factor, so every iterate is positive-definite by construction (no projection/repair step). This is the contribution the mvnmle paper formalizes.",
-    "CPU default since 3.17.0: a fast forward-Cholesky estimator in fp64 (deterministic).",
-    "Apple-Metal (MPS) optimizer loop since 3.18.0: a single fused objective/gradient pass per iteration; GPU reductions are fp32 (mildly non-deterministic in the last digits).",
-    "CUDA backend (fp32) for NVIDIA hardware.",
+    "Default CPU path: a fast PyTorch forward-Cholesky estimator in fp64 (deterministic), which matches R to ~1e-9 and beats R by ~90-390x. solver='reference' selects the R-exact numpy inverse-Cholesky path (no PyTorch), the validation anchor.",
+    "GPU backends: CUDA and Apple-Metal (MPS) run the same forward-Cholesky estimator in fp32 (a single fused objective/gradient pass per iteration); gpu_fp64 is CUDA-only (Metal has no fp64). GPU reductions are fp32, so estimates are not bit-reproducible across runs.",
+    "Degeneracy guards (fail-loud, Rule 1): a (near-)constant / zero-variance column is rejected at the input boundary (no interior MLE exists); a rank-deficient fitted covariance (near-collinear columns) is rejected via the scale-invariant correlation-matrix minimum-eigenvalue test. force=True downgrades both refusals to a warning + converged=False.",
     "Trace-term evaluation has two backends (direct solve vs blocked) selected per device; gradients via analytic form or autodiff (see the factorial study)."
   ],
   "reference": {
@@ -17,18 +17,27 @@
     "also_compared": ["semopy (Python SEM, on the GSS survey)"]
   },
   "tolerances": {
-    "loglik_vs_r": "Agreement to fp64 round-off on CPU; GPU fp32 paths agree to ~1e-4 relative on loglik and may differ in the last reported digit of mu/Sigma.",
-    "estimate_agreement": "Cross-engine agreement checked via sigma_fro and sigma_logdet rather than full elementwise equality at large p (the full p x p matrix is O(p^2) and is only stored for p <= 100).",
-    "gpu_nondeterminism": "fp32 GPU reductions are not bit-reproducible across runs; timings are reported as medians over repeats and estimates as the last timed repeat."
+    "loglik_vs_r": "CPU (fp64) agrees with R to fp64 round-off: |Delta loglik|/|loglik| ~ 1e-4 to 1e-9 across GSS/WVS at p=15-25 (relative agreement tightens on better-conditioned data; WVS reaches ~6e-10).",
+    "gpu_fp32_tolerance": "The fp32 GPU path is an EXPLICIT opt-in whose accuracy is the fp32 arithmetic floor for the problem, NOT fp64 round-off. Measured (CUDA + MPS) on the standardized GSS/WVS regime: covariance Frobenius error (rel_fro) is near-machine-fp32 (~2e-4) on well-conditioned data (WVS, cond~1e2), and rises with conditioning to a few percent on moderately ill-conditioned data (GSS, cond~1e3: ~3-9% rel_fro; loglik relDelta ~1e-3). This is disclosed via backend_name='gpu_*_fp32'; for a full-precision covariance use the CPU backend. (This replaces the earlier, over-optimistic 'differs in the last digit of mu/Sigma' claim.)",
+    "gpu_no_silent_wrong": "The fp32 GPU path is a true safe-side classifier (R12/R13, proven on CUDA first): it never returns a fit wronger than the fp32 floor, and at the ill-conditioned boundary it REFUSES (the fp32 accept-set is a subset of the fp64 accept-set) rather than silently accepting a degraded fit. Refusal is loud (SingularMatrixError on a rank-deficient fitted covariance, or NumericalError on an ill-conditioned sample covariance, e.g. 'scale your data before fitting')."
   },
   "limitations": [
     "R mvnmle does not run past roughly p = 50 in practical time; head-to-head agreement is therefore established at p <= 25 and the high-p story is internal (CPU vs GPU).",
-    "GPU paths are fp32; for applications needing fp64 covariance to full precision, use the CPU backend.",
+    "GPU paths are fp32 (fp64 only on CUDA via backend='gpu_fp64'); the fp32 covariance error grows with conditioning and problem size (up to a few percent), so for full-precision covariance use the CPU backend. The GPU path is a speed play (7.4x over CPU at p=50) with a disclosed precision cost, kept only where it wins.",
     "Assumes missing-at-random; the estimator does not model a missingness mechanism.",
-    "The MLE requires the observed-data covariance to be non-degenerate; near-collinear columns make the problem ill-conditioned (the paper's data curation screens |corr| near 1)."
+    "The MLE requires a non-degenerate observed-data covariance. Near-collinear columns (rank-deficient covariance) and (near-)constant / zero-variance columns have no interior MLE and are rejected loudly (SingularMatrixError); pass force=True to obtain the degenerate result with converged=False."
   ],
+  "audit": {
+    "intro": "Constitutional-compliance audit (R4) of the public surface at 4.6.13. mlest uses the canonical selector taxonomy: backend= encodes device+precision only ('cpu'/'gpu'/'gpu_fp64'/'auto', no use_fp64); method= is the estimation algorithm ('direct'/'em'/'monotone'); solver= is the numerical routine, with solver='reference' selecting the R-exact numpy inverse-Cholesky path. Results are MVNSolution objects with muhat/sigmahat/loglik/converged/n_iter/correlation_matrix/standard_deviations/aic/bic/backend_name/warnings accessors. Errors use core.exceptions (ValidationError, SingularMatrixError, NumericalError). The v3.18.0 report documented the pre-4.0 API (use_fp64/maxit/m); those names no longer exist publicly and this report supersedes it.",
+    "gpu_reconciliation": "The fp32 GPU path estimates and inverts per-pattern covariance blocks in single precision -- the CF-1 exposure class (an fp32 covariance path an optimizer can drive into the ill-conditioned regime) that materialised silently-wrong in ordinal/multinomial and gam. Unlike those, mvnmle does NOT form an X'WX Hessian for standard errors (it returns mu/Sigma/loglik only), and the fp32 path was proven a true safe-side classifier on CUDA (authoritative) + MPS: across a controlled condition-number sweep (kappa 1e1..1e9) and the real GSS/WVS regime, the fp32 accept-set is always a subset of the fp64 accept-set (at kappa=1e6 fp64 accepts, fp32 refuses; on raw-scale survey data cond~1.5e12 fp32 refuses with 'scale your data', fp64 accepts) -- never the dangerous direction. The audit's flagged |Delta loglik| 113-146 at GSS p=20-25 decomposes as real fp32 arithmetic-floor error (deficit ~ report_gap; evaluation noise negligible), not a silent-wrong. No R16 showstopper; the version floor is not raised by mvnmle.",
+    "findings": [
+      {"id": "M1", "title": "constant-column silently accepted by the default call", "status": "FIXED at 4.6.13", "detail": "The naive mlest(X) on a (near-)constant / zero-variance column returned converged=True with a meaningless, arbitrarily-large loglik and no warning -- the scale-invariant fitted-covariance guard cannot see a zero-variance column (it divides each variable by its own std). Fixed by an input-boundary guard (check_observed_variances) that rejects any column whose observed values span <= 1e-10 x scale, raising SingularMatrixError (force=True -> converged=False + warning), mirroring the collinearity guard. Genuinely small-but-varying columns are unaffected. Found via the R15 default-invocation / R10 hard-case grid."},
+      {"id": "M2", "title": "fp32 GPU tolerance documentation understated the real error", "status": "FIXED at 4.6.13 (documentation)", "detail": "The v3.18.0 report claimed GPU fp32 'may differ in the last reported digit of mu/Sigma' and '~1e-4 relative on loglik'. The measured reality is up to ~9% covariance rel_fro / ~1e-3 loglik on moderately ill-conditioned large-n data -- the fp32 arithmetic floor, not last-digit. The tolerances section now states the honest fp32 magnitude and its dependence on conditioning. No code change: the fp32 path behaves as fp32 must and is a disclosed opt-in."},
+      {"id": "R4-3", "title": "backend='cpu-reference' was a non-canonical backend value", "status": "FIXED at 4.6.13 (deprecation)", "detail": "The R-exact reference optimizer was selected via backend='cpu-reference', overloading the backend= axis (reserved for device+precision). The canonical selector is now solver='reference'; backend='cpu-reference' remains as a deprecated alias (DeprecationWarning) and will be removed in a future major release."}
+    ]
+  },
   "datasets": [
-    {"name": "WVS", "what": "World Values Survey — continuous/ordinal items, ~97k respondents, item-level missingness; large real survey with many missingness patterns."},
-    {"name": "GSS", "what": "General Social Survey — ~75k respondents; fewer but structurally different missingness patterns than WVS."}
+    {"name": "WVS", "what": "World Values Survey -- continuous/ordinal items, ~97k respondents, item-level missingness; large real survey, well-conditioned after standardization (cond~1e2)."},
+    {"name": "GSS", "what": "General Social Survey -- ~75k respondents; fewer but structurally different missingness patterns than WVS, moderately ill-conditioned after standardization (cond~1e3), the regime that exercises the fp32 floor."}
   ]
 }

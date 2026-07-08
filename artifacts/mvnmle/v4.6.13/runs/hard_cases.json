@@ -1,0 +1,76 @@
+{
+  "study": "hard_cases",
+  "kind": "r10-r15-adversarial-default",
+  "pystatistics_version": "4.6.13",
+  "records": [
+    {
+      "case": "default_clean",
+      "expectation": "both converge; loglik agrees",
+      "n": 4000,
+      "p": 6,
+      "missing_frac": 0.1525,
+      "py_outcome": "converged",
+      "py_loglik": -8964.461116795444,
+      "py_backend": "cpu_cholesky_fp64",
+      "py_warnings": "",
+      "r_loglik": -8964.461114890402,
+      "r_error": null,
+      "r_outcome": "ok",
+      "loglik_abs_diff": 1.9050421542488039e-06
+    },
+    {
+      "case": "near_collinear_0.99999",
+      "expectation": "at/over refusal boundary; expect refuse",
+      "n": 4000,
+      "p": 6,
+      "missing_frac": 0.09933333333333333,
+      "py_outcome": "refused:SingularMatrixError",
+      "py_error": "MVN MLE failed: the fitted covariance is rank-deficient (correlation-matrix minimum eigenvalue 4.78e-09 < 1e-05). The input has (near-)collinear variables, so no interior maximum-likelihood estimate e",
+      "py_loglik": null,
+      "r_loglik": 7245.918414000738,
+      "r_error": null,
+      "r_outcome": "ok"
+    },
+    {
+      "case": "exact_collinear",
+      "expectation": "rank-deficient; both must refuse/error",
+      "n": 4000,
+      "p": 6,
+      "missing_frac": 0.10125,
+      "py_outcome": "refused:SingularMatrixError",
+      "py_error": "MVN MLE failed: the fitted covariance is rank-deficient (correlation-matrix minimum eigenvalue 1.98e-12 < 1e-05). The input has (near-)collinear variables, so no interior maximum-likelihood estimate e",
+      "py_loglik": null,
+      "r_loglik": 6799.289707260998,
+      "r_error": null,
+      "r_outcome": "ok"
+    },
+    {
+      "case": "constant_column",
+      "expectation": "zero-variance col; degenerate",
+      "n": 4000,
+      "p": 6,
+      "missing_frac": 0.1025,
+      "py_outcome": "refused:SingularMatrixError",
+      "py_error": "MVN MLE failed: column(s) [5] have (near-)constant observed values (zero variance), so no interior maximum-likelihood estimate exists \u2014 the observed-data log-likelihood is unbounded as the fitted vari",
+      "py_loglik": null,
+      "r_loglik": 66205.99446311808,
+      "r_error": null,
+      "r_outcome": "ok"
+    },
+    {
+      "case": "heavy_missing_60pct",
+      "expectation": "both converge; loglik agrees",
+      "n": 4000,
+      "p": 8,
+      "missing_frac": 0.59815625,
+      "py_outcome": "converged",
+      "py_loglik": -5944.436490098435,
+      "py_backend": "cpu_cholesky_fp64",
+      "py_warnings": "",
+      "r_loglik": -5944.436479222843,
+      "r_error": null,
+      "r_outcome": "ok",
+      "loglik_abs_diff": 1.087559121515369e-05
+    }
+  ]
+}

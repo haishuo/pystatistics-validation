@@ -1,0 +1,169 @@
+{
+  "study": "mice_gate",
+  "kind": "r12-r10-r15-fp32-separation-default",
+  "pystatistics_version": "4.6.13",
+  "device": "mps",
+  "torch_version": "2.12.1",
+  "host": "Powerhouse.fios-router.home",
+  "records": [
+    {
+      "study": "numeric_gate",
+      "method": "norm",
+      "backend": "cpu",
+      "backend_name": "cpu",
+      "max_abs_bias_vs_truth": 0.04181640540777298,
+      "covers_truth": true,
+      "estimate": [
+        0.47539025728697804,
+        0.998151108606841,
+        -0.8912255387077274,
+        0.78441957667701,
+        -0.681816405407773,
+        0.5379363178262226
+      ],
+      "se": [
+        0.0227953748048748,
+        0.03430946420895889,
+        0.029974288214638087,
+        0.03605978302489311,
+        0.0354306201392445,
+        0.036022198031229635
+      ],
+      "fmi_max": 0.6897274629519455,
+      "max_abs_est_diff_vs_cpu": 0.0,
+      "max_rel_se_diff_vs_cpu": 0.0
+    },
+    {
+      "study": "numeric_gate",
+      "method": "norm",
+      "backend": "gpu",
+      "backend_name": "gpu_fp32",
+      "max_abs_bias_vs_truth": 0.035792007322589026,
+      "covers_truth": true,
+      "estimate": [
+        0.47947220896622067,
+        1.0056097145491283,
+        -0.9030050319709838,
+        0.7835567129997963,
+        -0.675792007322589,
+        0.5470003511336328
+      ],
+      "se": [
+        0.025402561834604438,
+        0.033801589385276706,
+        0.03692531209317548,
+        0.03591298569979053,
+        0.03677042225109518,
+        0.026689834198129637
+      ],
+      "fmi_max": 0.6364145425963125,
+      "max_abs_est_diff_vs_cpu": 0.011779493263256446,
+      "max_rel_se_diff_vs_cpu": 0.2590725814401791
+    },
+    {
+      "study": "numeric_gate",
+      "method": "pmm",
+      "backend": "cpu",
+      "backend_name": "cpu",
+      "max_abs_bias_vs_truth": 0.039196949346441134,
+      "covers_truth": true,
+      "estimate": [
+        0.4814104056615565,
+        0.9997318905679035,
+        -0.889684512836564,
+        0.7815804862438842,
+        -0.6791969493464411,
+        0.5378599352240357
+      ],
+      "se": [
+        0.027794780777546473,
+        0.033650847244186745,
+        0.03804856416118768,
+        0.033624812177644826,
+        0.03541529105797841,
+        0.031160087916617136
+      ],
+      "fmi_max": 0.640728380337173,
+      "max_abs_est_diff_vs_cpu": 0.0,
+      "max_rel_se_diff_vs_cpu": 0.0
+    },
+    {
+      "study": "numeric_gate",
+      "method": "pmm",
+      "backend": "gpu",
+      "backend_name": "gpu_fp32",
+      "max_abs_bias_vs_truth": 0.03992534200369424,
+      "covers_truth": true,
+      "estimate": [
+        0.479443416926438,
+        1.0017233543894013,
+        -0.8913344234102226,
+        0.7809632876436432,
+        -0.6799253420036943,
+        0.5402899568196463
+      ],
+      "se": [
+        0.027065195159653957,
+        0.03298986253027493,
+        0.039735401933824084,
+        0.03667962730186115,
+        0.0337236380796717,
+        0.03167831301310409
+      ],
+      "fmi_max": 0.6738136736566152,
+      "max_abs_est_diff_vs_cpu": 0.0024300215956105653,
+      "max_rel_se_diff_vs_cpu": 0.09085002789241714
+    },
+    {
+      "study": "coverage",
+      "backend": "cpu",
+      "reps": 40,
+      "coverage_rate": 0.955,
+      "mean_se": 0.045928958481140016,
+      "n_coef_checked": 200
+    },
+    {
+      "study": "coverage",
+      "backend": "gpu",
+      "reps": 40,
+      "coverage_rate": 0.945,
+      "mean_se": 0.045431430394993186,
+      "n_coef_checked": 200
+    },
+    {
+      "study": "separation",
+      "backend": "cpu",
+      "backend_name": "cpu",
+      "n_imputed": 1920,
+      "imputed_frac_class1": 0.4864583333333333,
+      "unique_imputed_values": [
+        0.0,
+        1.0
+      ],
+      "silently_collapsed": false,
+      "warnings": ""
+    },
+    {
+      "study": "separation",
+      "backend": "gpu",
+      "backend_name": "gpu_fp32",
+      "n_imputed": 1920,
+      "imputed_frac_class1": 0.48489583333333336,
+      "unique_imputed_values": [
+        0.0,
+        1.0
+      ],
+      "silently_collapsed": false,
+      "warnings": ""
+    },
+    {
+      "study": "default",
+      "n_imputations": 5,
+      "max_iter": 5,
+      "backend_name": "cpu",
+      "n_completed": 5,
+      "warnings": "",
+      "outcome": "ok"
+    }
+  ]
+}

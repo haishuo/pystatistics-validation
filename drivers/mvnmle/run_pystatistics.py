@@ -45,7 +45,7 @@ def run_pystatistics(X: NDArray[np.floating],
     data = np.asarray(X, dtype=np.float64)
 
     def call():
-        return mlest(data, backend=backend, algorithm="direct",
+        return mlest(data, backend=backend, method="direct",
                      max_iter=max_iter, tol=tol)
 
     engine = f"pystatistics:{backend}"
