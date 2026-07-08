@@ -375,6 +375,19 @@ version floor) → bundle remaining closes into **4.7.0** → single whole-libra
   5.0** — before the whole-library bless. During every remaining close item, watch for breaking
   API smells and park them in the ROADMAP 5.0 punch-list.
 
+### Scope finalized (user, 2026-07-08) — implement-vs-justify locked
+
+- **The six JUSTIFY-B carve-outs are CONFIRMED** (ship as a `CONVENTIONS.md` "Capability scope"
+  section, no code): gam exotic bases `re`/`ds`/`gp`/`fs`; regression non-treatment contrasts
+  (math-identical fitted values); regression fully-general `quasi(link,variance)` constructor
+  (quasipoisson/quasibinomial ARE implemented); survival `exact` ties; montecarlo
+  `h`/`hinv`/antithetic/blocked-permutation; multivariate `prcomp tol`.
+- **A7 (montecarlo BCa on balanced/parametric/stratified bootstrap):** MEASURE the tail
+  divergence vs R's regression `empinf` FIRST, then decide implement-or-B on the magnitude.
+- **VA-6b (regression profile-likelihood CIs, `confint.glm`):** IMPLEMENT.
+- Everything in the IMPLEMENT table (below) is confirmed to build; the boundary is now locked.
+- Execution: a separate session chip (or chips) — see `handoffs/pystatistics-closeout-brief.md`.
+
 **Remaining pystatistics work before 5.0 (the "finish" scope):** A1 (stratified Cox/KM) +
 VA-8 survival cluster · A2 (gam GLM-family gradient) · A3/VA-2/VA-3 (gam cc/ps, by=, usable nb) ·
 VA-1 (gam tensor smooths) · VA-4 (timeseries xreg+drift, +VA-4b fixed=) · VA-5 (regression
