@@ -220,6 +220,108 @@ if (mode == "km") {
     r_version       = r_version
   )
 
+} else if (mode == "coxfeat") {
+  # Generic Cox for the A1+VA-8 feature cluster. CSV columns: time, event,
+  # then any of the RESERVED feature columns (.start, .strata, .cluster);
+  # every remaining column is a covariate. Extra args after reps:
+  #   ties ("efron"/"breslow"), robust ("0"/"1"), zph transform ("" = skip).
+  csv <- args[[2]]; out_json <- args[[3]]
+  reps <- if (length(args) >= 4) as.integer(args[[4]]) else 5L
+  tie_m <- if (length(args) >= 5) args[[5]] else "efron"
+  want_robust <- length(args) >= 6 && args[[6]] == "1"
+  zph_tr <- if (length(args) >= 7) args[[7]] else ""
+
+  df <- read.csv(csv, check.names = FALSE)
+  feat <- intersect(c(".start", ".strata", ".cluster"), colnames(df))
+  covs <- setdiff(colnames(df), c("time", "event", feat))
+  rhs <- paste(sprintf("`%s`", covs), collapse = " + ")
+  if (".strata" %in% feat) rhs <- paste0(rhs, " + strata(`.strata`)")
+  if (".cluster" %in% feat) rhs <- paste0(rhs, " + cluster(`.cluster`)")
+  lhs <- if (".start" %in% feat) "Surv(`.start`, time, event)" else "Surv(time, event)"
+  fml <- as.formula(paste(lhs, "~", rhs))
+  # Pass robust= only when explicitly requested: an explicit robust=FALSE would
+  # SUPPRESS the robust variance that a cluster() term otherwise triggers.
+  fit_once <- if (want_robust) {
+    function() coxph(fml, data = df, ties = tie_m, robust = TRUE)
+  } else {
+    function() coxph(fml, data = df, ties = tie_m)
+  }
+  warn_msgs <- character(0)
+  fit <- withCallingHandlers(fit_once(), warning = function(w) {
+    warn_msgs <<- c(warn_msgs, conditionMessage(w)); invokeRestart("muffleWarning")
+  })
+  times <- timed_median(function() suppressWarnings(fit_once()), reps)
+  s <- summary(fit)
+  cm <- s$coefficients
+  out <- list(
+    procedure       = "coxfeat",
+    elapsed_s       = as.numeric(median(times)),
+    elapsed_times_s = as.numeric(times),
+    reps            = reps,
+    coef_names      = covs,
+    coefficients    = as.numeric(coef(fit)),
+    standard_errors = as.numeric(sqrt(diag(vcov(fit)))),
+    naive_se        = if (!is.null(fit$naive.var))
+                        as.numeric(sqrt(diag(fit$naive.var))) else NULL,
+    z_values        = as.numeric(cm[, "z"]),
+    p_values        = as.numeric(cm[, ncol(cm)]),
+    concordance     = as.numeric(fit$concordance[["concordance"]]),
+    loglik_null     = as.numeric(fit$loglik[1]),
+    loglik_model    = as.numeric(fit$loglik[2]),
+    n               = as.integer(fit$n),
+    n_events        = as.integer(fit$nevent),
+    n_iter          = as.integer(fit$iter),
+    ties            = tie_m,
+    robust          = want_robust || (".cluster" %in% feat),
+    warnings        = unique(warn_msgs),
+    r_version       = r_version
+  )
+  if (nzchar(zph_tr)) {
+    z <- cox.zph(fit, transform = zph_tr)
+    out$zph_rows  <- rownames(z$table)
+    out$zph_chisq <- as.numeric(z$table[, "chisq"])
+    out$zph_df    <- as.numeric(z$table[, "df"])
+    out$zph_p     <- as.numeric(z$table[, "p"])
+  }
+
+} else if (mode == "kmfeat") {
+  # Generic KM for the feature cluster. CSV columns: time, event, optional
+  # .entry (left truncation), optional .strata. Extra arg: conf.type.
+  csv <- args[[2]]; out_json <- args[[3]]
+  reps <- if (length(args) >= 4) as.integer(args[[4]]) else 5L
+  conf_type <- if (length(args) >= 5) args[[5]] else "log"
+  df <- read.csv(csv, check.names = FALSE)
+  lhs <- if (".entry" %in% colnames(df)) "Surv(`.entry`, time, event)" else "Surv(time, event)"
+  rhs <- if (".strata" %in% colnames(df)) "`.strata`" else "1"
+  fml <- as.formula(paste(lhs, "~", rhs))
+  fit_once <- function() survfit(fml, data = df, conf.type = conf_type)
+  fit <- fit_once()
+  times <- timed_median(fit_once, reps)
+  sm <- summary(fit)   # one row per event time; std.err on the survival scale
+  strata_lab <- if (is.null(sm$strata)) rep("", length(sm$time))
+                else sub("^[^=]*=", "", as.character(sm$strata))
+  out <- list(
+    procedure       = "kmfeat",
+    elapsed_s       = as.numeric(median(times)),
+    elapsed_times_s = as.numeric(times),
+    reps            = reps,
+    conf_type       = conf_type,
+    strata          = strata_lab,
+    time            = as.numeric(sm$time),
+    survival        = as.numeric(sm$surv),
+    n_risk          = as.numeric(sm$n.risk),
+    n_events        = as.numeric(sm$n.event),
+    se              = as.numeric(sm$std.err),
+    # undefined CI bounds (S at 0/1, or an undefined transform) -> -1 sentinel
+    # so the JSON stays numeric; the Python reducer masks ci < 0.
+    ci_lower        = if (is.null(sm$lower)) NULL
+                      else ifelse(is.na(sm$lower), -1, as.numeric(sm$lower)),
+    ci_upper        = if (is.null(sm$upper)) NULL
+                      else ifelse(is.na(sm$upper), -1, as.numeric(sm$upper)),
+    n               = as.integer(sum(fit$n)),
+    r_version       = r_version
+  )
+
 } else {
   stop(sprintf("unknown mode: %s", mode))
 }

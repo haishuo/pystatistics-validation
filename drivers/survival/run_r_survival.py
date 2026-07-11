@@ -197,3 +197,99 @@ def run_r_glmdiag(X_pp: NDArray, y_pp: NDArray, *, n_intervals: int,
         "n_rows": int(raw["n_rows"]),
         "r_version": raw.get("r_version"),
     }
+
+
+def _run_worker_feat(mode: str, csv_path: str, extra: list[str],
+                     reps: int) -> dict[str, Any]:
+    """Worker call for the feature modes (coxfeat/kmfeat), whose extra args
+    (ties / robust / zph transform / conf.type) follow ``reps``."""
+    if not _R_WORKER.is_file():
+        raise FileNotFoundError(f"R worker missing: {_R_WORKER}")
+    out_json = Path(tempfile.mkdtemp(prefix="rsurv_")) / "r.json"
+    cmd = ["Rscript", str(_R_WORKER), mode, csv_path, str(out_json),
+           str(reps), *extra]
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"R survival worker failed for mode={mode} (exit {proc.returncode}):\n"
+            f"{proc.stderr[-2000:]}")
+    return json.loads(out_json.read_text())
+
+
+def run_r_coxfeat(csv_path: str, *, ties: str = "efron", robust: bool = False,
+                  zph_transform: str = "", reps: int = 5,
+                  dataset: str = "") -> tuple[dict[str, Any], dict[str, Any]]:
+    """R reference for the A1+VA-8 Cox feature cluster.
+
+    The CSV carries ``time``, ``event``, covariates, and any of the reserved
+    columns ``.start`` (counting-process), ``.strata``, ``.cluster``. Returns
+    ``(record, raw)`` — the ``validation-run/v1`` record plus R's raw payload
+    (which includes the zph table when ``zph_transform`` is set and R's own
+    warnings, for behaviour matching).
+    """
+    raw = _run_worker_feat(
+        "coxfeat", csv_path,
+        [ties, "1" if robust else "0", zph_transform], reps)
+    summary = {
+        "coefficients": [float(x) for x in np.atleast_1d(raw["coefficients"])],
+        "standard_errors": [float(x)
+                            for x in np.atleast_1d(raw["standard_errors"])],
+        "loglik_model": float(raw["loglik_model"]),
+        "concordance": float(raw["concordance"]),
+    }
+    def _vec(key):
+        # jsonlite renders an R NULL as {} — treat dict/None/absent as missing.
+        v = raw.get(key)
+        if v is None or isinstance(v, dict):
+            return None
+        return [float(x) for x in np.atleast_1d(v)]
+
+    if _vec("naive_se") is not None:
+        summary["naive_se"] = _vec("naive_se")
+    if _vec("zph_chisq") is not None:
+        summary["zph_chisq"] = _vec("zph_chisq")
+        summary["zph_p"] = _vec("zph_p")
+    record = make_record(
+        engine="r_survival",
+        dataset=dataset or Path(csv_path).stem,
+        n=int(raw["n"]), p=len(summary["coefficients"]),
+        loglik=float(raw["loglik_model"]),
+        n_iter=int(raw["n_iter"]), converged=True,
+        wall=_wall(raw),
+        backend_name="r_coxph",
+        precision="fp64",
+        parameterization=f"ties={ties};robust={raw.get('robust')}",
+        summary=summary,
+        extra={"procedure": "coxfeat", "r_version": raw.get("r_version"),
+               "warnings": raw.get("warnings") or []},
+    )
+    return record, raw
+
+
+def run_r_kmfeat(csv_path: str, *, conf_type: str = "log", reps: int = 5,
+                 dataset: str = "") -> tuple[dict[str, Any], dict[str, Any]]:
+    """R reference KM for left truncation / strata (see ``run_r_coxfeat``)."""
+    raw = _run_worker_feat("kmfeat", csv_path, [conf_type], reps)
+    summary = {
+        "time": [float(x) for x in np.atleast_1d(raw["time"])],
+        "survival": [float(x) for x in np.atleast_1d(raw["survival"])],
+        "n_risk": [float(x) for x in np.atleast_1d(raw["n_risk"])],
+        "se": [float(x) for x in np.atleast_1d(raw["se"])],
+        "strata": [str(x) for x in np.atleast_1d(raw["strata"])],
+    }
+    for key in ("ci_lower", "ci_upper"):
+        if raw.get(key) is not None:
+            summary[key] = [float(x) for x in np.atleast_1d(raw[key])]
+    record = make_record(
+        engine="r_survival",
+        dataset=dataset or Path(csv_path).stem,
+        n=int(raw["n"]), p=0,
+        loglik=None, n_iter=None, converged=True,
+        wall=_wall(raw),
+        backend_name="r_survfit",
+        precision="fp64",
+        parameterization=f"conf_type={conf_type}",
+        summary=summary,
+        extra={"procedure": "kmfeat", "r_version": raw.get("r_version")},
+    )
+    return record, raw

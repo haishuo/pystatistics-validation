@@ -75,3 +75,50 @@ def discrete_rows(sut: dict[str, Any], ref: dict[str, Any]) -> list[dict[str, An
     for q in ("coefficients", "standard_errors", "z_values", "p_values"):
         rows.append(_vec_row("discrete_time", q, sut[q], ref[q]))
     return rows
+
+
+def coxfeat_rows(procedure: str, sut: dict[str, Any], ref: dict[str, Any],
+                 ) -> list[dict[str, Any]]:
+    """Agreement for a feature-cluster Cox fit (stratified / start-stop /
+    robust / cluster). ``procedure`` labels the specific feature row. Compares
+    the quantities present in both payloads (robust/naive SE and the cox.zph
+    table only when the fit carried them)."""
+    rows = [
+        _vec_row(procedure, "coefficients", sut["coefficients"],
+                 ref["coefficients"]),
+        _vec_row(procedure, "standard_errors", sut["standard_errors"],
+                 ref["standard_errors"]),
+        _vec_row(procedure, "loglik_model", [sut["loglik_model"]],
+                 [ref["loglik_model"]]),
+        _vec_row(procedure, "concordance", [sut["concordance"]],
+                 [ref["concordance"]]),
+    ]
+    if "naive_se" in sut and "naive_se" in ref:
+        rows.append(_vec_row(procedure, "naive_se", sut["naive_se"],
+                             ref["naive_se"]))
+    if "zph_chisq" in sut and "zph_chisq" in ref:
+        rows.append(_vec_row(procedure, "zph_chisq", sut["zph_chisq"],
+                             ref["zph_chisq"]))
+        rows.append(_vec_row(procedure, "zph_p", sut["zph_p"], ref["zph_p"]))
+    return rows
+
+
+def kmfeat_rows(procedure: str, sut: dict[str, Any], ref: dict[str, Any],
+                ) -> list[dict[str, Any]]:
+    """Agreement for a feature-cluster KM curve (left truncation / strata).
+    Curves are concatenated across strata in R's stratum order; ``std_err`` is
+    on the survival scale (summary(survfit)$std.err) on both sides."""
+    rows = []
+    for q in ("time", "survival", "n_risk", "se"):
+        rows.append(_vec_row(procedure, q, sut[q], ref[q]))
+    for q in ("ci_lower", "ci_upper"):
+        if q in sut and q in ref:
+            # R marks an undefined CI bound with a -1 sentinel; compare only the
+            # positions R actually defines.
+            r = np.asarray(ref[q], float)
+            s = np.asarray(sut[q], float)
+            mask = r >= 0
+            if mask.any():
+                rows.append(_vec_row(procedure, q, s[mask].tolist(),
+                                     r[mask].tolist()))
+    return rows
