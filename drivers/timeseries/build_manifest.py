@@ -97,6 +97,50 @@ def mle(runs: Path) -> None:
                 "aic_abs", "coef_or_fit_abs", "selected", "pass"], rows)
 
 
+def xreg(runs: Path) -> None:
+    """Flatten xreg.json (regression with ARIMA errors) into two summaries:
+    the estimator-parity table and the forecast/auto-drift/fidelity table."""
+    path = runs / "xreg.json"
+    if not path.exists():
+        return  # xreg suite absent (older frozen versions predate VA-4)
+    doc = json.loads(path.read_text())
+    fit_rows, aux_rows = [], []
+    for c in _checks(doc):
+        g = c.get("group")
+        if g == "arima_xreg":
+            spec = str(c.get("order", ""))
+            if c.get("seasonal"):
+                spec += str(c["seasonal"])
+            if c.get("include_drift"):
+                spec += "+drift"
+            if c.get("fixed"):
+                spec += "+fixed"
+            fit_rows.append([
+                c.get("case", ""), spec, c.get("hard_case", ""),
+                _g(c, "coef", "max_abs"), _g(c, "loglik", "abs"),
+                _g(c, "aic", "abs"), c.get("sigma2_py", ""), c.get("sigma2_r", ""),
+                _g(c, "se", "max_abs", default=""), c.get("pass")])
+        elif g == "forecast":
+            aux_rows.append([
+                "forecast", c.get("case", ""), _g(c, "mean", "max_abs"),
+                _g(c, "se", "max_abs", default=""), c.get("pass")])
+        elif g == "auto_drift":
+            aux_rows.append([
+                "auto_drift", c.get("case", ""),
+                f"py={c.get('py_order', c.get('py_drift'))} "
+                f"r={c.get('r_order', c.get('r_drift', ''))}",
+                "", c.get("pass")])
+        elif g == "fidelity":
+            aux_rows.append([
+                "fidelity", c.get("case", ""), c.get("expected", ""),
+                c.get("got", ""), c.get("pass")])
+    _write_csv(runs / "g1_xreg_summary.csv",
+               ["case", "spec", "hard_case", "coef_abs", "loglik_abs", "aic_abs",
+                "sigma2_py", "sigma2_r", "se_abs", "pass"], fit_rows)
+    _write_csv(runs / "g1_xreg_aux_summary.csv",
+               ["group", "case", "detail_or_mean_abs", "se_abs", "pass"], aux_rows)
+
+
 def fidelity(runs: Path) -> None:
     doc = _load(runs, "fidelity.json")
     rows = [[c.get("key"), c.get("desc"), c.get("expected"), c.get("got"),
@@ -182,6 +226,15 @@ def build_manifest(runs: Path, ver: str) -> dict:
             "ARIMA-Kalman/STL kernels), flipping ets from ~10.7x slower than R to "
             "0.43x with BIT-IDENTICAL estimates (max diff 0.0 vs 4.6.5) — an R6 "
             "optimize-and-re-validate cycle closing the module's last gap. "
+            "4.6.12 (A7-1) made arima/auto_arima fail loud on an unsupported GPU "
+            "backend (method-aware: the Whittle/arima_batch GPU paths are kept; "
+            "CSS-ML/ML/CSS have no GPU kernel and now raise rather than silently "
+            "running on the CPU while reporting a GPU backend). 4.8.0 (VA-4/VA-4b) "
+            "added regression with ARIMA errors: xreg, include_drift, and fixed= "
+            "parameter masking, plus newxreg forecasting and auto_arima drift "
+            "selection — validated against stats::arima + predict.Arima "
+            "(estimator-invariant quantities tight; the regression path is "
+            "CPU-only, as in R). "
             "Identical float64 inputs to both engines (each "
             "series dumped from the central HDF5 store; the R reference reads the "
             "same values). References: stats/forecast/tseries; statsmodels as an "
@@ -219,6 +272,26 @@ def build_manifest(runs: Path, ver: str) -> dict:
              "summary_cols": ["group", "series", "spec", "loglik_py", "loglik_r",
                               "loglik_abs", "aic_abs", "coef_or_fit_abs",
                               "selected", "pass"]},
+            {"id": "g1_xreg", "title": "G1 correctness — regression with ARIMA "
+             "errors (xreg / drift / fixed) vs stats::arima (VA-4)",
+             "device": ["cpu"], "claim": "agreement", "host": "arm+r",
+             "summary": "runs/g1_xreg_summary.csv",
+             "summary_cols": ["case", "spec", "hard_case", "coef_abs",
+                              "loglik_abs", "aic_abs", "sigma2_py", "sigma2_r",
+                              "se_abs", "pass"],
+             "note": "Regression with ARIMA errors matches stats::arima "
+                     "(exact-ML, MLE sigma2): coef/loglik/AIC/sigma2/SE tight. "
+                     "R10 hard cases: xreg under differencing, near-collinear "
+                     "xreg, all-but-one fixed, drift under d=1, seasonal+xreg."},
+            {"id": "g1_xreg_aux", "title": "G1 correctness — xreg forecasting "
+             "(newxreg / drift), auto_arima drift selection, fail-loud (VA-4)",
+             "device": ["cpu"], "claim": "agreement", "host": "arm+r",
+             "summary": "runs/g1_xreg_aux_summary.csv",
+             "summary_cols": ["group", "case", "detail_or_mean_abs", "se_abs",
+                              "pass"],
+             "note": "forecast_arima(newxreg=) point+SE match predict.Arima; "
+                     "auto_arima selects drift when forecast::auto.arima does; "
+                     "xreg/drift/fixed fail loud on misuse."},
             {"id": "g2_fidelity", "title": "G2 fidelity — fail-loud, no silent "
              "substitution", "device": ["cpu"], "claim": "fail-loud",
              "host": "arm+r", "summary": "runs/g2_fidelity_summary.csv",
@@ -261,6 +334,7 @@ def main() -> None:
     runs = Path(str(_RUNS).format(ver=ver))
     deterministic(runs)
     mle(runs)
+    xreg(runs)
     fidelity(runs)
     performance(runs)
     batch_contract(runs)

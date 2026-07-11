@@ -133,6 +133,64 @@ out <- switch(f,
     list(mean = as.numeric(pr$pred), se = as.numeric(pr$se))
   },
 
+  # Regression with ARIMA errors (VA-4). xreg travels as a JSON list-of-rows
+  # (simplifyVector -> an n x k matrix); include_drift appends a 1..n trend
+  # column (as pystatistics does); fixed is a nan->null vector (NA = estimate).
+  # stats::arima is the exact-ML reference (MLE sigma2; predict.Arima SE uses it).
+  "arima_xreg" = {
+    ord <- as.integer(c(p$order[1], p$order[2], p$order[3]))
+    seas <- if (is.null(p$seasonal)) NULL else as.integer(p$seasonal[1:3])
+    xreg <- if (is.null(p$xreg)) NULL else {
+      m <- p$xreg
+      if (is.null(dim(m))) matrix(as.numeric(m), ncol = 1)
+      else matrix(as.numeric(m), nrow = nrow(m))
+    }
+    if (isTRUE(p$include_drift)) {
+      tt <- matrix(seq_len(length(x)), ncol = 1)
+      xreg <- if (is.null(xreg)) tt else cbind(tt, xreg)
+    }
+    fx <- if (is.null(p$fixed)) NULL else as.numeric(p$fixed)  # NA <- null
+    args <- list(x = xt, order = ord, xreg = xreg, method = p$method)
+    if (!is.null(seas)) args$seasonal <- list(order = seas, period = period)
+    if (!is.null(fx)) args$fixed <- fx
+    if (!is.null(p$include_mean)) args$include.mean <- p$include_mean
+    r <- do.call(stats::arima, args)
+    se <- sqrt(diag(r$var.coef))
+    list(loglik = as.numeric(r$loglik), aic = as.numeric(r$aic),
+         sigma2 = as.numeric(r$sigma2), coef = as.numeric(r$coef),
+         coef_names = names(r$coef), se = as.numeric(se))
+  },
+
+  "forecast_arima_xreg" = {
+    ord <- as.integer(c(p$order[1], p$order[2], p$order[3]))
+    seas <- if (is.null(p$seasonal)) NULL else as.integer(p$seasonal[1:3])
+    xreg <- if (is.null(p$xreg)) NULL else {
+      m <- p$xreg
+      if (is.null(dim(m))) matrix(as.numeric(m), ncol = 1)
+      else matrix(as.numeric(m), nrow = nrow(m))
+    }
+    if (isTRUE(p$include_drift)) {
+      tt <- matrix(seq_len(length(x)), ncol = 1)
+      xreg <- if (is.null(xreg)) tt else cbind(tt, xreg)
+    }
+    args <- list(x = xt, order = ord, xreg = xreg, method = p$method)
+    if (!is.null(seas)) args$seasonal <- list(order = seas, period = period)
+    if (!is.null(p$include_mean)) args$include.mean <- p$include_mean
+    fit <- do.call(stats::arima, args)
+    h <- p$h
+    nx <- if (is.null(p$newxreg)) NULL else {
+      m <- p$newxreg
+      if (is.null(dim(m))) matrix(as.numeric(m), ncol = 1)
+      else matrix(as.numeric(m), nrow = nrow(m))
+    }
+    if (isTRUE(p$include_drift)) {
+      fut <- matrix((length(x) + 1):(length(x) + h), ncol = 1)
+      nx <- if (is.null(nx)) fut else cbind(fut, nx)
+    }
+    pr <- predict(fit, n.ahead = h, newxreg = nx)
+    list(mean = as.numeric(pr$pred), se = as.numeric(pr$se))
+  },
+
   "forecast_ets" = {
     fit <- ets(xt, model = p$model, damped = p$damped,
                opt.crit = "lik", ic = "aicc")
