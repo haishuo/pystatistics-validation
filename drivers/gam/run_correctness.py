@@ -280,6 +280,12 @@ def build_cases() -> list[Case]:
         Case("mcycle_tp", "Default smooth on the tp basis (fitted/EDF tier "
              "only — tp sp units differ from mgcv).", mcycle,
              [Smooth("times", bs="tp")], tier1=False),
+        Case("A3_cc_basis", "A3: cyclic cubic basis bs='cc' (seasonal/periodic "
+             "smoother) vs mgcv — free-REML edf/fitted/score.", wig,
+             [Smooth("x", k=10, bs="cc")], method="REML", tier1=False),
+        Case("A3_ps_basis", "A3: P-spline basis bs='ps' (Eilers-Marx) vs mgcv — "
+             "free-REML edf/fitted/score.", wig,
+             [Smooth("x", k=10, bs="ps")], method="REML", tier1=False),
         Case("gamsim4_gaussian",
              "4-smooth Gaussian gamSim: recovers f0-f3 incl. nonlinear x2 "
              "and null x3.", gsim_g,
@@ -329,9 +335,11 @@ def run_fidelity() -> list[dict[str, Any]]:
                            "raised": f"{type(e).__name__}: {str(e)[:100]}",
                            "pass": True})
 
-    record("cyclic_basis_cc",
-           "cc basis is not implemented -> fail loud, no silent substitution",
-           lambda: s("x", bs="cc"), ValidationError)
+    record("exotic_basis_re",
+           "exotic bases (re/ds/gp/fs) are a declared scope carve-out -> fail "
+           "loud on an unknown bs, no silent substitution (cc/ps ARE now "
+           "implemented, validated in the correctness grid; re/ds/gp/fs raise)",
+           lambda: s("x", bs="re"), ValidationError)
     record("quasipoisson_family",
            "quasipoisson not supported -> fail loud",
            lambda: gam(y, smooths=[s("x")], smooth_data={"x": x},

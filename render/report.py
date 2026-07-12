@@ -160,6 +160,8 @@ def build(L: Loaded, rendered_utc: str) -> str:
     agree_md = ""
     for s in agree_studies:
         agree_md += f"\n**{s['title']}**\n\n"
+        if s.get("carried_forward"):
+            agree_md += f"> ⤳ **Carried forward** — {s['carried_forward']}\n\n"
         agree_md += (_agreement_table(s, L) if s.get("agreement")
                      else _study_tables(s, L)) + "\n"
 
@@ -174,7 +176,9 @@ def build(L: Loaded, rendered_utc: str) -> str:
                 + (f" · host: {study['host']}" if study.get("host") else "") + "_\n")
         body = _study_tables(study, L)
         note = f"\n> {study['note']}\n" if study.get("note") else ""
-        bench.append(head + "\n" + body + note)
+        carried = (f"\n> ⤳ **Carried forward** — {study['carried_forward']}\n"
+                   if study.get("carried_forward") else "")
+        bench.append(head + carried + "\n" + body + note)
 
     return f"""# Validation report — pystatistics `{m['subsystem']}` v{m['pystatistics_version']}
 

@@ -1,0 +1,7 @@
+case,n,n_events,n_intervals,person_period_n,py_converged,py_n_iter,r_converged,r_n_iter,r_warnings,max_abs_coef_r,verdict
+lung_coarse_5bin,227,164,5,681,True,4,True,4,none,1.8686249460981197,flag-match
+lung_default,227,164,138,15809,True,8,True,8,none,5.897548812427152,flag-match
+separation_extreme,60,60,60,1830,True,12,True,12,none,13.761919970513171,flag-match
+flchain_yearly,7874,2169,14,82919,True,7,True,7,none,4.689162909780603,flag-match
+separated_covariate,80,80,5,240,True,18,True,18,none,39.493983115991966,flag-match
+all_censored,227,0,5,681,False,25,False,25,glm.fit: algorithm did not converge,26.566068523538345,flag-match

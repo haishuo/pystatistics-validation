@@ -1,0 +1,188 @@
+{
+  "schema": "validation-artifact-manifest/v1",
+  "subsystem": "gam",
+  "pystatistics_version": "4.8.0",
+  "install_source": "pypi",
+  "evidence_state": "native-harness",
+  "frozen_utc": "2026-07-11",
+  "provenance": {
+    "note": "Validation of pystatistics.gam at 4.8.0 \u2014 the VA-1 TENSOR / MULTIVARIATE smooth release. 4.8.0 adds te() tensor-product, ti() interaction, and isotropic multivariate s(x,z,...) smooths with per-margin bases and one smoothing parameter per margin, plus the analytic REML/GCV gradient extended to the overlapping penalties these produce. New tensor study (two-tier vs mgcv te()/ti()/s(x,z)): at mgcv's selected sp fed to both engines the tensor BASIS is mgcv-exact \u2014 fitted / EDF / coefficients agree to fp64 arithmetic (~1e-16 to ~1e-13 for cr/cc margins, incl. per-margin differing k, mixed cyclic x cubic bs=c('cc','cr'), a Poisson tensor, and a tensor alongside a univariate smooth); under free REML/GCV/UBRE the per-margin sp, per-term & total EDF, deviance, score and fitted match. ti() functional-ANOVA and isotropic s(x,z) are validated by the free-tier estimator (per-term EDF, deviance, REML score, fitted all machine-precision) \u2014 their sp REPORTING UNITS differ from mgcv's rescaled m$sp (like the tp basis), so the fixed-sp cross-feed is not attempted for them; the fit is exact. The base univariate surface is RE-RUN fresh at 4.8.0 after the module's tensor/basis refactor and still matches mgcv (cr/tp plus the now-implemented A3 cc and ps bases, all machine-precision; R10 hard cases hold; fidelity 6/6 incl. fail-loud on the exotic re/ds/gp/fs bases). Performance: the analytic GCV/REML gradient makes multi-smooth Gaussian fits competitive with mgcv (py/mgcv 0.97x at 1 smooth to 1.84x at 6, IMPROVED from 4.6.1's ~2.0-2.7x; single-smooth 0.86x at n=50000; empirical exponent py<=r, no complexity gap). Estimates unchanged; GLM families keep the finite-difference sp path (their IRLS weights depend on the coefficients). The 4.6.0 first-time validation drove the numerical rewrite that fixed the silently-wrong automatic smoothing selection (H0) and removed the silently-wrong fp32 GPU path (H1); gam is CPU-only. Reference mgcv 1.9.3. Identical float64 inputs to both engines (each case dumps its data to a temp CSV both read). Two-tier contract: fixed-sp tight (exact basis) + free-selection optimizer tier."
+  },
+  "hosts": {
+    "arm+r": {
+      "device": "CPU (numpy 2.4.6) + R mgcv 1.9.3"
+    }
+  },
+  "reference": {
+    "name": "R mgcv::gam (Wood)",
+    "kind": "cran"
+  },
+  "studies": [
+    {
+      "id": "g1_tier1_fixedsp",
+      "title": "G1 correctness \u2014 TIER 1 (tight): at mgcv's selected sp, fed to both engines (cr designs)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/tier1_fixedsp_summary.csv",
+      "run": "runs/correctness.json",
+      "summary_cols": [
+        "case",
+        "n",
+        "fitted_max_abs",
+        "total_edf_abs",
+        "param_coef_max_abs",
+        "param_se_max_rel",
+        "scale_rel",
+        "aic_abs",
+        "smooth_stat_kind",
+        "smooth_stat_max_rel"
+      ],
+      "note": "At a SHARED sp the penalized fit is one stable-QR solve, so fitted values / EDF / coefficients / posterior SEs / scale agree to fp64 arithmetic (\u2264~1e-9, \u2264~1e-13 for Gaussian). aic_abs is the documented edf2 df convention difference; smooth_stat_max_rel is the approximate Wood-2013 test \u2014 see limitations (widest on the concurvity case)."
+    },
+    {
+      "id": "g1_tier2_free",
+      "title": "G1 correctness \u2014 TIER 2 (optimizer): free selection, each engine picks its own sp \u2014 families + R10 + R15",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/tier2_free_summary.csv",
+      "run": "runs/correctness.json",
+      "summary_cols": [
+        "case",
+        "family",
+        "method",
+        "n",
+        "n_coef_py",
+        "n_coef_r",
+        "total_edf_abs",
+        "smooth_edf_max_abs",
+        "score_rel",
+        "deviance_rel",
+        "fitted_max_abs",
+        "sp_rel_nonnull"
+      ],
+      "note": "R15 default (mcycle), Gaussian/Poisson/Binomial gamSim 4-smooth, and R10 hard cases. sp_rel_nonnull is the max sp disagreement over IDENTIFIED (non-null) cr smooths; null/near-linear terms (\u03bb\u2192\u221e) are unidentified in sp and compared by EDF instead (next study). n_coef matches mgcv (k\u22121 per smooth after centering). tp cases compared by fitted/EDF only."
+    },
+    {
+      "id": "g1_per_smooth_sp",
+      "title": "G1 \u2014 per-smooth sp vs EDF: null/near-linear terms are sp-unidentified (\u03bb\u2192\u221e) but EDF-matched",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/per_smooth_sp_summary.csv",
+      "run": "runs/correctness.json",
+      "summary_cols": [
+        "case",
+        "term",
+        "sp_py",
+        "sp_r",
+        "sp_rel",
+        "edf_py",
+        "edf_r",
+        "edf_abs",
+        "near_null"
+      ],
+      "note": "Identified smooths agree in sp to ~1e-5; near_null=True terms (EDF\u21921) show a large sp ratio because \u03bb\u2192\u221e is only weakly identified \u2014 there EDF agrees to \u22641e-4 and the fit is identical. This is correct, not a defect."
+    },
+    {
+      "id": "g2_fidelity",
+      "title": "G2 fidelity \u2014 fail-loud, no silent substitution (A6)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "fail-loud",
+      "host": "arm",
+      "summary": "runs/fidelity_summary.csv",
+      "run": "runs/correctness.json",
+      "summary_cols": [
+        "check",
+        "why",
+        "raised",
+        "pass"
+      ],
+      "note": "Unsupported basis/family/method/k and the removed GPU backend all raise rather than silently substituting; wrong-length names raises rather than mislabelling coefficients (H3)."
+    },
+    {
+      "id": "g1_tensor_tier1",
+      "title": "G1 TENSOR \u2014 TIER 1 (tight): te()/ti()/s(x,z) at mgcv's selected sp, fed to both engines (exact tensor basis)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/tensor_tier1_summary.csv",
+      "run": "runs/tensor.json",
+      "summary_cols": [
+        "case",
+        "n",
+        "fitted_max_abs",
+        "coef_max_abs",
+        "total_edf_abs",
+        "param_coef_max_abs",
+        "param_se_max_rel",
+        "scale_rel",
+        "aic_abs"
+      ],
+      "note": "VA-1. At a SHARED per-margin sp the tensor penalized fit is one stable solve, so fitted / coefficients / EDF / scale / AIC agree to fp64 arithmetic across cr, cyclic (cc), per-margin differing k, Poisson, and tensor+univariate models \u2014 the tensor product basis is mgcv-exact. ti() and isotropic s(x,z) are NOT in this tier (their sp units differ from mgcv's rescaled m$sp, like tp); they are validated in the free tier."
+    },
+    {
+      "id": "g1_tensor_tier2",
+      "title": "G1 TENSOR \u2014 TIER 2 (optimizer): te()/ti()/s(x,z) free REML/GCV/UBRE selection vs mgcv",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/tensor_tier2_summary.csv",
+      "run": "runs/tensor.json",
+      "summary_cols": [
+        "case",
+        "family",
+        "method",
+        "n",
+        "n_coef_py",
+        "n_coef_r",
+        "n_sp",
+        "total_edf_abs",
+        "smooth_edf_max_abs",
+        "fitted_max_abs",
+        "score_rel",
+        "deviance_rel",
+        "sp_max_rel",
+        "sp_note"
+      ],
+      "note": "VA-1. Each engine selects its own per-margin sp. The estimator-invariant quantities \u2014 per-term & total EDF, deviance, selection score, fitted \u2014 match mgcv (fitted ~1e-6..1e-12; EDF ~1e-4..1e-9). sp_max_rel is large only where the sp is weakly identified (cyclic/concurvity: the fit is insensitive to sp) or where ti()/tp sp reporting units differ from mgcv \u2014 sp_note flags this, and in every such case EDF and fitted agree, so the fit is correct."
+    },
+    {
+      "id": "g3_performance",
+      "title": "G3 performance \u2014 pystatistics CPU vs mgcv::gam",
+      "device": [
+        "cpu"
+      ],
+      "claim": "benchmark",
+      "host": "arm+r",
+      "summary": "runs/performance_summary.csv",
+      "run": "runs/performance.json",
+      "summary_cols": [
+        "axis",
+        "n",
+        "n_smooths",
+        "k",
+        "py_ms",
+        "r_ms",
+        "ratio_py_over_r"
+      ],
+      "note": "Same estimator (penalised spline + GCV), CPU-vs-CPU vs mgcv's compiled C, best-of-5. Single smooth: parity across n (py/mgcv \u22481.0\u20131.8\u00d7, 0.97\u00d7 at n=50000; empirical exponent py=0.44 vs r=0.49). Multi-smooth (Gaussian): the analytic GCV/REML gradient (4.6.1, finding H4) keeps py/mgcv roughly flat across smooth count (~2.0\u20132.7\u00d7 at 1\u21926 smooths) instead of the 4.6.0 climb to ~5.1\u00d7; estimates unchanged. GLM families keep the finite-difference path."
+    }
+  ],
+  "record_fields": {
+    "note": "See runs/correctness.json and runs/performance.json for the full per-case records; the CSVs are the rendered summaries."
+  }
+}

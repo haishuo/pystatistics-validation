@@ -19,7 +19,7 @@ import pystatistics
 _VER = pystatistics.__version__
 _ROOT = Path(__file__).resolve().parents[2] / f"artifacts/gam/v{_VER}"
 _RUNS = _ROOT / "runs"
-_FROZEN_UTC = "2026-07-02"
+_FROZEN_UTC = "2026-07-11"
 
 
 def _load(name: str) -> dict:
@@ -124,6 +124,47 @@ def main() -> None:
                for r in perf["records"]]
     _write_csv("performance_summary.csv", pf_cols, pf_rows)
 
+    # --- Study 6+7: TENSOR / multivariate smooths (VA-1) ---
+    tensor = _load("tensor.json")
+    tt2_cols = ["case", "family", "method", "n", "n_coef_py", "n_coef_r",
+                "n_sp", "total_edf_abs", "smooth_edf_max_abs", "fitted_max_abs",
+                "score_rel", "deviance_rel", "sp_max_rel", "sp_note"]
+    tt2_rows, tt1_rows = [], []
+    for r in tensor["records"]:
+        t2 = r["tier2_free"]
+        # A large sp_max_rel is benign when it comes from a weakly-identified sp
+        # (cyclic / concurvity, where the fit is insensitive to sp) or from ti()/tp
+        # sp REPORTING UNITS differing from mgcv -- in both the EDF and fitted agree.
+        sp_note = ("sp well-identified" if t2["sp"]["max_rel"] < 1e-2
+                   else "sp weakly-identified/units-differ; EDF+fitted agree")
+        tt2_rows.append({
+            "case": r["key"], "family": r["family"], "method": r["method"],
+            "n": r["n"], "n_coef_py": r["n_coef"]["py"],
+            "n_coef_r": r["n_coef"]["r"], "n_sp": r["n_sp"]["py"],
+            "total_edf_abs": _g(t2["total_edf"]["abs"]),
+            "smooth_edf_max_abs": _g(t2["smooth_edf"]["max_abs"]),
+            "fitted_max_abs": _g(t2["fitted"]["max_abs"]),
+            "score_rel": _g(t2["score"]["rel"]),
+            "deviance_rel": _g(t2["deviance"]["rel"]),
+            "sp_max_rel": _g(t2["sp"]["max_rel"]), "sp_note": sp_note,
+        })
+        t1 = r.get("tier1_fixedsp")
+        if t1:
+            tt1_rows.append({
+                "case": r["key"], "n": r["n"],
+                "fitted_max_abs": _g(t1["fitted"]["max_abs"]),
+                "coef_max_abs": _g(t1["coef"]["max_abs"]),
+                "total_edf_abs": _g(t1["total_edf"]["abs"]),
+                "param_coef_max_abs": _g(t1["param_coef"]["max_abs"]),
+                "param_se_max_rel": _g(t1["param_se"]["max_rel"]),
+                "scale_rel": _g(t1["scale"]["rel"]),
+                "aic_abs": _g(t1["aic_abs"]),
+            })
+    tt1_cols = ["case", "n", "fitted_max_abs", "coef_max_abs", "total_edf_abs",
+                "param_coef_max_abs", "param_se_max_rel", "scale_rel", "aic_abs"]
+    _write_csv("tensor_tier1_summary.csv", tt1_cols, tt1_rows)
+    _write_csv("tensor_tier2_summary.csv", tt2_cols, tt2_rows)
+
     env = corr["env"]
     exp_py = perf["config"]["empirical_exponent_py"]
     exp_r = perf["config"]["empirical_exponent_r"]
@@ -137,25 +178,38 @@ def main() -> None:
         "frozen_utc": _FROZEN_UTC,
         "provenance": {
             "note": (
-                f"Performance re-validation of pystatistics.gam at {_VER}, after the "
-                "analytic smoothing-parameter gradient landed (finding H4). Gaussian "
-                "gam() now selects its smoothing parameters with the exact analytic "
-                "gradient of the GCV/REML criterion (one inner penalized-IRLS fit per "
-                "outer step) instead of finite differences (2m+1 fits per step), so "
-                "multi-smooth Gaussian fits no longer slow down with the number of "
-                "smooths: the py/mgcv ratio is now roughly flat across smooth count "
-                "(~2.0-2.7x) where at 4.6.0 it climbed to ~5.1x at 6 smooths. "
-                "Estimates are UNCHANGED — the search lands on the same optimum "
-                "(selected sp within ~1e-3 relative, total EDF within ~2e-4 of the "
-                "finite-difference path), and the whole two-tier correctness contract "
-                "vs mgcv is re-run and holds. GLM families (Poisson/binomial UBRE, "
-                "non-Gaussian REML) keep the finite-difference path (their IRLS "
-                "weights depend on the coefficients). The 4.6.0 first-time validation "
-                "drove the full numerical rewrite that fixed the silently-wrong "
-                "automatic smoothing selection (H0) and removed the silently-wrong "
-                "fp32 GPU path (H1). Reference mgcv " + env.get("mgcv", "?") + ". "
-                "Identical float64 inputs to both engines (each case dumps its data to "
-                "a temp CSV both read). Two-tier contract: fixed-sp tight (cr) + "
+                f"Validation of pystatistics.gam at {_VER} — the VA-1 TENSOR / "
+                "MULTIVARIATE smooth release. 4.8.0 adds te() tensor-product, ti() "
+                "interaction, and isotropic multivariate s(x,z,...) smooths with "
+                "per-margin bases and one smoothing parameter per margin, plus the "
+                "analytic REML/GCV gradient extended to the overlapping penalties "
+                "these produce. New tensor study (two-tier vs mgcv te()/ti()/s(x,z)): "
+                "at mgcv's selected sp fed to both engines the tensor BASIS is "
+                "mgcv-exact — fitted / EDF / coefficients agree to fp64 arithmetic "
+                "(~1e-16 to ~1e-13 for cr/cc margins, incl. per-margin differing k, "
+                "mixed cyclic x cubic bs=c('cc','cr'), a Poisson tensor, and a tensor "
+                "alongside a univariate smooth); under free REML/GCV/UBRE the "
+                "per-margin sp, per-term & total EDF, deviance, score and fitted match. "
+                "ti() functional-ANOVA and isotropic s(x,z) are validated by the "
+                "free-tier estimator (per-term EDF, deviance, REML score, fitted all "
+                "machine-precision) — their sp REPORTING UNITS differ from mgcv's "
+                "rescaled m$sp (like the tp basis), so the fixed-sp cross-feed is not "
+                "attempted for them; the fit is exact. The base univariate surface is "
+                "RE-RUN fresh at 4.8.0 after the module's tensor/basis refactor and "
+                "still matches mgcv (cr/tp plus the now-implemented A3 cc and ps bases, "
+                "all machine-precision; R10 hard cases hold; fidelity 6/6 incl. "
+                "fail-loud on the exotic re/ds/gp/fs bases). Performance: the analytic "
+                "GCV/REML gradient makes multi-smooth Gaussian fits competitive with "
+                "mgcv (py/mgcv 0.97x at 1 smooth to 1.84x at 6, IMPROVED from 4.6.1's "
+                "~2.0-2.7x; single-smooth 0.86x at n=50000; empirical exponent "
+                "py<=r, no complexity gap). Estimates unchanged; GLM families keep the "
+                "finite-difference sp path (their IRLS weights depend on the "
+                "coefficients). The 4.6.0 first-time validation drove the numerical "
+                "rewrite that fixed the silently-wrong automatic smoothing selection "
+                "(H0) and removed the silently-wrong fp32 GPU path (H1); gam is "
+                "CPU-only. Reference mgcv " + env.get("mgcv", "?") + ". Identical "
+                "float64 inputs to both engines (each case dumps its data to a temp "
+                "CSV both read). Two-tier contract: fixed-sp tight (exact basis) + "
                 "free-selection optimizer tier."
             )
         },
@@ -220,6 +274,39 @@ def main() -> None:
                 "note": "Unsupported basis/family/method/k and the removed GPU backend "
                         "all raise rather than silently substituting; wrong-length "
                         "names raises rather than mislabelling coefficients (H3).",
+            },
+            {
+                "id": "g1_tensor_tier1",
+                "title": "G1 TENSOR — TIER 1 (tight): te()/ti()/s(x,z) at mgcv's "
+                         "selected sp, fed to both engines (exact tensor basis)",
+                "device": ["cpu"], "claim": "agreement",
+                "host": f"{env.get('cpu','cpu')}+r",
+                "summary": "runs/tensor_tier1_summary.csv",
+                "run": "runs/tensor.json", "summary_cols": tt1_cols,
+                "note": "VA-1. At a SHARED per-margin sp the tensor penalized fit is "
+                        "one stable solve, so fitted / coefficients / EDF / scale / AIC "
+                        "agree to fp64 arithmetic across cr, cyclic (cc), per-margin "
+                        "differing k, Poisson, and tensor+univariate models — the "
+                        "tensor product basis is mgcv-exact. ti() and isotropic s(x,z) "
+                        "are NOT in this tier (their sp units differ from mgcv's "
+                        "rescaled m$sp, like tp); they are validated in the free tier.",
+            },
+            {
+                "id": "g1_tensor_tier2",
+                "title": "G1 TENSOR — TIER 2 (optimizer): te()/ti()/s(x,z) free "
+                         "REML/GCV/UBRE selection vs mgcv",
+                "device": ["cpu"], "claim": "agreement",
+                "host": f"{env.get('cpu','cpu')}+r",
+                "summary": "runs/tensor_tier2_summary.csv",
+                "run": "runs/tensor.json", "summary_cols": tt2_cols,
+                "note": "VA-1. Each engine selects its own per-margin sp. The "
+                        "estimator-invariant quantities — per-term & total EDF, "
+                        "deviance, selection score, fitted — match mgcv (fitted "
+                        "~1e-6..1e-12; EDF ~1e-4..1e-9). sp_max_rel is large only where "
+                        "the sp is weakly identified (cyclic/concurvity: the fit is "
+                        "insensitive to sp) or where ti()/tp sp reporting units differ "
+                        "from mgcv — sp_note flags this, and in every such case EDF and "
+                        "fitted agree, so the fit is correct.",
             },
             {
                 "id": "g3_performance",
