@@ -1,0 +1,103 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.8.1",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu"
+  },
+  "config": {
+    "suite": "gam-performance",
+    "reference": "mgcv::gam",
+    "reps": 5,
+    "estimator": "penalised regression spline + GCV",
+    "empirical_exponent_py": 0.43333819083460157,
+    "empirical_exponent_r": 0.49293473633455615
+  },
+  "records": [
+    {
+      "axis": "n",
+      "n": 200,
+      "n_smooths": 1,
+      "k": 10,
+      "py_s": 0.0022212499752640724,
+      "r_s": 0.002,
+      "ratio_py_over_r": 1.1106249876320362
+    },
+    {
+      "axis": "n",
+      "n": 1000,
+      "n_smooths": 1,
+      "k": 10,
+      "py_s": 0.0026515410281717777,
+      "r_s": 0.002,
+      "ratio_py_over_r": 1.3257705140858889
+    },
+    {
+      "axis": "n",
+      "n": 5000,
+      "n_smooths": 1,
+      "k": 10,
+      "py_s": 0.004246875178068876,
+      "r_s": 0.004,
+      "ratio_py_over_r": 1.061718794517219
+    },
+    {
+      "axis": "n",
+      "n": 20000,
+      "n_smooths": 1,
+      "k": 10,
+      "py_s": 0.01113020908087492,
+      "r_s": 0.012,
+      "ratio_py_over_r": 0.9275174234062433
+    },
+    {
+      "axis": "n",
+      "n": 50000,
+      "n_smooths": 1,
+      "k": 10,
+      "py_s": 0.024999000132083893,
+      "r_s": 0.029,
+      "ratio_py_over_r": 0.8620344873132376
+    },
+    {
+      "axis": "n_smooths",
+      "n": 2000,
+      "n_smooths": 1,
+      "k": 10,
+      "py_s": 0.0027602920308709145,
+      "r_s": 0.003,
+      "ratio_py_over_r": 0.9200973436236382
+    },
+    {
+      "axis": "n_smooths",
+      "n": 2000,
+      "n_smooths": 2,
+      "k": 10,
+      "py_s": 0.006597249768674374,
+      "r_s": 0.005,
+      "ratio_py_over_r": 1.3194499537348747
+    },
+    {
+      "axis": "n_smooths",
+      "n": 2000,
+      "n_smooths": 4,
+      "k": 10,
+      "py_s": 0.01827212469652295,
+      "r_s": 0.013,
+      "ratio_py_over_r": 1.4055480535786886
+    },
+    {
+      "axis": "n_smooths",
+      "n": 2000,
+      "n_smooths": 6,
+      "k": 10,
+      "py_s": 0.044794374611228704,
+      "r_s": 0.025,
+      "ratio_py_over_r": 1.7917749844491482
+    }
+  ]
+}

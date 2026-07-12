@@ -1,0 +1,570 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.8.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "r_packages": {
+      "mgcv": null
+    }
+  },
+  "config": {
+    "suite": "gam-by-nb",
+    "reference": "mgcv::gam s(x,by=z) [continuous] and family=nb()",
+    "tolerance_contract": "VA-2 by=: TIER1 mgcv sp fed to both -> fitted/EDF/coef machine-precision on the by-multiplied cr basis (sp on the same scale as mgcv, established not assumed); TIER2 free REML -> per-smooth & total EDF, comparable sp, REML score, deviance, fitted. VA-3 nb: free REML -> EDF/deviance/REML/fitted and the estimated theta vs getTheta (py theta recovered by deviance inversion; no accessor -- VA3-F1). Fidelity: factor-by (VA2-F1) and nb+GCV guard."
+  },
+  "records": [
+    {
+      "key": "by_cont",
+      "why": "Canonical continuous by=: y = z*f(x), z ~ N(2,1). The core varying-coefficient surface.",
+      "surface": "VA-2 by=",
+      "n": 400,
+      "n_coef": {
+        "py": 11,
+        "r": 11
+      },
+      "n_sp": {
+        "py": 1,
+        "r": 1
+      },
+      "tier2_free": {
+        "total_edf": {
+          "py": 10.477418975897077,
+          "r": 10.47741804597937,
+          "abs": 9.29917707281902e-07,
+          "rel": 8.87544720656394e-08
+        },
+        "smooth_edf": {
+          "n": 1,
+          "max_abs": 9.29917707281902e-07,
+          "max_rel": 9.811930873687729e-08
+        },
+        "sp": {
+          "n": 1,
+          "max_abs": 2.604175526066399e-05,
+          "max_rel": 2.0898097606205996e-06
+        },
+        "sp_values": {
+          "py": [
+            12.461278212527919
+          ],
+          "r": [
+            12.46130425428318
+          ]
+        },
+        "reml": {
+          "py": 120.69965789881638,
+          "r": 120.69965789882666,
+          "abs": 1.0274447959091049e-11,
+          "rel": 8.512408517100634e-14
+        },
+        "deviance": {
+          "py": 37.183928476743866,
+          "r": 37.18392849583509,
+          "abs": 1.909122460119761e-08,
+          "rel": 5.134267780053414e-10
+        },
+        "scale": {
+          "py": 0.09546026414946915,
+          "r": 0.0954602639705862,
+          "abs": 1.7888295011925237e-10,
+          "rel": 1.8738995963217836e-09
+        },
+        "fitted": {
+          "n": 400,
+          "max_abs": 2.4259815045724054e-08,
+          "max_rel": 1.2707721756856399e-06
+        }
+      },
+      "tier1_fixedsp": {
+        "sp": [
+          12.46130425428318
+        ],
+        "fitted": {
+          "n": 400,
+          "max_abs": 7.105427357601002e-15,
+          "max_rel": 2.943364639189257e-13
+        },
+        "coef": {
+          "n": 11,
+          "max_abs": 9.992007221626409e-16,
+          "max_rel": 1.8006164342633974e-13
+        },
+        "total_edf": {
+          "py": 10.477418045979373,
+          "r": 10.47741804597937,
+          "abs": 3.552713678800501e-15,
+          "rel": 3.3908293657938255e-16
+        },
+        "scale": {
+          "py": 0.09546026397058559,
+          "r": 0.0954602639705862,
+          "abs": 6.106226635438361e-16,
+          "rel": 6.396616122201222e-15
+        },
+        "param_se": {
+          "n": 1,
+          "max_abs": 1.3183898417423734e-16,
+          "max_rel": 3.8100841075773204e-15
+        }
+      }
+    },
+    {
+      "key": "by_neg",
+      "why": "R10: by-variable with NEGATIVE values and a zero-variance stretch (z in [-3,3], first 40 obs z=0).",
+      "surface": "VA-2 by=",
+      "n": 400,
+      "n_coef": {
+        "py": 11,
+        "r": 11
+      },
+      "n_sp": {
+        "py": 1,
+        "r": 1
+      },
+      "tier2_free": {
+        "total_edf": {
+          "py": 10.236008311681783,
+          "r": 10.23600830721492,
+          "abs": 4.466862435492658e-09,
+          "rel": 4.36387144424664e-10
+        },
+        "smooth_edf": {
+          "n": 1,
+          "max_abs": 4.466862435492658e-09,
+          "max_rel": 4.836356017570129e-10
+        },
+        "sp": {
+          "n": 1,
+          "max_abs": 9.259667166361396e-08,
+          "max_rel": 7.510294099436186e-09
+        },
+        "sp_values": {
+          "py": [
+            12.329300256715268
+          ],
+          "r": [
+            12.32930034931194
+          ]
+        },
+        "reml": {
+          "py": 110.79413008379329,
+          "r": 110.79413008379325,
+          "abs": 4.263256414560601e-14,
+          "rel": 3.847908198147604e-16
+        },
+        "deviance": {
+          "py": 35.67405401623117,
+          "r": 35.67405401681684,
+          "abs": 5.856719553776202e-10,
+          "rel": 1.641730864402271e-11
+        },
+        "scale": {
+          "py": 0.09152732108911324,
+          "r": 0.091527321089567,
+          "abs": 4.537620279521093e-13,
+          "rel": 4.9576675308574356e-12
+        },
+        "fitted": {
+          "n": 400,
+          "max_abs": 2.384084041295864e-10,
+          "max_rel": 2.48500225161196e-09
+        }
+      },
+      "tier1_fixedsp": {
+        "sp": [
+          12.32930034931194
+        ],
+        "fitted": {
+          "n": 400,
+          "max_abs": 6.661338147750939e-15,
+          "max_rel": 2.2274028771201714e-14
+        },
+        "coef": {
+          "n": 11,
+          "max_abs": 2.4424906541753444e-15,
+          "max_rel": 3.191094944104116e-14
+        },
+        "total_edf": {
+          "py": 10.236008307214922,
+          "r": 10.23600830721492,
+          "abs": 1.7763568394002505e-15,
+          "rel": 1.7353999587399448e-16
+        },
+        "scale": {
+          "py": 0.09152732108956697,
+          "r": 0.091527321089567,
+          "abs": 2.7755575615628914e-17,
+          "rel": 3.0324907672614827e-16
+        },
+        "param_se": {
+          "n": 1,
+          "max_abs": 1.3877787807814457e-17,
+          "max_rel": 9.070622699228598e-16
+        }
+      }
+    },
+    {
+      "key": "by_two",
+      "why": "R10: by= alongside a SECOND ordinary smooth -- s(x,by=z)+s(w). Two penalties, two smoothing parameters.",
+      "surface": "VA-2 by=",
+      "n": 500,
+      "n_coef": {
+        "py": 20,
+        "r": 20
+      },
+      "n_sp": {
+        "py": 2,
+        "r": 2
+      },
+      "tier2_free": {
+        "total_edf": {
+          "py": 14.62718415714132,
+          "r": 14.62718259595185,
+          "abs": 1.561189469256874e-06,
+          "rel": 1.0673206948882564e-07
+        },
+        "smooth_edf": {
+          "n": 2,
+          "max_abs": 1.5751805371166938e-06,
+          "max_rel": 1.7073449157208632e-07
+        },
+        "sp": {
+          "n": 2,
+          "max_abs": 4.1141506134323436e-05,
+          "max_rel": 2.5839027359158195e-06
+        },
+        "sp_values": {
+          "py": [
+            15.922193686633225,
+            263.75286863252165
+          ],
+          "r": [
+            15.92223482813936,
+            263.7528660877727
+          ]
+        },
+        "reml": {
+          "py": 262.36273864206106,
+          "r": 262.36273864207664,
+          "abs": 1.5575096767861396e-11,
+          "rel": 5.936474382175673e-14
+        },
+        "deviance": {
+          "py": 73.2166999255391,
+          "r": 73.21670004445214,
+          "abs": 1.1891303586253343e-07,
+          "rel": 1.6241244933237584e-09
+        },
+        "scale": {
+          "py": 0.15084631346400595,
+          "r": 0.150846313223806,
+          "abs": 2.401999432688484e-10,
+          "rel": 1.5923487829130513e-09
+        },
+        "fitted": {
+          "n": 500,
+          "max_abs": 1.1520064013836873e-07,
+          "max_rel": 5.769145433112178e-06
+        }
+      },
+      "tier1_fixedsp": {
+        "sp": [
+          15.92223482813936,
+          263.7528660877727
+        ],
+        "fitted": {
+          "n": 500,
+          "max_abs": 8.659739592076221e-15,
+          "max_rel": 2.0657463111781364e-13
+        },
+        "coef": {
+          "n": 20,
+          "max_abs": 5.773159728050814e-15,
+          "max_rel": 8.001551947874318e-14
+        },
+        "total_edf": {
+          "py": 14.627182595951858,
+          "r": 14.62718259595185,
+          "abs": 7.105427357601002e-15,
+          "rel": 4.857686920218981e-16
+        },
+        "scale": {
+          "py": 0.15084631322380376,
+          "r": 0.150846313223806,
+          "abs": 2.248201624865942e-15,
+          "rel": 1.490392159290201e-14
+        },
+        "param_se": {
+          "n": 1,
+          "max_abs": 2.0816681711721685e-16,
+          "max_rel": 5.681681748848493e-15
+        }
+      }
+    },
+    {
+      "key": "by_big",
+      "why": "R10: LARGE-magnitude by-variable (z ~ N(1000,200)) -- probes whether py lambda stays directly comparable to mgcv sp when the by-column dominates the design scale.",
+      "surface": "VA-2 by=",
+      "n": 400,
+      "n_coef": {
+        "py": 11,
+        "r": 11
+      },
+      "n_sp": {
+        "py": 1,
+        "r": 1
+      },
+      "tier2_free": {
+        "total_edf": {
+          "py": 10.918200088251282,
+          "r": 10.91820001168374,
+          "abs": 7.656754164031554e-08,
+          "rel": 7.0128355917989585e-09
+        },
+        "smooth_edf": {
+          "n": 1,
+          "max_abs": 7.656753808760186e-08,
+          "max_rel": 7.719902603033264e-09
+        },
+        "sp": {
+          "n": 1,
+          "max_abs": 0.2955284373019822,
+          "max_rel": 9.595508526670987e-07
+        },
+        "sp_values": {
+          "py": [
+            307985.92164864356
+          ],
+          "r": [
+            307986.21717708086
+          ]
+        },
+        "reml": {
+          "py": 2167.4677393722122,
+          "r": 2167.4677393722086,
+          "abs": 3.637978807091713e-12,
+          "rel": 1.6784465766237551e-15
+        },
+        "deviance": {
+          "py": 1013993.1537236664,
+          "r": 1013993.1537441806,
+          "abs": 2.051412593573332e-05,
+          "rel": 2.0231030022229132e-11
+        },
+        "scale": {
+          "py": 2606.118183769222,
+          "r": 2606.1181833090873,
+          "abs": 4.6013474275241606e-07,
+          "rel": 1.7655943068865953e-10
+        },
+        "fitted": {
+          "n": 400,
+          "max_abs": 6.696587320220715e-07,
+          "max_rel": 2.123038920128765e-08
+        }
+      },
+      "tier1_fixedsp": {
+        "sp": [
+          307986.21717708086
+        ],
+        "fitted": {
+          "n": 400,
+          "max_abs": 1.1368683772161603e-12,
+          "max_rel": 2.9376213426091534e-14
+        },
+        "coef": {
+          "n": 11,
+          "max_abs": 2.424727085781342e-13,
+          "max_rel": 1.2701519276883997e-13
+        },
+        "total_edf": {
+          "py": 10.918200011683739,
+          "r": 10.91820001168374,
+          "abs": 1.7763568394002505e-15,
+          "rel": 1.6269685822748645e-16
+        },
+        "scale": {
+          "py": 2606.118183309162,
+          "r": 2606.1181833090873,
+          "abs": 7.457856554538012e-11,
+          "rel": 2.861672430015621e-14
+        },
+        "param_se": {
+          "n": 1,
+          "max_abs": 1.865174681370263e-13,
+          "max_rel": 1.4233928593953245e-14
+        }
+      }
+    },
+    {
+      "key": "nb_default",
+      "why": "Canonical nb, theta~3.",
+      "surface": "VA-3 nb",
+      "n": 500,
+      "n_coef": {
+        "py": 10,
+        "r": 10
+      },
+      "theta": {
+        "py_recovered": 3.053169231985141,
+        "r_getTheta": 3.05316556805813,
+        "abs": 3.6639270106775257e-06,
+        "rel": 1.200042031460433e-06
+      },
+      "theta_accessor_exposed": false,
+      "total_edf": {
+        "py": 7.250740371861938,
+        "r": 7.25074021442934,
+        "abs": 1.5743259851319635e-07,
+        "rel": 2.1712624346945645e-08
+      },
+      "smooth_edf": {
+        "n": 1,
+        "max_abs": 1.5743259673683951e-07,
+        "max_rel": 2.5186232563852008e-08
+      },
+      "reml": {
+        "py": 727.7206913125827,
+        "r": 727.7206913125746,
+        "abs": 8.185452315956354e-12,
+        "rel": 1.1248068680296042e-14
+      },
+      "deviance": {
+        "py": 474.01693566085135,
+        "r": 474.0167808225411,
+        "abs": 0.00015483831026585904,
+        "rel": 3.266515375197788e-07
+      },
+      "fitted": {
+        "n": 500,
+        "max_abs": 3.526279090948492e-08,
+        "max_rel": 2.6052580162114387e-08
+      }
+    },
+    {
+      "key": "nb_bigtheta",
+      "why": "R10: large theta -> near the Poisson limit.",
+      "surface": "VA-3 nb",
+      "n": 500,
+      "n_coef": {
+        "py": 10,
+        "r": 10
+      },
+      "theta": {
+        "py_recovered": 25.836784541084697,
+        "r_getTheta": 25.83644968166405,
+        "abs": 0.0003348594206471489,
+        "rel": 1.2960736663628994e-05
+      },
+      "theta_accessor_exposed": false,
+      "total_edf": {
+        "py": 6.851320966923008,
+        "r": 6.85132030105827,
+        "abs": 6.658647375701321e-07,
+        "rel": 9.718779860099099e-08
+      },
+      "smooth_edf": {
+        "n": 1,
+        "max_abs": 6.658647375701321e-07,
+        "max_rel": 1.1379734885641173e-07
+      },
+      "reml": {
+        "py": 814.9125720608642,
+        "r": 814.9125720612514,
+        "abs": 3.871036824421026e-10,
+        "rel": 4.750248010813689e-13
+      },
+      "deviance": {
+        "py": 537.9442825693171,
+        "r": 537.9438374237326,
+        "abs": 0.00044514558453556674,
+        "rel": 8.274945330118734e-07
+      },
+      "fitted": {
+        "n": 500,
+        "max_abs": 1.3689341393785526e-07,
+        "max_rel": 3.0082768608873326e-08
+      }
+    },
+    {
+      "key": "nb_small",
+      "why": "R10: small counts, low mean.",
+      "surface": "VA-3 nb",
+      "n": 500,
+      "n_coef": {
+        "py": 10,
+        "r": 10
+      },
+      "theta": {
+        "py_recovered": 3.1874336296414025,
+        "r_getTheta": 3.18741314253942,
+        "abs": 2.0487101982435973e-05,
+        "rel": 6.427501257685675e-06
+      },
+      "theta_accessor_exposed": false,
+      "total_edf": {
+        "py": 6.252870687966895,
+        "r": 6.25287187188547,
+        "abs": 1.1839185756201687e-06,
+        "rel": 1.8933997047714554e-07
+      },
+      "smooth_edf": {
+        "n": 1,
+        "max_abs": 1.1839185747319902e-06,
+        "max_rel": 2.2538500911636238e-07
+      },
+      "reml": {
+        "py": 484.05163967792885,
+        "r": 484.0516396777932,
+        "abs": 1.3562839740188792e-10,
+        "rel": 2.8019406667472165e-13
+      },
+      "deviance": {
+        "py": 437.3604663088775,
+        "r": 437.36005854833655,
+        "abs": 0.0004077605409520402,
+        "rel": 9.323223119766775e-07
+      },
+      "fitted": {
+        "n": 500,
+        "max_abs": 8.218582636665417e-08,
+        "max_rel": 1.7604503206306057e-07
+      }
+    },
+    {
+      "key": "factor_by",
+      "surface": "VA-2 by= (factor)",
+      "finding": "VA2-F1",
+      "why": "A 3-level factor coded {0,1,2} passed as a by-variable. mgcv builds per-level smooths; pystatistics has no factor-by and multiplies the basis by the integer code -- a silent misinterpretation if not guarded.",
+      "py": {
+        "raised": false,
+        "warned": [],
+        "total_edf": 5.055246754481345,
+        "n_coef": 11,
+        "converged": true
+      },
+      "mgcv_factor_by": {
+        "n_coef": 30,
+        "total_edf": 18.1608718069579,
+        "n_smooth": 3
+      },
+      "silent_misinterpretation": true
+    },
+    {
+      "key": "nb_gcv_guard",
+      "surface": "VA-3 nb (fail-loud)",
+      "why": "family='nb' with estimated theta requires method='REML'; GCV profiling of theta is degenerate. Must fail loud, not silently fit.",
+      "py": {
+        "raised": true,
+        "error_type": "ValidationError",
+        "message": "family='nb' with estimated dispersion requires method='REML' (profiling the GCV/UBRE score over theta collapses to theta~0); use method='REML' or fix the dispersion via NegativeBinomial(theta=...)"
+      },
+      "fails_loud": true
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+case,n,n_coef_py,n_coef_r,total_edf_abs,smooth_edf_max_abs,sp_rel_max,reml_rel,deviance_rel,fitted_max_abs
+by_cont,400,11,11,9.3e-07,9.3e-07,2.09e-06,8.51e-14,5.13e-10,2.43e-08
+by_neg,400,11,11,4.47e-09,4.47e-09,7.51e-09,3.85e-16,1.64e-11,2.38e-10
+by_two,500,20,20,1.56e-06,1.58e-06,2.58e-06,5.94e-14,1.62e-09,1.15e-07
+by_big,400,11,11,7.66e-08,7.66e-08,9.6e-07,1.68e-15,2.02e-11,6.7e-07
