@@ -1,5 +1,16 @@
 # Validation program roadmap
 
+> **WHOLE-LIBRARY BLESS at 5.0.0 (2026-07-13).** All 12 corpus subsystems
+> re-validated against R on the published PyPI `pystatistics==5.0.0` artifact and
+> **BLESS-CLEAN** — 11 reproduce their last bless bit-identically (the 5.0
+> pre-launch consistency renames are numerically inert), and ordinal's newly-
+> exposed `cauchit`/`loglog` links were first-time-validated (cauchit vs an
+> independent MLE — MASS::polr under-converges and is not a reliable cauchit
+> reference). No library defect surfaced; no 5.0.1 needed. Reports at
+> `reports/*-v5.0.0.md`; ledger at `handoffs/v5.0.0-revalidation-findings.md`.
+> Downstream `pystats*` verticals (PyStatsBio) may now pin and validate against
+> the settled post-5.0 surface.
+
 The module-by-module plan for the pystatistics validation corpus. Tackled **one at
 a time**, each to the rigor of `RIGOR.md` (treat as if publishing). The
 **coordinator chip** owns this file: it advances the program one module at a time
