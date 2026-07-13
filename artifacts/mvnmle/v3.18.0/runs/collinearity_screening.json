@@ -1,0 +1,307 @@
+{
+  "study": "collinearity_screening",
+  "kind": "curation-census",
+  "version_independent": true,
+  "config": {
+    "allowed_types": [
+      "continuous",
+      "ordinal"
+    ],
+    "min_asked_frac": 0.3,
+    "min_observed_among_asked": 0.5,
+    "observed_frac_band": [
+      0.5,
+      0.95
+    ],
+    "max_abs_corr": 0.99,
+    "definition": "n_replaced(p) = kept[p-1] - (p-1)"
+  },
+  "records": [
+    {
+      "survey": "wvs",
+      "p": 5,
+      "n_eligible": 125,
+      "n_independent": 122,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "wvs",
+      "p": 10,
+      "n_eligible": 125,
+      "n_independent": 122,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "wvs",
+      "p": 15,
+      "n_eligible": 125,
+      "n_independent": 122,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "wvs",
+      "p": 20,
+      "n_eligible": 125,
+      "n_independent": 122,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "wvs",
+      "p": 25,
+      "n_eligible": 125,
+      "n_independent": 122,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 1,
+      "replaced_frac": 0.04
+    },
+    {
+      "survey": "wvs",
+      "p": 50,
+      "n_eligible": 125,
+      "n_independent": 122,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 2,
+      "replaced_frac": 0.04
+    },
+    {
+      "survey": "wvs",
+      "p": 100,
+      "n_eligible": 125,
+      "n_independent": 122,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 2,
+      "replaced_frac": 0.02
+    },
+    {
+      "survey": "gss",
+      "p": 5,
+      "n_eligible": 140,
+      "n_independent": 135,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "gss",
+      "p": 10,
+      "n_eligible": 140,
+      "n_independent": 135,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 1,
+      "replaced_frac": 0.1
+    },
+    {
+      "survey": "gss",
+      "p": 15,
+      "n_eligible": 140,
+      "n_independent": 135,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 1,
+      "replaced_frac": 0.066667
+    },
+    {
+      "survey": "gss",
+      "p": 20,
+      "n_eligible": 140,
+      "n_independent": 135,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 2,
+      "replaced_frac": 0.1
+    },
+    {
+      "survey": "gss",
+      "p": 25,
+      "n_eligible": 140,
+      "n_independent": 135,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 4,
+      "replaced_frac": 0.16
+    },
+    {
+      "survey": "gss",
+      "p": 50,
+      "n_eligible": 140,
+      "n_independent": 135,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 4,
+      "replaced_frac": 0.08
+    },
+    {
+      "survey": "gss",
+      "p": 100,
+      "n_eligible": 140,
+      "n_independent": 135,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 4,
+      "replaced_frac": 0.04
+    },
+    {
+      "survey": "cses",
+      "p": 5,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "cses",
+      "p": 10,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "cses",
+      "p": 15,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "cses",
+      "p": 20,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "cses",
+      "p": 25,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "cses",
+      "p": 50,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "afrobarometer",
+      "p": 5,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "afrobarometer",
+      "p": 10,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "afrobarometer",
+      "p": 15,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "afrobarometer",
+      "p": 20,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "afrobarometer",
+      "p": 25,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    },
+    {
+      "survey": "afrobarometer",
+      "p": 50,
+      "n_eligible": 61,
+      "n_independent": 61,
+      "max_abs_corr": 0.99,
+      "feasible": true,
+      "reason": "",
+      "n_replaced": 0,
+      "replaced_frac": 0.0
+    }
+  ]
+}
