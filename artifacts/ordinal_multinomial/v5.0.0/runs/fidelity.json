@@ -1,0 +1,136 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "5.0.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.13.0",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ]
+  },
+  "config": {
+    "suite": "ordinal-multinomial-fidelity",
+    "contract": "fail-loud, no silent substitution (RIGOR A6 / G2)"
+  },
+  "records": [
+    {
+      "key": "fidelity",
+      "checks": [
+        {
+          "key": "polr_link_unknown",
+          "surface": "polr",
+          "desc": "an unknown link name must raise (no silent logistic fallback)",
+          "expected": "raise",
+          "got": "ValidationError",
+          "message": "Unknown link: 'banana'. Valid links: cauchit, cloglog, logit, loglog, probit. No silent substitution.",
+          "pass": true
+        },
+        {
+          "key": "polr_l2_on_gpu",
+          "surface": "polr",
+          "desc": "l2>0 with backend='gpu' must raise (not silently dropped)",
+          "expected": "raise",
+          "got": "ValidationError",
+          "message": "l2 > 0 is only supported on the CPU backend (the GPU backend applies its own ridge stabilization). Use backend='cpu' or ",
+          "pass": true
+        },
+        {
+          "key": "polr_unknown_backend",
+          "surface": "polr",
+          "desc": "unknown backend must raise",
+          "expected": "raise",
+          "got": "ValidationError",
+          "message": "Unknown backend 'tpu'. Valid options: 'cpu', 'gpu', 'gpu_fp64', 'auto'.",
+          "pass": true
+        },
+        {
+          "key": "polr_gpu_fp64_non_cuda",
+          "surface": "polr",
+          "desc": "gpu_fp64 without CUDA must raise (MPS has no fp64)",
+          "expected": "raise",
+          "got": "RuntimeError",
+          "message": "backend='gpu_fp64' requires CUDA: Apple Silicon (Metal/MPS) has no float64. Use backend='gpu' (float32) on Apple Silicon",
+          "pass": true
+        },
+        {
+          "key": "polr_y_gap",
+          "surface": "polr",
+          "desc": "y with a missing level must raise",
+          "expected": "raise",
+          "got": "ValidationError",
+          "message": "y has gaps in category codes. Missing levels: [1]. All codes 0 through 2 must be present.",
+          "pass": true
+        },
+        {
+          "key": "polr_y_nonzero_start",
+          "surface": "polr",
+          "desc": "y not starting at 0 must raise",
+          "expected": "raise",
+          "got": "ValidationError",
+          "message": "y codes must start at 0, got minimum code 1",
+          "pass": true
+        },
+        {
+          "key": "polr_y_noninteger",
+          "surface": "polr",
+          "desc": "non-integer y must raise",
+          "expected": "raise",
+          "got": "ValidationError",
+          "message": "y must contain integer values (category codes 0, 1, ..., K-1)",
+          "pass": true
+        },
+        {
+          "key": "polr_X_nonfinite",
+          "surface": "polr",
+          "desc": "non-finite X must raise",
+          "expected": "raise",
+          "got": "ValidationError",
+          "message": "X: contains non-finite values (1 NaN, 0 Inf)",
+          "pass": true
+        },
+        {
+          "key": "multinom_unknown_backend",
+          "surface": "multinom",
+          "desc": "unknown backend must raise",
+          "expected": "raise",
+          "got": "ValidationError",
+          "message": "Unknown backend 'tpu'. Valid options: 'cpu', 'gpu', 'gpu_fp64', 'auto'.",
+          "pass": true
+        },
+        {
+          "key": "multinom_gpu_fp64_non_cuda",
+          "surface": "multinom",
+          "desc": "gpu_fp64 without CUDA must raise",
+          "expected": "raise",
+          "got": "RuntimeError",
+          "message": "backend='gpu_fp64' requires CUDA: Apple Silicon (Metal/MPS) has no float64. Use backend='gpu' (float32) on Apple Silicon",
+          "pass": true
+        },
+        {
+          "key": "multinom_y_gap",
+          "surface": "multinom",
+          "desc": "y with a missing class must raise",
+          "expected": "raise",
+          "got": "ValidationError",
+          "message": "y: class codes must be consecutive integers starting from 0. Got unique values [0, 2], expected [0, 1]",
+          "pass": true
+        },
+        {
+          "key": "multinom_X_nonfinite",
+          "surface": "multinom",
+          "desc": "non-finite X must raise",
+          "expected": "raise",
+          "got": "ValidationError",
+          "message": "X: contains non-finite values (1 NaN, 0 Inf)",
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

@@ -47,7 +47,7 @@ _MODELS = (
     ("glm_binomial", "binomial",          "binomial", 500_000),
     ("glm_poisson",  "poisson",           "poisson",  500_000),
     ("glm_gamma",    "gamma",             "Gamma",    500_000),
-    ("glm_negbin",   "negative.binomial", "negbin",    10_000),  # glm.nb profiling is slow
+    ("glm_negbin",   "negative-binomial", "negbin",    10_000),  # glm.nb profiling is slow
 )
 _N_GRID = (50, 200, 1_000, 10_000, 100_000, 500_000)
 _P = 8
@@ -67,9 +67,9 @@ def _reps(n: int) -> int:
 
 
 def _fam(family: str | None):
-    from pystatistics.regression import GammaFamily
+    from pystatistics.regression import Gamma
     if family == "gamma":
-        return GammaFamily(link="log")
+        return Gamma(link="log")
     return family
 
 

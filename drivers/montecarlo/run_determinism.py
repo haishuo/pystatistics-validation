@@ -53,10 +53,10 @@ def run_cpu_reproducibility() -> list[dict]:
         r1 = boot(data, stat, n_resamples=3000, seed=20260705)
         r2 = boot(data, stat, n_resamples=3000, seed=20260705)
         same = (np.array_equal(r1.t, r2.t) and np.array_equal(r1.t0, r2.t0)
-                and r1.bias[0] == r2.bias[0] and r1.se[0] == r2.se[0])
+                and r1.bias[0] == r2.bias[0] and r1.standard_errors[0] == r2.standard_errors[0])
         # boot_ci identical too
-        c1 = boot_ci(r1, ci_type="all").ci
-        c2 = boot_ci(r2, ci_type="all").ci
+        c1 = boot_ci(r1, ci_type="all").conf_int
+        c2 = boot_ci(r2, ci_type="all").conf_int
         ci_same = all(np.array_equal(c1[k], c2[k]) for k in c1)
         recs.append({"group": "boot_repro", "dataset": key, "statistic": stat_name,
                      "t_identical": bool(same), "ci_identical": bool(ci_same),

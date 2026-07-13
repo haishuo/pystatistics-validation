@@ -1,0 +1,311 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "5.0.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.13.0",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ],
+    "r_packages": {
+      "MASS": "7.3.65",
+      "nnet": "7.3.20",
+      "R": "4.5.2"
+    }
+  },
+  "config": {
+    "suite": "ordinal-g1",
+    "reference": "R MASS::polr",
+    "tolerance_contract": "two-tier: coef/zeta/loglik optimizer-tier (matched link), SE rel-tier, implied fitted probs tight"
+  },
+  "records": [
+    {
+      "key": "correctness",
+      "checks": [
+        {
+          "group": "polr_fit",
+          "dataset": "housing",
+          "link": "logistic",
+          "n": 1681,
+          "p": 6,
+          "K": 3,
+          "coef": {
+            "n": 6,
+            "max_abs": 2.487129966421975e-07,
+            "max_rel": 5.33726939324477e-07
+          },
+          "zeta": {
+            "n": 2,
+            "max_abs": 2.0576834636187868e-07,
+            "max_rel": 4.1474236591454266e-07
+          },
+          "se_beta": {
+            "n": 6,
+            "max_abs": 1.0023987233320764e-07,
+            "max_rel": 1.0492388512358786e-06
+          },
+          "se_zeta": {
+            "n": 2,
+            "max_abs": 2.560768791459722e-07,
+            "max_rel": 2.040909511284523e-06
+          },
+          "loglik": {
+            "py": -1739.5746495294743,
+            "r": -1739.5746495294766,
+            "abs": 2.2737367544323206e-12,
+            "rel": 1.307064778764927e-15
+          },
+          "aic": {
+            "py": 3495.1492990589486,
+            "r": 3495.149299058953,
+            "abs": 4.547473508864641e-12,
+            "rel": 1.3010813329459259e-15
+          },
+          "implied_probs": {
+            "n": 5043,
+            "max_abs": 7.67297375636744e-08,
+            "max_rel": 2.837633512678916e-07
+          },
+          "converged": true,
+          "r_warnings": [],
+          "pass": true
+        },
+        {
+          "group": "polr_fit",
+          "dataset": "housing",
+          "link": "probit",
+          "n": 1681,
+          "p": 6,
+          "K": 3,
+          "coef": {
+            "n": 6,
+            "max_abs": 4.5156421746295194e-07,
+            "max_rel": 5.767735762771408e-07
+          },
+          "zeta": {
+            "n": 2,
+            "max_abs": 1.1703134189522402e-06,
+            "max_rel": 2.7425663570766697e-06
+          },
+          "se_beta": {
+            "n": 6,
+            "max_abs": 5.317357809619949e-08,
+            "max_rel": 9.148509977450382e-07
+          },
+          "se_zeta": {
+            "n": 2,
+            "max_abs": 1.1397702971704948e-07,
+            "max_rel": 1.491761342881753e-06
+          },
+          "loglik": {
+            "py": -1739.8444212820714,
+            "r": -1739.844421284075,
+            "abs": 2.003616828005761e-09,
+            "rel": 1.151606892831838e-12
+          },
+          "aic": {
+            "py": 3495.6888425641428,
+            "r": 3495.68884256815,
+            "abs": 4.007233656011522e-09,
+            "rel": 1.1463359115989166e-12
+          },
+          "implied_probs": {
+            "n": 5043,
+            "max_abs": 7.183616530515025e-07,
+            "max_rel": 3.1413952337561184e-06
+          },
+          "converged": true,
+          "r_warnings": [],
+          "pass": true
+        },
+        {
+          "group": "polr_fit",
+          "dataset": "housing",
+          "link": "cloglog",
+          "n": 1681,
+          "p": 6,
+          "K": 3,
+          "coef": {
+            "n": 6,
+            "max_abs": 1.389871861656733e-05,
+            "max_rel": 2.1311092788631636e-05
+          },
+          "zeta": {
+            "n": 2,
+            "max_abs": 8.6481189061835e-06,
+            "max_rel": 0.00015619580101206528
+          },
+          "se_beta": {
+            "n": 6,
+            "max_abs": 2.9863929469631234e-07,
+            "max_rel": 3.2264361811494064e-06
+          },
+          "se_zeta": {
+            "n": 2,
+            "max_abs": 1.4239195932075344e-07,
+            "max_rel": 1.6635231535097335e-06
+          },
+          "loglik": {
+            "py": -1742.0265851802644,
+            "r": -1742.0265852007713,
+            "abs": 2.05068317882251e-08,
+            "rel": 1.1771824817393161e-11
+          },
+          "aic": {
+            "py": 3500.053170360529,
+            "r": 3500.0531704015425,
+            "abs": 4.10136635764502e-08,
+            "rel": 1.1718011578591225e-11
+          },
+          "implied_probs": {
+            "n": 5043,
+            "max_abs": 4.6318087321139956e-06,
+            "max_rel": 2.3530438434975316e-05
+          },
+          "converged": true,
+          "r_warnings": [],
+          "pass": true
+        },
+        {
+          "group": "polr_fit",
+          "dataset": "synth_ordinal",
+          "link": "logistic",
+          "n": 1200,
+          "p": 4,
+          "K": 4,
+          "coef": {
+            "n": 4,
+            "max_abs": 3.007206169636234e-07,
+            "max_rel": 5.047562127859252e-07
+          },
+          "zeta": {
+            "n": 3,
+            "max_abs": 5.044450982039095e-06,
+            "max_rel": 1.4588686141376306e-05
+          },
+          "se_beta": {
+            "n": 4,
+            "max_abs": 2.8871780854977658e-08,
+            "max_rel": 2.12724444555306e-07
+          },
+          "se_zeta": {
+            "n": 3,
+            "max_abs": 4.141484651054572e-08,
+            "max_rel": 3.848932444679654e-07
+          },
+          "loglik": {
+            "py": -1439.333111669851,
+            "r": -1439.3331116720308,
+            "abs": 2.1798314264742658e-09,
+            "rel": 1.5144732020664904e-12
+          },
+          "aic": {
+            "py": 2892.666223339702,
+            "r": 2892.6662233440616,
+            "abs": 4.3596628529485315e-09,
+            "rel": 1.507143415913555e-12
+          },
+          "implied_probs": {
+            "n": 4800,
+            "max_abs": 1.3865444764560308e-06,
+            "max_rel": 6.029032997460134e-06
+          },
+          "converged": true,
+          "r_warnings": [],
+          "pass": true
+        },
+        {
+          "group": "polr_fit",
+          "dataset": "collapsed_ordinal",
+          "link": "logistic",
+          "n": 400,
+          "p": 1,
+          "K": 3,
+          "coef": {
+            "n": 1,
+            "max_abs": 0.00014372073984758593,
+            "max_rel": 0.00013224002339006782
+          },
+          "zeta": {
+            "n": 2,
+            "max_abs": 1.7549412568013123e-05,
+            "max_rel": 7.235496443708519e-05
+          },
+          "se_beta": {
+            "n": 1,
+            "max_abs": 7.099535166588122e-06,
+            "max_rel": 5.3429359208895274e-05
+          },
+          "se_zeta": {
+            "n": 2,
+            "max_abs": 1.9292605363263604e-06,
+            "max_rel": 1.7446849375607163e-05
+          },
+          "loglik": {
+            "py": -345.5799049202959,
+            "r": -345.5799055345358,
+            "abs": 6.142398660813342e-07,
+            "rel": 1.7774177729785554e-09
+          },
+          "aic": {
+            "py": 697.1598098405918,
+            "r": 697.1598110690716,
+            "abs": 1.2284797321626684e-06,
+            "rel": 1.762120696944414e-09
+          },
+          "implied_probs": {
+            "n": 1200,
+            "max_abs": 3.7223910507089286e-05,
+            "max_rel": 0.00047410011346604025
+          },
+          "converged": true,
+          "r_warnings": [],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "default",
+      "checks": [
+        {
+          "group": "r15_default",
+          "dataset": "housing",
+          "default_link": "logit",
+          "coef_vs_explicit_logistic": {
+            "n": 6,
+            "max_abs": 0.0,
+            "max_rel": 0.0
+          },
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "hardcases",
+      "checks": [
+        {
+          "group": "r10_separation",
+          "dataset": "sep_ordinal_complete",
+          "py_fail_loud": true,
+          "py_message": "polr did not reach the maximum likelihood estimate within the Newton polishing budget (likely data separation). Optimizer ran 122 iterations (CONVERGENCE: RELAT",
+          "r_ok": false,
+          "r_error": "ERROR:attempt to find suitable starting values failed",
+          "r_maxabs_coef": null,
+          "r_warnings": [
+            "glm.fit: algorithm did not converge",
+            "glm.fit: fitted probabilities numerically 0 or 1 occurred"
+          ],
+          "r_refuses": true,
+          "note": "complete separation: pystatistics rejects the non-PD observed information with ConvergenceError (fail-loud); MASS::polr also refuses \u2014 glm.fit emits the 'fitted probabilities numerically 0 or 1' separation warnings and polr then errors. Both engines refuse a separated fit; neither returns a silently-finite result.",
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

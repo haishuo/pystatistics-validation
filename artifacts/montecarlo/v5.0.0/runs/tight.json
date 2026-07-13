@@ -1,0 +1,183 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "5.0.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.13.0",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ],
+    "r_packages": {
+      "boot": "1.3.32",
+      "stats": "4.5.2"
+    }
+  },
+  "config": {
+    "suite": "montecarlo-tight",
+    "reference": "R boot::boot + boot::boot.ci on SHARED resample indices (genuine R boot, indices exported to pystatistics)",
+    "tolerance_contract": "TIGHT \u2014 statistic/t0/bias/se/normal/basic/perc/studentized to machine precision (1e-09) on shared replicates (4.6.8 adopts R's norm.inter quantile rule); BCa z0 exact, endpoints to the regression-influence floor (0.005) using R's default regression acceleration"
+  },
+  "records": [
+    {
+      "key": "boot_tight",
+      "checks": [
+        {
+          "group": "boot_tight",
+          "dataset": "law",
+          "statistic": "corr",
+          "R": 5000,
+          "t_stat": {
+            "n": 5000,
+            "max_abs": 1.1102230246251565e-15,
+            "max_rel": 2.9595361269872036e-15
+          },
+          "t0": {
+            "py": 0.7763744244963864,
+            "r": 0.776374424496386,
+            "abs": 3.3306690738754696e-16,
+            "rel": 4.290029357981477e-16
+          },
+          "bias": {
+            "py": -0.005993683443200837,
+            "r": -0.00599368344320117,
+            "abs": 3.3306690738754696e-16,
+            "rel": 5.556965270919598e-14
+          },
+          "se": {
+            "py": 0.13108645454493179,
+            "r": 0.131086454544932,
+            "abs": 2.220446049250313e-16,
+            "rel": 1.6938790944942516e-15
+          },
+          "ci_normal": {
+            "n": 2,
+            "max_abs": 1.3322676295501878e-15,
+            "max_rel": 2.5355113127297733e-15
+          },
+          "ci_basic": {
+            "n": 2,
+            "max_abs": 1.5543122344752192e-15,
+            "max_rel": 1.499575792327718e-15
+          },
+          "ci_perc": {
+            "n": 2,
+            "max_abs": 4.440892098500626e-16,
+            "max_rel": 9.589841751342078e-16
+          },
+          "ci_bca": {
+            "n": 2,
+            "max_abs": 3.541461288003589e-06,
+            "max_rel": 1.0369529063860403e-05
+          },
+          "bca_z0": {
+            "py": -0.061702184885339184,
+            "r": -0.0617021848853392,
+            "abs": 1.3877787807814457e-17
+          },
+          "bca_a": {
+            "py_reg": -0.08107107429041699,
+            "r_reg": -0.081067771689996,
+            "abs_vs_r_reg": 3.3026004209874005e-06
+          },
+          "bca_note": "BCa uses the regression influence acceleration (R boot.ci default) + norm.inter quantiles; matches boot.ci to the influence-solve floor.",
+          "pass": true
+        },
+        {
+          "group": "boot_tight",
+          "dataset": "city",
+          "statistic": "ratio",
+          "R": 5000,
+          "t_stat": {
+            "n": 5000,
+            "max_abs": 5.10702591327572e-15,
+            "max_rel": 4.169478250541701e-15
+          },
+          "t0": {
+            "py": 1.5203125,
+            "r": 1.5203125,
+            "abs": 0.0,
+            "rel": 0.0
+          },
+          "bias": {
+            "py": 0.035157673975376724,
+            "r": 0.0351576739753767,
+            "abs": 2.0816681711721685e-17,
+            "rel": 5.920949641407169e-16
+          },
+          "se": {
+            "py": 0.22588425984785548,
+            "r": 0.225884259847856,
+            "abs": 5.273559366969494e-16,
+            "rel": 2.3346289690664995e-15
+          },
+          "ci_normal": {
+            "n": 2,
+            "max_abs": 3.1086244689504383e-15,
+            "max_rel": 1.6124575839482666e-15
+          },
+          "ci_basic": {
+            "n": 2,
+            "max_abs": 4.218847493575595e-15,
+            "max_rel": 2.887640964803929e-15
+          },
+          "ci_perc": {
+            "n": 2,
+            "max_abs": 4.440892098500626e-15,
+            "max_rel": 3.2167895771522433e-15
+          },
+          "ci_bca": {
+            "n": 2,
+            "max_abs": 8.525151535820896e-06,
+            "max_rel": 3.915483341530387e-06
+          },
+          "bca_z0": {
+            "py": 0.024567428181125256,
+            "r": 0.0245674281811253,
+            "abs": 4.5102810375396984e-17
+          },
+          "bca_a": {
+            "py_reg": 0.013377021585784838,
+            "r_reg": 0.0133844219802487,
+            "abs_vs_r_reg": 7.400394463862037e-06
+          },
+          "bca_note": "BCa uses the regression influence acceleration (R boot.ci default) + norm.inter quantiles; matches boot.ci to the influence-solve floor.",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "stud_tight",
+      "checks": [
+        {
+          "group": "stud_tight",
+          "dataset": "seeded_gamma_n80",
+          "statistic": "mean",
+          "R": 5000,
+          "t_stat": {
+            "n": 5000,
+            "max_abs": 5.1514348342607263e-14,
+            "max_rel": 4.87465733275562e-15
+          },
+          "var_t": {
+            "n": 5000,
+            "max_abs": 7.216449660063518e-16,
+            "max_rel": 3.170254008525786e-15
+          },
+          "ci_stud": {
+            "n": 2,
+            "max_abs": 1.1546319456101628e-13,
+            "max_rel": 1.1128638075015672e-14
+          },
+          "note": "studentized endpoints use R's norm.inter quantile rule (since 4.6.8) \u2014 machine-precision agreement with boot.ci on the shared pivot",
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

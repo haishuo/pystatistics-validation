@@ -1,0 +1,200 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "5.0.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.13.0",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ],
+    "r_packages": {
+      "boot": "1.3.32",
+      "stats": "4.5.2"
+    }
+  },
+  "config": {
+    "suite": "montecarlo-equivalence",
+    "reference": "R boot / exact enumeration + a KNOWN-truth DGP",
+    "tolerance_contract": "independent-RNG summaries agree within MC error ~1/sqrt(B); coverage reported vs nominal 0.95 (+/-2 binomial SE), simple-method under-coverage on skewed DGP documented as the motivation for BCa"
+  },
+  "records": [
+    {
+      "key": "boot_equivalence",
+      "checks": [
+        {
+          "group": "boot_equiv",
+          "dataset": "law",
+          "statistic": "corr",
+          "B": 60000,
+          "mc_tol_rel": 0.01224744871391589,
+          "se_py": 0.13489047356698475,
+          "se_r": 0.133234775459454,
+          "se_rel_diff": 0.01242692158876049,
+          "ci_reldiff_vs_width": {
+            "normal": 0.008651269646460763,
+            "basic": 0.020286058148802397,
+            "perc": 0.020286058148804402,
+            "bca": 0.002245967950015693
+          },
+          "pass": true
+        },
+        {
+          "group": "boot_equiv",
+          "dataset": "city",
+          "statistic": "ratio",
+          "B": 60000,
+          "mc_tol_rel": 0.01224744871391589,
+          "se_py": 0.22187296769330117,
+          "se_r": 0.221389622575198,
+          "se_rel_diff": 0.002183232946878472,
+          "ci_reldiff_vs_width": {
+            "normal": 0.00146137662103224,
+            "basic": 0.0008376667298012959,
+            "perc": 0.0008376667297975477,
+            "bca": 0.0071314041186802315
+          },
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "perm_equivalence",
+      "checks": [
+        {
+          "group": "perm_equiv",
+          "dataset": "sleep",
+          "alternative": "two-sided",
+          "B": 200000,
+          "p_py": 0.07844960775196123,
+          "p_exact": 0.0797051245967655,
+          "p_r_mc": 0.079159604201979,
+          "abs_vs_exact": 0.0012555168448042664,
+          "abs_vs_r_mc": 0.0007099964500177636,
+          "mc_tol": 0.006708203932499369,
+          "pass": true
+        },
+        {
+          "group": "perm_equiv",
+          "dataset": "sleep",
+          "alternative": "greater",
+          "B": 200000,
+          "p_py": 0.9609451952740237,
+          "p_exact": 0.960293576392648,
+          "p_r_mc": 0.960425197874011,
+          "abs_vs_exact": 0.0006516188813756596,
+          "abs_vs_r_mc": 0.0005199974000126284,
+          "mc_tol": 0.006708203932499369,
+          "pass": true
+        },
+        {
+          "group": "perm_equiv",
+          "dataset": "sleep",
+          "alternative": "less",
+          "B": 200000,
+          "p_py": 0.03922480387598062,
+          "p_exact": 0.0398525622983827,
+          "p_r_mc": 0.0395798021009895,
+          "abs_vs_exact": 0.0006277584224020846,
+          "abs_vs_r_mc": 0.0003549982250088818,
+          "mc_tol": 0.006708203932499369,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "coverage_study",
+      "checks": [
+        {
+          "group": "coverage",
+          "ci_type": "normal",
+          "n_rep": 1000,
+          "B": 1999,
+          "dgp": {
+            "family": "lognormal",
+            "meanlog": 0.0,
+            "sdlog": 0.5,
+            "n": 40,
+            "true_mean": 1.1331484530668263
+          },
+          "master_seed": 909090,
+          "true_mean": 1.1331484530668263,
+          "coverage": 0.921,
+          "mean_width": 0.3611629040869693,
+          "nominal": 0.95,
+          "cov_se": 0.006892024376045111,
+          "within_2se_of_nominal": false,
+          "pass": true
+        },
+        {
+          "group": "coverage",
+          "ci_type": "basic",
+          "n_rep": 1000,
+          "B": 1999,
+          "dgp": {
+            "family": "lognormal",
+            "meanlog": 0.0,
+            "sdlog": 0.5,
+            "n": 40,
+            "true_mean": 1.1331484530668263
+          },
+          "master_seed": 909090,
+          "true_mean": 1.1331484530668263,
+          "coverage": 0.914,
+          "mean_width": 0.3609250175477033,
+          "nominal": 0.95,
+          "cov_se": 0.006892024376045111,
+          "within_2se_of_nominal": false,
+          "pass": true
+        },
+        {
+          "group": "coverage",
+          "ci_type": "perc",
+          "n_rep": 1000,
+          "B": 1999,
+          "dgp": {
+            "family": "lognormal",
+            "meanlog": 0.0,
+            "sdlog": 0.5,
+            "n": 40,
+            "true_mean": 1.1331484530668263
+          },
+          "master_seed": 909090,
+          "true_mean": 1.1331484530668263,
+          "coverage": 0.932,
+          "mean_width": 0.3609250175477033,
+          "nominal": 0.95,
+          "cov_se": 0.006892024376045111,
+          "within_2se_of_nominal": true,
+          "pass": true
+        },
+        {
+          "group": "coverage",
+          "ci_type": "bca",
+          "n_rep": 1000,
+          "B": 1999,
+          "dgp": {
+            "family": "lognormal",
+            "meanlog": 0.0,
+            "sdlog": 0.5,
+            "n": 40,
+            "true_mean": 1.1331484530668263
+          },
+          "master_seed": 909090,
+          "true_mean": 1.1331484530668263,
+          "coverage": 0.93,
+          "mean_width": 0.3720553886721076,
+          "nominal": 0.95,
+          "cov_se": 0.006892024376045111,
+          "within_2se_of_nominal": false,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

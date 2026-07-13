@@ -64,7 +64,7 @@ def exact_estimates(Y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Exact single-series CSS-ML fits (fp64 ground truth), per row."""
     ar, ma = [], []
     for row in Y:
-        s = arima(row, order=ORDER, method="CSS-ML")
+        s = arima(row, order=ORDER, method="css-ml")
         ar.append(float(s.ar[0])); ma.append(float(s.ma[0]))
     return np.array(ar), np.array(ma)
 
@@ -83,9 +83,9 @@ def scaling() -> list[dict]:
         n = 1000
         Y = batch_matrix(K, n, 0.6, 0.4, base=1000)
         ex_ar, ex_ma = exact_estimates(Y)
-        (bc, tc) = _time(arima_batch, Y, order=ORDER, method="Whittle", backend="cpu")
-        (bg, tg) = _time(arima_batch, Y, order=ORDER, method="Whittle", backend="gpu")
-        (bg64, tg64) = _time(arima_batch, Y, order=ORDER, method="Whittle", backend="gpu_fp64")
+        (bc, tc) = _time(arima_batch, Y, order=ORDER, method="whittle", backend="cpu")
+        (bg, tg) = _time(arima_batch, Y, order=ORDER, method="whittle", backend="gpu")
+        (bg64, tg64) = _time(arima_batch, Y, order=ORDER, method="whittle", backend="gpu_fp64")
         rows.append({
             "K": K, "n": n, "cpu_s": tc, "gpu_s": tg, "gpu_fp64_s": tg64,
             "speedup_gpu_vs_cpu": tc / tg, "speedup_gpu64_vs_cpu": tc / tg64,
@@ -102,7 +102,7 @@ def _run(Y, backend):
     try:
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            b = arima_batch(Y, order=ORDER, method="Whittle", backend=backend)
+            b = arima_batch(Y, order=ORDER, method="whittle", backend=backend)
         ar = np.asarray(b.ar).ravel()
         finite = ar[np.isfinite(ar)]
         return {"result": "fit", "converged": int(np.sum(b.converged)),
@@ -129,7 +129,7 @@ def stress_and_fidelity() -> tuple[list, dict]:
                  "cpu_result": cpu["result"], "gpu_result": gpu["result"]}
         if cpu["result"] == "fit" and gpu["result"] == "fit":
             ex_ar, ex_ma = exact_estimates(Y)
-            bg = arima_batch(Y, order=ORDER, method="Whittle", backend="gpu")
+            bg = arima_batch(Y, order=ORDER, method="whittle", backend="gpu")
             entry.update({"fp32_ar_rel": rel(bg.ar, ex_ar),
                           "fp32_ma_rel": rel(bg.ma, ex_ma),
                           "gpu_converged": gpu["converged"],

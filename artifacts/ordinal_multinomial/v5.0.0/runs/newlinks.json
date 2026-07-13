@@ -1,0 +1,162 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "5.0.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.13.0",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ],
+    "r_packages": {
+      "MASS": "7.3.65",
+      "nnet": "7.3.20",
+      "R": "4.5.2"
+    }
+  },
+  "config": {
+    "suite": "ordinal-newlinks",
+    "reference": "independent cauchit MLE (cauchit) / MASS::polr (loglog)",
+    "contract": "cauchit and loglog links added after 4.6.10, validated as supported: cauchit vs an independent MLE because MASS::polr cauchit under-converges; loglog vs MASS::polr (reliable). Both agree with pystatistics to optimizer tier."
+  },
+  "records": [
+    {
+      "key": "newlinks",
+      "checks": [
+        {
+          "group": "cauchit_vs_independent",
+          "dataset": "housing",
+          "link": "cauchit",
+          "reference": "independent scipy cauchit MLE",
+          "n": 1681,
+          "K": 3,
+          "coef": {
+            "n": 6,
+            "max_abs": 6.484391677497037e-06,
+            "max_rel": 1.4065768369079386e-05
+          },
+          "thr": {
+            "n": 2,
+            "max_abs": 6.236288497829534e-06,
+            "max_rel": 1.342678805941941e-05
+          },
+          "loglik": {
+            "py": -1742.156224923345,
+            "r": -1742.1562249162962,
+            "abs": 7.048811312415637e-09,
+            "rel": 4.0460271080191475e-12
+          },
+          "py_loglik": -1742.156224923345,
+          "indep_loglik": -1742.1562249162962,
+          "mass_loglik": -1752.7747516608654,
+          "mass_underconv_gap": 10.61852674456918,
+          "mass_note": "MASS::polr cauchit under-converges: loglik -1752.7748 vs independent MLE -1742.1562 (worse by 10.6185); pystatistics reaches the true MLE (-1742.1562).",
+          "converged": true,
+          "pass": true
+        },
+        {
+          "group": "cauchit_vs_independent",
+          "dataset": "synth_ordinal",
+          "link": "cauchit",
+          "reference": "independent scipy cauchit MLE",
+          "n": 1200,
+          "K": 4,
+          "coef": {
+            "n": 4,
+            "max_abs": 2.096661366746133e-08,
+            "max_rel": 3.699936419241409e-08
+          },
+          "thr": {
+            "n": 3,
+            "max_abs": 2.5163717110032735e-08,
+            "max_rel": 1.6731896587508509e-07
+          },
+          "loglik": {
+            "py": -1465.8228305495231,
+            "r": -1465.8228305495231,
+            "abs": 0.0,
+            "rel": 0.0
+          },
+          "py_loglik": -1465.8228305495231,
+          "indep_loglik": -1465.8228305495231,
+          "mass_loglik": -1472.451539371098,
+          "mass_underconv_gap": 6.628708821574946,
+          "mass_note": "MASS::polr cauchit under-converges: loglik -1472.4515 vs independent MLE -1465.8228 (worse by 6.6287); pystatistics reaches the true MLE (-1465.8228).",
+          "converged": true,
+          "pass": true
+        },
+        {
+          "group": "loglog_vs_mass",
+          "dataset": "housing",
+          "link": "loglog",
+          "reference": "MASS::polr(method='loglog')",
+          "n": 1681,
+          "K": 3,
+          "coef": {
+            "n": 6,
+            "max_abs": 3.82043702407131e-06,
+            "max_rel": 1.327832395648312e-05
+          },
+          "zeta": {
+            "n": 2,
+            "max_abs": 6.683473591229117e-07,
+            "max_rel": 7.006695647908771e-06
+          },
+          "se_beta": {
+            "n": 6,
+            "max_abs": 1.851078681031071e-07,
+            "max_rel": 1.7748370189218045e-06
+          },
+          "loglik": {
+            "py": -1745.7048368245921,
+            "r": -1745.704836828219,
+            "abs": 3.6268374969949946e-09,
+            "rel": 2.07757773277676e-12
+          },
+          "py_loglik": -1745.7048368245921,
+          "mass_loglik": -1745.704836828219,
+          "converged": true,
+          "pass": true
+        },
+        {
+          "group": "loglog_vs_mass",
+          "dataset": "synth_ordinal",
+          "link": "loglog",
+          "reference": "MASS::polr(method='loglog')",
+          "n": 1200,
+          "K": 4,
+          "coef": {
+            "n": 4,
+            "max_abs": 3.907905475331042e-06,
+            "max_rel": 6.797570899283288e-06
+          },
+          "zeta": {
+            "n": 3,
+            "max_abs": 1.731476898192419e-06,
+            "max_rel": 5.623115440274473e-06
+          },
+          "se_beta": {
+            "n": 4,
+            "max_abs": 9.056725738809668e-08,
+            "max_rel": 1.0762917635209414e-06
+          },
+          "loglik": {
+            "py": -1457.084545254945,
+            "r": -1457.0845452496178,
+            "abs": 5.327137841959484e-09,
+            "rel": 3.6560252178413405e-12
+          },
+          "py_loglik": -1457.084545254945,
+          "mass_loglik": -1457.0845452496178,
+          "converged": true,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

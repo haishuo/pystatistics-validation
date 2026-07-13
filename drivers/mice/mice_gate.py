@@ -38,7 +38,8 @@ _REPO = _HERE.parents[1]
 sys.path[:0] = [str(_HERE.parent / "_shared")]
 from dgp import make_complete, make_mixed, impose_mcar  # noqa: E402
 
-_OUTDIR = _REPO / "artifacts" / "mice" / "v4.6.13" / "runs"
+import pystatistics  # noqa: E402
+_OUTDIR = _REPO / "artifacts" / "mice" / f"v{pystatistics.__version__}" / "runs"
 _SEED = 20260707
 
 
@@ -69,7 +70,7 @@ def _pooled_fit(sol):
         vars.append(v)
     n = sol.completed(0).shape[0]
     k = np.asarray(ests).shape[1]
-    return pool(np.asarray(ests), np.asarray(vars), dfcom=n - k)
+    return pool(np.asarray(ests), np.asarray(vars), df_complete=n - k)
 
 
 # --------------------------------------------------------------------------- #
@@ -97,8 +98,8 @@ def numeric_gate() -> list[dict]:
                            seed=_SEED + 2, backend=bk)
                 pooled = _pooled_fit(sol)
                 est = np.asarray(pooled.estimate)
-                se = np.asarray(pooled.se)
-                lo, hi = np.asarray(pooled.ci_low), np.asarray(pooled.ci_high)
+                se = np.asarray(pooled.standard_errors)
+                lo, hi = np.asarray(pooled.ci_lower), np.asarray(pooled.ci_upper)
                 covered = bool(np.all((truth >= lo) & (truth <= hi)))
                 rec = {"study": "numeric_gate", "method": method, "backend": bk,
                        "backend_name": sol.backend_name,
@@ -153,11 +154,11 @@ def coverage_study(reps: int = 40) -> list[dict]:
                 sol = mice(data, n_imputations=M, max_iter=5, method="norm",
                            seed=_SEED + 900 + r, backend=bk)
                 pooled = _pooled_fit(sol)
-                lo, hi = np.asarray(pooled.ci_low), np.asarray(pooled.ci_high)
+                lo, hi = np.asarray(pooled.ci_lower), np.asarray(pooled.ci_upper)
                 cov = (truth >= lo) & (truth <= hi)          # per-coefficient
                 agg[bk]["cover"] += int(cov.sum())
                 agg[bk]["total"] += cov.size
-                agg[bk]["se_sum"] += float(np.mean(pooled.se))
+                agg[bk]["se_sum"] += float(np.mean(pooled.standard_errors))
             except Exception:  # noqa: BLE001
                 pass
     out = []

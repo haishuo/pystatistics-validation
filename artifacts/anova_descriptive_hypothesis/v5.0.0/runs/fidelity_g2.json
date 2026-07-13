@@ -1,0 +1,142 @@
+{
+  "module": "anova+descriptive+hypothesis",
+  "guarantee": "G2_fidelity",
+  "engine": "pystatistics",
+  "py_version": "5.0.0",
+  "r_versions": {
+    "R": "R version 4.5.2 (2025-10-31)",
+    "car": "3.1.5",
+    "afex": "1.5.1"
+  },
+  "summary": {
+    "fail_loud_pass": 9,
+    "fail_loud_total": 9,
+    "warning_match_clean_pass": 3,
+    "warning_match_clean_total": 3,
+    "disclosure_all": true,
+    "findings": []
+  },
+  "fail_loud": [
+    {
+      "case": "t_test:paired-mismatched-n",
+      "raised": true,
+      "exc_type": "ValidationError",
+      "message": "Paired t-test requires equal lengths: len(x)=3, len(y)=2",
+      "pass": true
+    },
+    {
+      "case": "quantile:type-out-of-range",
+      "raised": true,
+      "exc_type": "ValidationError",
+      "message": "Quantile type must be 1-9, got 99",
+      "pass": true
+    },
+    {
+      "case": "cor:unknown-method",
+      "raised": true,
+      "exc_type": "ValidationError",
+      "message": "Unknown correlation method: 'banana'. Must be 'pearson', 'spearman', or 'kendall'.",
+      "pass": true
+    },
+    {
+      "case": "t_test:empty-input",
+      "raised": true,
+      "exc_type": "ValidationError",
+      "message": "Need at least 2 non-missing observations in x, got 0",
+      "pass": true
+    },
+    {
+      "case": "chisq:negative-count",
+      "raised": true,
+      "exc_type": "ValidationError",
+      "message": "All entries in contingency table must be non-negative",
+      "pass": true
+    },
+    {
+      "case": "t_test:all-NaN",
+      "raised": true,
+      "exc_type": "ValidationError",
+      "message": "Need at least 2 non-missing observations in x, got 0",
+      "pass": true
+    },
+    {
+      "case": "prop_test:successes>trials",
+      "raised": true,
+      "exc_type": "ValidationError",
+      "message": "All success counts must be between 0 and n_trials",
+      "pass": true
+    },
+    {
+      "case": "wilcox:length-mismatch-paired",
+      "raised": true,
+      "exc_type": "ValidationError",
+      "message": "Paired test requires equal lengths: len(x)=3, len(y)=2",
+      "pass": true
+    },
+    {
+      "case": "quantile:probs-outside-[0,1]",
+      "raised": true,
+      "exc_type": "ValidationError",
+      "message": "'probs' outside [0,1]: got range [-0.2, 1.5]",
+      "pass": true
+    }
+  ],
+  "fail_loud_gaps": [],
+  "na_match": [
+    {
+      "case": "var:single-observation",
+      "py": NaN,
+      "r_is_na": true,
+      "pass": true,
+      "note": "py nan == R NA; a not-a-number sentinel, not fabricated data."
+    }
+  ],
+  "warning_match": [
+    {
+      "case": "chisq:expected<5",
+      "py_warnings": [
+        "Chi-squared approximation may be incorrect"
+      ],
+      "r_warnings": [
+        "Chi-squared approximation may be incorrect"
+      ],
+      "pass": true
+    },
+    {
+      "case": "wilcox:ties->normal-approx",
+      "py_warnings": [
+        "cannot compute exact p-value with ties"
+      ],
+      "r_warnings": [
+        "cannot compute exact p-value with ties",
+        "cannot compute exact confidence intervals with ties"
+      ],
+      "py_method": "Wilcoxon rank sum test with continuity correction",
+      "pass": true
+    },
+    {
+      "case": "ks:one-sample-ties",
+      "py_warnings": [
+        "ties should not be present for the one-sample Kolmogorov-Smirnov test"
+      ],
+      "r_warnings": [
+        "ties should not be present for the one-sample Kolmogorov-Smirnov test"
+      ],
+      "pass": true,
+      "note": "pystatistics now emits R's one-sample KS ties warning."
+    }
+  ],
+  "disclosure": [
+    {
+      "case": "wilcox:ties",
+      "method": "Wilcoxon rank sum test with continuity correction",
+      "discloses": true
+    },
+    {
+      "case": "fisher:rxc",
+      "method": "Fisher's Exact Test for Count Data with simulated p-value\n\t(based on 2000 replicates)",
+      "discloses": true
+    }
+  ],
+  "exceptions_module": "pystatistics.core.exceptions"
+}

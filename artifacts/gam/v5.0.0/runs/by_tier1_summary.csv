@@ -1,0 +1,5 @@
+case,n,fitted_max_abs,coef_max_abs,total_edf_abs,scale_rel,param_se_max_rel
+by_cont,400,7.11e-15,9.99e-16,3.55e-15,6.4e-15,3.81e-15
+by_neg,400,6.66e-15,2.44e-15,1.78e-15,3.03e-16,9.07e-16
+by_two,500,8.66e-15,5.77e-15,7.11e-15,1.49e-14,5.68e-15
+by_big,400,1.14e-12,2.42e-13,1.78e-15,2.86e-14,1.42e-14

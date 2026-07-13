@@ -39,6 +39,11 @@ _ARTIFACT = (Path(__file__).resolve().parents[2]
 _DERIVED = {"near_noninv": near_noninvertible, "pure_noise": pure_noise,
             "short_air": short_series}
 
+# 5.0 lowercased the pystatistics arima(method=) VALUES. R's stats::arima and the
+# JSON artifact labels keep R's canonical uppercase strings, so decouple: this map
+# is applied ONLY to the pystatistics call, never to the R reference or the record.
+_PYMETHOD = {"CSS-ML": "css-ml", "ML": "ml", "CSS": "css", "Whittle": "whittle"}
+
 
 def _resolve(key):
     """Return the fp64 series for a store key or a derived-case key."""
@@ -96,7 +101,7 @@ def run_ets() -> list[dict]:
     # (MAM/air) — the forecast follows the better fit, not a defect.
     yn = load_series("nile").y
     pn = ets(yn, model="ANN")
-    fcn = forecast_ets(pn, h=10, levels=[95])
+    fcn = forecast_ets(pn, n_ahead=10, conf_level=[0.95])
     rn = r_reference("forecast_ets", yn, period=1, model="ANN", damped=False, h=10)
     cfn = arr_cmp(fcn.mean, rn["mean"])
     recs.append({"group": "ets_forecast", "series": "nile", "model": "ANN",
@@ -104,7 +109,7 @@ def run_ets() -> list[dict]:
                  "pass": within(cfn, rel_tol=1e-3)})
     ya = load_series("air_passengers").y
     pa = ets(ya, model="MAM", period=12)
-    fca = forecast_ets(pa, h=12, levels=[95])
+    fca = forecast_ets(pa, n_ahead=12, conf_level=[0.95])
     ra = r_reference("forecast_ets", ya, period=12, model="MAM", damped=False, h=12)
     cfa = arr_cmp(fca.mean, ra["mean"])
     recs.append({"group": "ets_forecast", "series": "air_passengers",
@@ -120,7 +125,7 @@ def run_ets() -> list[dict]:
 # --------------------------------------------------------------------------
 def _arima_case(key, order, seasonal, method, per=1, include_mean=True):
     y = _resolve(key)
-    p = arima(y, order=order, seasonal=seasonal, method=method,
+    p = arima(y, order=order, seasonal=seasonal, method=_PYMETHOD[method],
               include_mean=include_mean)
     rseas = None if seasonal is None else list(seasonal[:3])
     r = r_reference("arima", y, period=per, order=list(order), seasonal=rseas,
@@ -163,8 +168,8 @@ def run_arima() -> list[dict]:
     recs.append(rec)
     # forecast_arima vs R predict (mean + se)
     y = load_series("air_passengers").y
-    p = arima(y, order=(0, 1, 1), seasonal=(0, 1, 1, 12), method="CSS-ML", include_mean=False)
-    fc = forecast_arima(p, y, h=12, levels=[95])
+    p = arima(y, order=(0, 1, 1), seasonal=(0, 1, 1, 12), method="css-ml", include_mean=False)
+    fc = forecast_arima(p, y, n_ahead=12, conf_level=[0.95])
     r = r_reference("forecast_arima", y, period=12, order=[0, 1, 1],
                     seasonal=[0, 1, 1], include_mean=False, method="CSS-ML", h=12)
     cm, cse = arr_cmp(fc.mean, r["mean"]), arr_cmp(fc.se, r["se"])

@@ -201,7 +201,7 @@ def run_case(case: Case) -> dict[str, Any]:
             sp_mgcv = [float(v) for v in np.atleast_1d(r_free["sp"])]
             r_fix = _run_r(case, csv, r_family, sp=sp_mgcv)
             py_fix = _fit_py(case, sp=sp_mgcv)
-            py_se = py_fix.se
+            py_se = py_fix.standard_errors
             # mgcv posterior SE for the parametric block
             r_pse = np.atleast_1d(r_fix["p_se"])
             n_par = 1 + len(case.parametric)

@@ -1,0 +1,220 @@
+{
+  "schema": "validation-artifact-manifest/v1",
+  "subsystem": "montecarlo",
+  "pystatistics_version": "5.0.0",
+  "install_source": "pypi",
+  "evidence_state": "native-harness",
+  "frozen_utc": "2026-07-05",
+  "provenance": {
+    "note": "First-time validation of pystatistics.montecarlo (bootstrap + permutation resampling) across its whole public surface \u2014 boot, boot_ci (all 5 CI types), permutation_test \u2014 combining the first-time validation and the red-team in one pass. Stochastic methods are validated with a three-part contract: (R6) seed determinism; a TIGHT tier that shares R's genuine boot resample indices with pystatistics so the statistic + CI arithmetic is compared to machine precision, isolating cross-language RNG divergence; and a statistical-equivalence tier (independent RNGs, large B) plus a known-DGP coverage study. The pass drove one R16 emergency stop: the GPU backends inferred whether the user's statistic was the mean / mean-difference from a SINGLE resample and could then silently compute the mean for a different statistic on backend='gpu' \u2014 a silently-wrong result. Fixed in 4.6.7: the one-sample inference was removed and replaced with an explicit gpu_statistic opt-in ('mean'/'mean_diff') that is fail-loud (missing declaration, non-vectorizable config, or a declared statistic that does not match the data all raise; auto falls back to CPU disclosed). The pass also surfaced two non-showstopper (R18-gather) fidelity gaps that were then FIXED and bundled into 4.6.8 (gather means deferred-not-excused, not documented-away): boot_ci used numpy's type-7 quantile and Efron's jackknife BCa acceleration, so its intervals differed from R boot.ci on identical replicates \u2014 4.6.8 adopts R's norm.inter quantile rule (basic/perc/studentized now machine-precision vs boot.ci) and R's default regression-influence BCa acceleration (BCa to ~1e-5); and permutation_test's two-sided p-value counted |perm|>=|obs| (correct only for a null-centred statistic) \u2014 4.6.8 uses the 2*min-tail rule, correct for any statistic. This blessed report is the 4.6.8 bundle. Identical float64 inputs feed both engines (law, city, sleep from the central HDF5 store; the R reference reads the same values and, in the tight tier, the same resample indices AND frequencies). Reference: R boot::boot / boot::boot.ci and base-R exact permutation enumeration."
+  },
+  "hosts": {
+    "arm+r": {
+      "device": "CPU (numpy 2.4.6) + R boot 1.3.32 / stats 4.5.2"
+    },
+    "mac-mps": {
+      "device": "Apple mps (torch 2.13.0)"
+    }
+  },
+  "reference": {
+    "name": "R boot::boot / boot.ci + exact enumeration",
+    "kind": "cran"
+  },
+  "studies": [
+    {
+      "id": "g1_tight",
+      "title": "G1 correctness \u2014 TIER: TIGHT (shared resamples, machine precision): boot t0/t/bias/se + all 5 boot.ci types vs R boot::boot/boot.ci on IDENTICAL resample indices/frequencies",
+      "claim": "agreement",
+      "host": "arm+r",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/tight_summary.csv",
+      "summary_cols": [
+        "dataset",
+        "statistic",
+        "R",
+        "t_abs",
+        "t0_abs",
+        "se_abs",
+        "normal_abs",
+        "basic_abs",
+        "perc_or_stud_abs",
+        "bca_abs",
+        "z0_abs",
+        "a_py_reg",
+        "a_r_reg",
+        "pass"
+      ],
+      "note": "All five CI types match boot.ci on shared replicates: normal/basic/perc/studentized to machine precision (R's norm.inter quantile rule, adopted 4.6.8); BCa to the regression-influence solve floor (~1e-5) using R's default regression acceleration."
+    },
+    {
+      "id": "g1_equiv_boot",
+      "title": "G1 correctness \u2014 TIER: statistical equivalence (independent RNG, large B): se + CI agree within MC error vs R",
+      "claim": "agreement",
+      "host": "arm+r",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/equiv_boot_summary.csv",
+      "summary_cols": [
+        "dataset",
+        "statistic",
+        "B",
+        "se_rel",
+        "normal_rel",
+        "perc_rel",
+        "bca_rel",
+        "pass"
+      ]
+    },
+    {
+      "id": "g1_equiv_perm",
+      "title": "G1 correctness \u2014 permutation p vs EXACT enumeration and independent R Monte-Carlo",
+      "claim": "agreement",
+      "host": "arm+r",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/equiv_perm_summary.csv",
+      "summary_cols": [
+        "dataset",
+        "alternative",
+        "B",
+        "p_py",
+        "p_exact",
+        "p_r_mc",
+        "abs_vs_exact",
+        "pass"
+      ]
+    },
+    {
+      "id": "determinism",
+      "title": "R6 determinism \u2014 same seed bit-identical; default seed=None non-reproducible (documented)",
+      "claim": "determinism",
+      "host": "arm+r",
+      "device": [
+        "cpu",
+        "mps"
+      ],
+      "summary": "runs/determinism_summary.csv",
+      "summary_cols": [
+        "group",
+        "subject",
+        "detail",
+        "pass"
+      ]
+    },
+    {
+      "id": "coverage",
+      "title": "G1 coverage study \u2014 nominal-95% CI coverage over a seeded known DGP (the ultimate CI correctness check)",
+      "claim": "coverage",
+      "host": "arm+r",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/coverage_summary.csv",
+      "summary_cols": [
+        "ci_type",
+        "n_rep",
+        "B",
+        "coverage",
+        "mean_width",
+        "nominal",
+        "within_2se"
+      ],
+      "note": "Lognormal n=40 (hard): all simple methods under-cover; BCa covers best (0.930). Demonstrates BCa's correction and the small-n-skew limit \u2014 reported honestly, not failed."
+    },
+    {
+      "id": "redteam",
+      "title": "R10 red-team \u2014 small n, skew (perc\u2260BCa), boundary, ties, degenerate BCa",
+      "claim": "hard-cases",
+      "host": "arm+r",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/redteam_hard_summary.csv",
+      "summary_cols": [
+        "case",
+        "statistic",
+        "detail",
+        "pass"
+      ]
+    },
+    {
+      "id": "fidelity",
+      "title": "G2 fidelity \u2014 default invocation (R15), two-sided convention, GPU opt-in fail-loud (the 4.6.7 fix)",
+      "claim": "fail-loud",
+      "host": "arm+r",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/fidelity_summary.csv",
+      "summary_cols": [
+        "case",
+        "detail",
+        "pass"
+      ],
+      "note": "two_sided_convention: since 4.6.8 the two-sided p-value uses the 2*min-tail rule, correct for ANY statistic \u2014 it matches exact enumeration for both a difference (unchanged) and a ratio (was the ~0.89 |.| artefact, now the correct ~0.40)."
+    },
+    {
+      "id": "g3_performance",
+      "title": "G3 performance \u2014 pystatistics CPU vs R across B (and n)",
+      "claim": "speed",
+      "host": "arm+r",
+      "device": [
+        "cpu"
+      ],
+      "summary": "runs/performance_summary.csv",
+      "summary_cols": [
+        "study",
+        "dataset",
+        "statistic",
+        "axis(B|n)",
+        "py_ms",
+        "r_ms",
+        "R_over_py",
+        "py_slope"
+      ],
+      "note": "Same O(B) complexity as R (slope~1.0). Tiny-n constant-factor lag is fixed Python per-replicate overhead; it reverses as n grows \u2014 parity at n~1000, 3.4x FASTER at n=10000 (numpy vectorization). The big vectorized win is GPU-only."
+    },
+    {
+      "id": "gpu_mps_speed",
+      "title": "GPU (MPS, fp32) \u2014 GPU vs CPU speed at large n\u00b7B",
+      "claim": "speed",
+      "host": "mac-mps",
+      "device": [
+        "mps"
+      ],
+      "summary": "runs/gpu_mps_speed.csv",
+      "summary_cols": [
+        "op",
+        "n",
+        "B",
+        "gpu_ms",
+        "cpu_ms",
+        "speedup",
+        "verdict"
+      ],
+      "note": "Apple MPS: 25\u201343x (boot mean) / 6\u201315x (perm) over CPU \u2014 wins across the range."
+    },
+    {
+      "id": "gpu_mps_drift",
+      "title": "GPU (MPS, fp32) \u2014 fp32 accumulation vs fp64 on shared indices",
+      "claim": "accuracy",
+      "host": "mac-mps",
+      "device": [
+        "mps"
+      ],
+      "summary": "runs/gpu_mps_drift.csv",
+      "summary_cols": [
+        "n",
+        "dtype",
+        "max_rel_vs_fp64",
+        "tier",
+        "verdict"
+      ],
+      "note": "fp32 mean drift ~1.3e-7 even at n=100k \u2014 well within the 1e-5 fp32 tier (torch uses a stable reduction; no R12 silent-wrong)."
+    }
+  ]
+}

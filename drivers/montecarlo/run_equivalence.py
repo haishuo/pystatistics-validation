@@ -48,20 +48,22 @@ def run_boot_equivalence() -> list[dict]:
         data = mcdata.load(key).values
         stat = mcdata.STAT[stat_name]
         py = boot(data, stat, n_resamples=B, seed=2026)
-        pci = boot_ci(py, ci_type="all").ci
+        pci = boot_ci(py, ci_type="all").conf_int
         r = r_reference("boot", data, statistic=stat_name, R=B, seed=2027)
         # se / bias agreement (independent RNG -> MC error)
-        se_rel = abs(py.se[0] - r["se"]) / max(abs(r["se"]), 1e-12)
+        se_rel = abs(py.standard_errors[0] - r["se"]) / max(abs(r["se"]), 1e-12)
         # CI endpoint agreement (relative to interval width)
         width = r["ci_perc"][1] - r["ci_perc"][0]
-        ci_diffs = {t: float(np.max(np.abs(np.array(pci[t][0]) - np.array(r[f"ci_{t}"]))) / width)
+        # py conf_int key is 'percentile'; R reference dict uses the short 'perc'.
+        _pyk = {"normal": "normal", "basic": "basic", "perc": "percentile", "bca": "bca"}
+        ci_diffs = {t: float(np.max(np.abs(np.array(pci[_pyk[t]][0]) - np.array(r[f"ci_{t}"]))) / width)
                     for t in ["normal", "basic", "perc", "bca"]}
         # Since 4.6.8 all four types (incl. BCa via regression influence + R's
         # norm.inter) share R's convention, so all agree within MC error.
         recs.append({
             "group": "boot_equiv", "dataset": key, "statistic": stat_name, "B": B,
             "mc_tol_rel": float(mc_tol),
-            "se_py": float(py.se[0]), "se_r": float(r["se"]), "se_rel_diff": float(se_rel),
+            "se_py": float(py.standard_errors[0]), "se_r": float(r["se"]), "se_rel_diff": float(se_rel),
             "ci_reldiff_vs_width": ci_diffs,
             "pass": bool(se_rel < 0.03
                          and all(v < 0.06 for v in ci_diffs.values())),
@@ -104,13 +106,15 @@ def run_coverage_study() -> list[dict]:
     samples = mcdata.coverage_samples(n_rep, master_seed)
     mean_stat = mcdata.STAT["mean"]
 
+    # report labels keep the short 'perc'; py conf_int key is 'percentile'.
+    _pyk = {"normal": "normal", "basic": "basic", "perc": "percentile", "bca": "bca"}
     cover = {t: 0 for t in ["normal", "basic", "perc", "bca"]}
     widths = {t: [] for t in cover}
     for i, s in enumerate(samples):
         r = boot(s, mean_stat, n_resamples=B, seed=1_000_000 + i)
-        ci = boot_ci(r, ci_type="all").ci
+        ci = boot_ci(r, ci_type="all").conf_int
         for t in cover:
-            lo, hi = ci[t][0]
+            lo, hi = ci[_pyk[t]][0]
             if lo <= truth <= hi:
                 cover[t] += 1
             widths[t].append(hi - lo)

@@ -53,7 +53,7 @@ def _batch_call(Y):
     """Run a CPU batch capturing whether a warning fired and its text."""
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
-        b = arima_batch(Y, order=(1, 0, 1), method="Whittle", backend="cpu")
+        b = arima_batch(Y, order=(1, 0, 1), method="whittle", backend="cpu")
         msgs = [str(x.message) for x in w]
     return b, msgs
 
@@ -95,14 +95,14 @@ def run_contract() -> list[dict]:
 
     # 3. all-fail: raises (no usable batch of non-stationary fits)
     Yf = np.stack([_arma(n, 8000 + i, 0.99, 0.3) for i in range(2)])
-    r = expect_raises(lambda: arima_batch(Yf, order=(1, 0, 1), method="Whittle",
+    r = expect_raises(lambda: arima_batch(Yf, order=(1, 0, 1), method="whittle",
                                           backend="cpu"), ConvergenceError)
     r.update({"key": "all_fail", "desc": "all series non-stationary -> raise ConvergenceError"})
     checks.append(to_native(r))
 
     # 4. single-series Whittle still raises (no partial case there)
     r = expect_raises(lambda: arima(_arma(n, 9999, 0.99, 0.3), order=(1, 0, 1),
-                                    method="Whittle"), ConvergenceError)
+                                    method="whittle"), ConvergenceError)
     r.update({"key": "single_series_raises",
               "desc": "single-series Whittle non-stationary -> raise"})
     checks.append(to_native(r))
@@ -112,10 +112,10 @@ def run_contract() -> list[dict]:
     #    they differ by ~1e-6 = the batch's looser default grad tol 1e-5 vs
     #    arima's 1e-8 — a convergence-tolerance difference, not a discrepancy.)
     tol = 1e-8
-    bg = arima_batch(Yg, order=(1, 0, 1), method="Whittle", backend="cpu", tol=tol)
+    bg = arima_batch(Yg, order=(1, 0, 1), method="whittle", backend="cpu", tol=tol)
     single_ar, single_ma = [], []
     for i in range(16):
-        s = arima(Yg[i], order=(1, 0, 1), method="Whittle", tol=tol)
+        s = arima(Yg[i], order=(1, 0, 1), method="whittle", tol=tol)
         single_ar.append(float(s.ar[0])); single_ma.append(float(s.ma[0]))
     ar_cmp = arr_cmp(np.asarray(bg.ar).ravel(), single_ar)
     ma_cmp = arr_cmp(np.asarray(bg.ma).ravel(), single_ma)

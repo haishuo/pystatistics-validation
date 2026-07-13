@@ -1,6 +1,6 @@
 """End-to-end MVN MLE fits for the cross-architecture comparison.
 
-Times full ``mlest(backend='gpu', algorithm='direct')`` fits across surveys and
+Times full ``mlest(backend='gpu', method='direct')`` fits across surveys and
 p, on whatever GPU the host provides (CUDA on the Forge box, Apple MPS on a Mac).
 On 3.11.0 a plain GPU fit already uses each backend's optimal configuration: the
 trace term is dispatched per device (blocked inverse on Metal, triangular solve

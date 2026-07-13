@@ -222,7 +222,7 @@ def run_case(case: TensorCase, tmp: Path) -> dict[str, Any]:
             "scale": _cmp(py_fix.scale, r_fix["scale"]),
             "param_coef": _vec_cmp(np.asarray(py_fix.coefficients)[:n_par],
                                    r_fix["p_coef"]),
-            "param_se": _vec_cmp(np.asarray(py_fix.se)[:n_par], r_fix["p_se"]),
+            "param_se": _vec_cmp(np.asarray(py_fix.standard_errors)[:n_par], r_fix["p_se"]),
             "aic_abs": abs(float(py_fix.aic) - float(r_fix["aic"])),
         }
     return rec

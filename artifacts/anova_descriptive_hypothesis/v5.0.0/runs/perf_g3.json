@@ -1,0 +1,78 @@
+{
+  "module": "anova+descriptive+hypothesis",
+  "guarantee": "G3_performance",
+  "engine": "pystatistics:cpu",
+  "py_version": "5.0.0",
+  "no_gpu_rationale": "No GPU path. Every function here is either a closed-form scalar statistic (t/chisq/fisher/wilcox/ks/prop/var.test, ANOVA F, Levene, TukeyHSD q) or an O(n) reduction (mean/var/cov/cor/quantile). There is no Gram matrix, no iterative optimiser, and no dense factorisation whose FLOPs an accelerator could amortise; kernel-launch and host<->device transfer would dominate. CPU is the correct and only backend (CF-1 is N/A: none of these form a normal-equations Gram). Manufacturing a GPU path would add surface area and a silent-precision risk for zero speed-up, so none exists.",
+  "tiny_n_cpu": [
+    {
+      "label": "var:mtcars.mpg(n=32)",
+      "median_s": 2.2834166884422302e-05,
+      "min_s": 1.9708648324012756e-05,
+      "reps": 7
+    },
+    {
+      "label": "cor:mpg~hp:pearson(n=32)",
+      "median_s": 4.120916128158569e-05,
+      "min_s": 3.483286127448082e-05,
+      "reps": 7
+    },
+    {
+      "label": "cor:mpg~hp:kendall(n=32)",
+      "median_s": 0.000158791895955801,
+      "min_s": 0.00015295902267098427,
+      "reps": 7
+    },
+    {
+      "label": "quantile:mpg:type7(n=32)",
+      "median_s": 2.445792779326439e-05,
+      "min_s": 2.2291671484708786e-05,
+      "reps": 7
+    },
+    {
+      "label": "t_test:welch(n=32)",
+      "median_s": 8.295895531773567e-05,
+      "min_s": 7.762480527162552e-05,
+      "reps": 7
+    },
+    {
+      "label": "anova_oneway:PlantGrowth(n=30)",
+      "median_s": 0.0002676672302186489,
+      "min_s": 0.0002648327499628067,
+      "reps": 7
+    }
+  ],
+  "large_n_cpu": [
+    {
+      "label": "var(n=1000000)",
+      "median_s": 0.0016803750768303871,
+      "min_s": 0.001588291022926569,
+      "reps": 5
+    },
+    {
+      "label": "cor:pearson(n=1000000)",
+      "median_s": 0.021469957660883665,
+      "min_s": 0.02133995806798339,
+      "reps": 5
+    },
+    {
+      "label": "cor:spearman(n=1000000)",
+      "median_s": 0.22616100031882524,
+      "min_s": 0.21840420784428716,
+      "reps": 5
+    },
+    {
+      "label": "quantile:type7(n=1000000)",
+      "median_s": 0.03273641597479582,
+      "min_s": 0.03264191700145602,
+      "reps": 5
+    }
+  ],
+  "large_n_r_inprocess_s": {
+    "var": 0.0028,
+    "cor_pearson": 0.0069,
+    "cor_spearman": 0.3135,
+    "quantile_t7": 0.0199
+  },
+  "note": "Large-n rows compare compute-vs-compute (R timed inside one session, startup excluded). Tiny-n rows are dominated by fixed Python-call overhead (~1e-4 s), an R2 that self-reverses with n."
+}

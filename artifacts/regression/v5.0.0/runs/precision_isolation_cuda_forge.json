@@ -1,0 +1,197 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "4.3.2",
+    "install_source": "pypi",
+    "python": "3.11.14",
+    "numpy": "2.3.5",
+    "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+    "cpu": "x86_64",
+    "device": "cuda",
+    "torch": "2.11.0.dev20251226+cu128",
+    "available_devices": [
+      "cuda",
+      "cpu"
+    ],
+    "gpu_name": "NVIDIA GeForce RTX 5070 Ti",
+    "cuda_version": "12.8",
+    "host": "forge"
+  },
+  "config": {
+    "study": "precision_isolation_r11",
+    "device": "cuda",
+    "n_grid": [
+      10000,
+      100000,
+      500000
+    ],
+    "p_grid": [
+      32,
+      128
+    ],
+    "models": [
+      "ols",
+      "glm_poisson"
+    ],
+    "repeats": 5,
+    "warmup": 1
+  },
+  "records": [
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 10000,
+      "p": 32,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.0021815448999404907,
+      "wall_gpu_fp32_s": 0.0011776825413107872,
+      "wall_gpu_fp64_s": 0.005811708979308605,
+      "speedup_fp32_vs_cpu": 1.8524048913150926,
+      "speedup_fp64_vs_cpu": 0.3753706367107219,
+      "gpu_fp64_coef_rel_vs_cpu": 2.1720818416394905e-15
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 10000,
+      "p": 128,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.007545526139438152,
+      "wall_gpu_fp32_s": 0.0035550249740481377,
+      "wall_gpu_fp64_s": 0.03600431885570288,
+      "speedup_fp32_vs_cpu": 2.122495958402789,
+      "speedup_fp64_vs_cpu": 0.2095728062424651,
+      "gpu_fp64_coef_rel_vs_cpu": 2.863891009153434e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 100000,
+      "p": 32,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.015619920566678047,
+      "wall_gpu_fp32_s": 0.0021822545677423477,
+      "wall_gpu_fp64_s": 0.008267882280051708,
+      "speedup_fp32_vs_cpu": 7.157698646880434,
+      "speedup_fp64_vs_cpu": 1.8892287090691813,
+      "gpu_fp64_coef_rel_vs_cpu": 4.018631683117243e-15
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 100000,
+      "p": 128,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.09701316338032484,
+      "wall_gpu_fp32_s": 0.012974008917808533,
+      "wall_gpu_fp64_s": 0.048912178725004196,
+      "speedup_fp32_vs_cpu": 7.477500901603476,
+      "speedup_fp64_vs_cpu": 1.9834152947010544,
+      "gpu_fp64_coef_rel_vs_cpu": 2.096325733912748e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 500000,
+      "p": 32,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.1143001327291131,
+      "wall_gpu_fp32_s": 0.01391089241951704,
+      "wall_gpu_fp64_s": 0.01892793830484152,
+      "speedup_fp32_vs_cpu": 8.216592385456847,
+      "speedup_fp64_vs_cpu": 6.03869956084317,
+      "gpu_fp64_coef_rel_vs_cpu": 1.4028714697667535e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "ols",
+      "n": 500000,
+      "p": 128,
+      "model_key": "ols",
+      "wall_cpu_fp64_s": 0.762763743288815,
+      "wall_gpu_fp32_s": 0.05236315447837114,
+      "wall_gpu_fp64_s": 0.10445250198245049,
+      "speedup_fp32_vs_cpu": 14.566802762119273,
+      "speedup_fp64_vs_cpu": 7.302493753734786,
+      "gpu_fp64_coef_rel_vs_cpu": 1.5889121174454197e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 10000,
+      "p": 32,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 0.005886949598789215,
+      "wall_gpu_fp32_s": 0.004091671667993069,
+      "wall_gpu_fp64_s": 0.004338919185101986,
+      "speedup_fp32_vs_cpu": 1.4387639274283988,
+      "speedup_fp64_vs_cpu": 1.3567778858390613,
+      "gpu_fp64_coef_rel_vs_cpu": 8.451438167519915e-15
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 10000,
+      "p": 128,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 0.04002445098012686,
+      "wall_gpu_fp32_s": 0.009774312376976013,
+      "wall_gpu_fp64_s": 0.011707108467817307,
+      "speedup_fp32_vs_cpu": 4.0948610435662856,
+      "speedup_fp64_vs_cpu": 3.4188161056296327,
+      "gpu_fp64_coef_rel_vs_cpu": 1.7589851537253794e-13
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 100000,
+      "p": 32,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 0.10098964534699917,
+      "wall_gpu_fp32_s": 0.03930654563009739,
+      "wall_gpu_fp64_s": 0.03219419624656439,
+      "speedup_fp32_vs_cpu": 2.5692831493610178,
+      "speedup_fp64_vs_cpu": 3.136889785151145,
+      "gpu_fp64_coef_rel_vs_cpu": 9.257349403209327e-15
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 100000,
+      "p": 128,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 0.5644696364179254,
+      "wall_gpu_fp32_s": 0.14134537428617477,
+      "wall_gpu_fp64_s": 0.1100581232458353,
+      "speedup_fp32_vs_cpu": 3.9935487048558977,
+      "speedup_fp64_vs_cpu": 5.128832109530682,
+      "gpu_fp64_coef_rel_vs_cpu": 1.7603512198664052e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 500000,
+      "p": 32,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 0.7210561661049724,
+      "wall_gpu_fp32_s": 0.29305892903357744,
+      "wall_gpu_fp64_s": 0.20406928844749928,
+      "speedup_fp32_vs_cpu": 2.4604476938573567,
+      "speedup_fp64_vs_cpu": 3.5333889366232483,
+      "gpu_fp64_coef_rel_vs_cpu": 1.0575980597357722e-14
+    },
+    {
+      "engine": "isolation:cuda",
+      "dataset": "glm_poisson",
+      "n": 500000,
+      "p": 128,
+      "model_key": "glm_poisson",
+      "wall_cpu_fp64_s": 4.178884053602815,
+      "wall_gpu_fp32_s": 0.7091214954853058,
+      "wall_gpu_fp64_s": 0.5338695766404271,
+      "speedup_fp32_vs_cpu": 5.893043829876976,
+      "speedup_fp64_vs_cpu": 7.82753735453516,
+      "gpu_fp64_coef_rel_vs_cpu": 1.711674709213945e-13
+    }
+  ]
+}

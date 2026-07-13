@@ -58,9 +58,16 @@ def _implied_probs(coef, zeta, X, link) -> np.ndarray:
     return ext[:, 1:] - ext[:, :-1]
 
 
+# The shared statistical-link label ("logistic") is what MASS::polr's method= and
+# the local link helpers use; pystatistics 5.0 renamed that link's argument value
+# to "logit". Decouple: keep `link` as the matched-engine label (R + helpers +
+# JSON) and translate ONLY at the pystatistics call site.
+_PYLINK = {"logistic": "logit", "probit": "probit", "cloglog": "cloglog"}
+
+
 def _fit_case(des, link: str, tier_a_abs=2e-3, se_rel=2e-2, ll_abs=2e-3,
               prob_abs=1e-4) -> dict:
-    sol = polr(des.y, des.X, link=link)
+    sol = polr(des.y, des.X, link=_PYLINK[link])
     r = r_polr(des.y, des.X, link)
     if not r.get("ok"):
         return {"group": "polr_fit", "dataset": des.key, "link": link,
@@ -101,16 +108,16 @@ def run_correctness() -> list[dict]:
 
 
 def run_default() -> list[dict]:
-    """R15: the bare default call. polr(y, X) must default to the logistic link
-    and reproduce the explicit-logistic fit."""
+    """R15: the bare default call. polr(y, X) must default to the logit link
+    (renamed from 'logistic' in 5.0) and reproduce the explicit-logit fit."""
     housing = omdata.load_housing()
     sol_default = polr(housing.y, housing.X)          # no link= -> default
-    sol_logit = polr(housing.y, housing.X, link="logistic")
+    sol_logit = polr(housing.y, housing.X, link="logit")
     same = arr_cmp(sol_default.coefficients, sol_logit.coefficients)
     return [{"group": "r15_default", "dataset": "housing",
              "default_link": sol_default.link,
              "coef_vs_explicit_logistic": same,
-             "pass": (sol_default.link == "logistic"
+             "pass": (sol_default.link == "logit"
                       and within(same, abs_tol=1e-12))}]
 
 
@@ -121,7 +128,7 @@ def run_hardcases() -> list[dict]:
     sep = omdata.sep_ordinal_complete()
     py_raised, py_msg = False, ""
     try:
-        polr(sep.y, sep.X, link="logistic")
+        polr(sep.y, sep.X, link="logit")
     except ConvergenceError as e:
         py_raised, py_msg = True, str(e)[:160]
     r = r_polr(sep.y, sep.X, "logistic")

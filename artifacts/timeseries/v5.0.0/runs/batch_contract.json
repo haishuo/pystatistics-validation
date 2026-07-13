@@ -1,0 +1,83 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "5.0.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.13.0",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ]
+  },
+  "config": {
+    "suite": "timeseries-batch-contract",
+    "reference": "single-series arima(Whittle) + A6 fail-loud contract",
+    "tolerance_contract": "all-fail raises; partial -> NaN+warn; healthy unchanged; CPU batch == single-series to 1e-8; GPU parity on Forge (gpu_cuda_forge.json)"
+  },
+  "records": [
+    {
+      "key": "batch_contract",
+      "checks": [
+        {
+          "key": "all_good",
+          "desc": "healthy batch: no warning, all converged, no NaN",
+          "converged": 16,
+          "k": 16,
+          "n_nan": 0,
+          "warned": 0,
+          "ar_mean": 0.6022296594260885,
+          "ma_mean": 0.3895563406582271,
+          "pass": true
+        },
+        {
+          "key": "partial_fail",
+          "desc": "mixed batch: failed rows -> NaN + warning; no non-stationary number returned",
+          "converged": 12,
+          "k": 16,
+          "n_nan": 4,
+          "warned": 1,
+          "warning": "arima_batch (whittle-loop-cpu): 4 of 16 series failed to produce a valid stationary Whittle ARMA fit; their ar/ma/sigma2/mean estimates are set to NaN and converged=False. Identify them with np.isnan(result.sigma2). A failed series usually signals the wrong order or inadequate differencing \u2014 try increasing ``d`` or reducing ``p``.",
+          "max_finite_ar": 0.640361184542431,
+          "pass": true
+        },
+        {
+          "raised": true,
+          "expected": "ConvergenceError",
+          "got": "ConvergenceError",
+          "pass": true,
+          "key": "all_fail",
+          "desc": "all series non-stationary -> raise ConvergenceError"
+        },
+        {
+          "raised": true,
+          "expected": "ConvergenceError",
+          "got": "ConvergenceError",
+          "pass": true,
+          "key": "single_series_raises",
+          "desc": "single-series Whittle non-stationary -> raise"
+        },
+        {
+          "key": "batch_vs_single_series",
+          "desc": "CPU batch per-row estimates == single-series arima(Whittle) loop at matched tol (exact)",
+          "tol": 1e-08,
+          "ar": {
+            "n": 16,
+            "max_abs": 0.0,
+            "max_rel": 0.0
+          },
+          "ma": {
+            "n": 16,
+            "max_abs": 0.0,
+            "max_rel": 0.0
+          },
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

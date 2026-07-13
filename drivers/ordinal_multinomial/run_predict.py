@@ -33,14 +33,20 @@ _ART = (Path(__file__).resolve().parents[2]
         / "artifacts/ordinal_multinomial/v{ver}/runs/predict.json")
 
 
+# Shared statistical-link label ("logistic") drives R's predict.polr method= and
+# the JSON label; pystatistics 5.0 renamed that link's value to "logit". Translate
+# only at the pystatistics call site (see run_g1_ordinal for the same decoupling).
+_PYLINK = {"logistic": "logit", "probit": "probit", "cloglog": "cloglog"}
+
+
 def run_polr() -> list[dict]:
     recs = []
     for link in ("logistic", "probit", "cloglog"):
         d = omdata.synth_ordinal(n=800)
         tr, te = slice(0, 600), slice(600, 800)
-        sol = polr(d.y[tr], d.X[tr], link=link)
-        pp = sol.predict(d.X[te], type="probs")
-        pc = sol.predict(d.X[te], type="class")
+        sol = polr(d.y[tr], d.X[tr], link=_PYLINK[link])
+        pp = sol.predict(d.X[te], kind="probs")
+        pc = sol.predict(d.X[te], kind="class")
         r = r_predict_polr(d.y[tr], d.X[tr], d.X[te], link)
         probs = arr_cmp(pp, np.array(r["probs"]))
         cls_match = int(np.sum(pc == np.array(r["cls"])))
@@ -60,8 +66,8 @@ def run_multinom() -> list[dict]:
     ]:
         tr, te = slice(0, split), slice(split, des.y.shape[0])
         sol = multinom(des.y[tr], des.X[tr], max_iter=2000)
-        pp = sol.predict(des.X[te], type="probs")
-        pc = sol.predict(des.X[te], type="class")
+        pp = sol.predict(des.X[te], kind="probs")
+        pc = sol.predict(des.X[te], kind="class")
         r = r_predict_multinom(des.y[tr], des.X[tr][:, 1:], des.X[te][:, 1:],
                                des.r_levels)
         rprobs = reorder_fitted(r["probs"], r["cols"], des.n_classes)

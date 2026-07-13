@@ -62,7 +62,7 @@ def sweep_polr() -> list[dict]:
     py_ms, r_ms, rows = [], [], []
     for n in ns:
         des = omdata.synth_ordinal(n=n)                  # K=4, p=4, cont+factor
-        tp = _py_best(lambda: polr(des.y, des.X, link="logistic"))
+        tp = _py_best(lambda: polr(des.y, des.X, link="logit"))
         tr = r_time_polr(des.y, des.X, "logistic")
         py_ms.append(tp * 1e3); r_ms.append(tr * 1e3)
         rows.append({"func": "polr", "n": n, "p": des.X.shape[1],

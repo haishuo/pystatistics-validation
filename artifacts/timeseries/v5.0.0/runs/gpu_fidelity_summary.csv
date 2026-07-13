@@ -1,0 +1,4 @@
+tag,cpu_result,gpu_result,contract_parity,gpu_no_nonstationary_number
+near_unit_root,fit,fit,True,True
+near_noninvertible,fit,fit,True,True
+both_extreme,fit,fit,True,True

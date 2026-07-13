@@ -34,7 +34,8 @@ sys.path[:0] = [str(_HERE.parent / "_shared")]
 
 from run_r_mvnmle import run_r_mvnmle  # noqa: E402
 
-_OUTDIR = _REPO / "artifacts" / "mvnmle" / "v4.6.13" / "runs"
+import pystatistics as _ps  # noqa: E402
+_OUTDIR = _REPO / "artifacts" / "mvnmle" / f"v{_ps.__version__}" / "runs"
 _SEED = 20260707
 
 

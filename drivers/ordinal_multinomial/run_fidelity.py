@@ -56,13 +56,13 @@ def run_checks() -> list[dict]:
     Xnan = Xf.copy(); Xnan[0, 0] = np.nan
 
     checks = [
-        # polr — no silent link substitution
-        _expect_raise("polr_link_cauchit", "polr",
-                      "unsupported link 'cauchit' must raise (not silently logistic)",
-                      lambda: polr(y, Xf, link="cauchit")),
-        _expect_raise("polr_link_loglog", "polr",
-                      "unsupported link 'loglog' must raise",
-                      lambda: polr(y, Xf, link="loglog")),
+        # polr — no silent link substitution. NOTE: 'cauchit' and 'loglog' are
+        # SUPPORTED links as of 5.0 (validated in run_newlinks), so they are no
+        # longer fail-loud negatives here. The unknown-link contract is exercised
+        # by a genuinely unsupported name below.
+        _expect_raise("polr_link_unknown", "polr",
+                      "an unknown link name must raise (no silent logistic fallback)",
+                      lambda: polr(y, Xf, link="banana")),
         # polr — l2 only on CPU, never silently dropped on GPU
         _expect_raise("polr_l2_on_gpu", "polr",
                       "l2>0 with backend='gpu' must raise (not silently dropped)",

@@ -10,7 +10,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-VER = "4.6.11"
+VER = "5.0.0"
+BLESSED_AT = "4.6.11"  # statistical bless line; 5.0.0 is a rename-only release over it
 ROOT = Path(__file__).resolve().parents[2]
 RUNS = ROOT / "artifacts/anova_descriptive_hypothesis" / f"v{VER}" / "runs"
 OUT = ROOT / "reports" / f"anova-descriptive-hypothesis-v{VER}.md"
@@ -68,6 +69,13 @@ def main():
              f"`artifacts/anova_descriptive_hypothesis/v{VER}/`. It was generated "
              f"by `render_report.py` from frozen artifacts — **do not edit numbers "
              f"by hand**; fix the artifact or the renderer and re-render.\n")
+    P.append(f"> **v{VER} is a rename-only release over the blessed v{BLESSED_AT} "
+             f"line** (statistically identical). Every G1 statistic / p-value and "
+             f"G2 fidelity outcome reproduces v{BLESSED_AT} **bit-for-bit**; the "
+             f"only observable change is that the `prop_test` invalid-input message "
+             f"now names the renamed `n_trials` argument (still raises "
+             f"`ValidationError`). Driver call sites were updated to the 5.0 API "
+             f"(`prop_test(null_value=)`, `chisq_test(expected_probs=)`).\n")
     P.append(f"**Reference:** {rv['R']} (base `stats`, `car` {rv['car']}, "
              f"`afex` {rv['afex']}, `e1071`, `TukeyHSD`); **scipy.stats** as an "
              f"independent third reference where R and scipy differ on a "
@@ -219,12 +227,13 @@ def main():
         f"pystatistics **anova + descriptive + hypothesis v{VER}** is **BLESSED**: "
         f"every function's statistic and default p-value matches R to machine "
         f"precision; fidelity (fail-loud + warnings) matches R; the five "
-        f"convention divergences found at 4.6.10 are fixed and re-validated at "
-        f"{VER}; the findings ledger carries **no open item** (RIGOR R18 bless "
-        f"precondition satisfied). No GPU path is warranted and none is "
-        f"manufactured.\n\n"
-        f"**This completes the pystatistics validation corpus — 9 of 9 modules "
-        f"validated.**\n")
+        f"convention divergences found at 4.6.10 are fixed (in the {BLESSED_AT} "
+        f"patch) and re-validated at {VER}; the findings ledger carries **no open "
+        f"item** (RIGOR R18 bless precondition satisfied). No GPU path is warranted "
+        f"and none is manufactured.\n\n"
+        f"v{VER} is a **rename-only release over the blessed v{BLESSED_AT} line** "
+        f"and reproduces its G1/G2 evidence bit-for-bit, so the bless carries "
+        f"forward unchanged.\n")
 
     OUT.write_text("\n".join(P) + "\n")
     print("wrote", OUT)

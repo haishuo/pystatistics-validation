@@ -1,0 +1,234 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "5.0.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.13.0",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ],
+    "r_packages": {
+      "MASS": "7.3.65",
+      "nnet": "7.3.20",
+      "R": "4.5.2"
+    }
+  },
+  "config": {
+    "suite": "multinom-g1",
+    "reference": "R nnet::multinom (decay=0)",
+    "tolerance_contract": "two-tier: coef/SE/loglik optimizer-tier where identified; fitted probs tight; separation cases validated on loglik+probs (coefficients non-identified, matching nnet)"
+  },
+  "records": [
+    {
+      "key": "correctness",
+      "checks": [
+        {
+          "group": "multinom_well",
+          "dataset": "multinom_synth",
+          "n": 1500,
+          "p": 4,
+          "K": 3,
+          "coef": {
+            "n": 8,
+            "max_abs": 7.393898916341346e-05,
+            "max_rel": 0.00026431378276318566
+          },
+          "se": {
+            "n": 8,
+            "max_abs": 1.7257454611591116e-06,
+            "max_rel": 2.1900558539703814e-05
+          },
+          "loglik": {
+            "py": -1324.6656015424185,
+            "r": -1324.6656006278163,
+            "abs": 9.146021966444096e-07,
+            "rel": 6.904400598996003e-10
+          },
+          "aic": {
+            "py": 2665.331203084837,
+            "r": 2665.3312012556325,
+            "abs": 1.8292043932888191e-06,
+            "rel": 6.862953438683659e-10
+          },
+          "fitted_probs": {
+            "n": 4500,
+            "max_abs": 4.4011859005377296e-05,
+            "max_rel": 0.0003032265539015418
+          },
+          "converged": true,
+          "r_conv": 0,
+          "pass": true
+        },
+        {
+          "group": "multinom_well",
+          "dataset": "synth_multinom_K5_p4",
+          "n": 2000,
+          "p": 5,
+          "K": 5,
+          "coef": {
+            "n": 20,
+            "max_abs": 0.0003545820930971888,
+            "max_rel": 0.005864928132756739
+          },
+          "se": {
+            "n": 20,
+            "max_abs": 5.040989946525354e-06,
+            "max_rel": 5.6625806211516296e-05
+          },
+          "loglik": {
+            "py": -2529.123163056247,
+            "r": -2529.1231383917425,
+            "abs": 2.466450450810953e-05,
+            "rel": 9.75219598196139e-09
+          },
+          "aic": {
+            "py": 5098.246326112494,
+            "r": 5098.246276783485,
+            "abs": 4.932900901621906e-05,
+            "rel": 9.675681859633708e-09
+          },
+          "fitted_probs": {
+            "n": 10000,
+            "max_abs": 0.00018745597267622038,
+            "max_rel": 0.0016587147278109224
+          },
+          "converged": true,
+          "r_conv": 0,
+          "pass": true
+        },
+        {
+          "group": "multinom_well",
+          "dataset": "unbalanced_multinom",
+          "n": 900,
+          "p": 3,
+          "K": 3,
+          "coef": {
+            "n": 6,
+            "max_abs": 4.599595691123781e-05,
+            "max_rel": 4.6062239366121224e-05
+          },
+          "se": {
+            "n": 6,
+            "max_abs": 4.966757526092547e-06,
+            "max_rel": 1.948730022996567e-05
+          },
+          "loglik": {
+            "py": -631.150535539744,
+            "r": -631.150535517735,
+            "abs": 2.2009089661878534e-08,
+            "rel": 3.487137920880381e-11
+          },
+          "aic": {
+            "py": 1274.301071079488,
+            "r": 1274.30107103547,
+            "abs": 4.401817932375707e-08,
+            "rel": 3.454299798083732e-11
+          },
+          "fitted_probs": {
+            "n": 2700,
+            "max_abs": 3.2603382139617665e-06,
+            "max_rel": 6.646105810405107e-05
+          },
+          "converged": true,
+          "r_conv": 0,
+          "pass": true
+        },
+        {
+          "group": "multinom_separation",
+          "dataset": "iris_multinom",
+          "why": "real 3-class; setosa linearly separable => quasi-separation (loglik/probs match, coefficients non-identified in both engines)",
+          "n": 150,
+          "K": 3,
+          "r_conv": 0,
+          "r_warnings": [],
+          "loglik": {
+            "py": -5.949274380644637,
+            "r": -5.94928623573645,
+            "abs": 1.1855091813117724e-05,
+            "rel": 1.9926914495903737e-06
+          },
+          "fitted_probs": {
+            "n": 450,
+            "max_abs": 0.00010340540979211776,
+            "max_rel": 1.861640198803291
+          },
+          "py_maxabs_coef": 42.64116832848413,
+          "r_maxabs_coef": 42.62948097875838,
+          "coef_identified": false,
+          "note": "quasi-separation: loglik/probs agree; max|coef| diverges (py 43 vs R 43) \u2014 MLE at infinity, coefficients non-identified in both engines.",
+          "pass": true
+        },
+        {
+          "group": "multinom_separation",
+          "dataset": "fgl",
+          "why": "real 6-class (many categories) with small classes (Con n=13, Tabl n=9) => quasi-separation-prone",
+          "n": 214,
+          "K": 6,
+          "r_conv": 0,
+          "r_warnings": [],
+          "loglik": {
+            "py": -121.05288471709873,
+            "r": -121.03170625483652,
+            "abs": 0.021178462262213316,
+            "rel": 0.00017498276210054674
+          },
+          "fitted_probs": {
+            "n": 1284,
+            "max_abs": 0.004071197633503054,
+            "max_rel": 729866041.6541976
+          },
+          "py_maxabs_coef": 123.86903056948414,
+          "r_maxabs_coef": 353.6167086053746,
+          "coef_identified": false,
+          "note": "quasi-separation: loglik/probs agree; max|coef| diverges (py 124 vs R 354) \u2014 MLE at infinity, coefficients non-identified in both engines.",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "default",
+      "checks": [
+        {
+          "group": "r15_default",
+          "dataset": "multinom_synth",
+          "coef": {
+            "n": 8,
+            "max_abs": 7.393898916341346e-05,
+            "max_rel": 0.00026431378276318566
+          },
+          "loglik": {
+            "py": -1324.6656015424185,
+            "r": -1324.6656006278163,
+            "abs": 9.146021966444096e-07,
+            "rel": 6.904400598996003e-10
+          },
+          "converged": true,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "hardcases",
+      "checks": [
+        {
+          "group": "r10_complete_separation",
+          "dataset": "sep_multinom_complete",
+          "r_conv": 1,
+          "r_warnings": [],
+          "r_maxabs_coef": 566.87924659777,
+          "r_maxabs_se": 288.6170539496298,
+          "py_fail_loud": true,
+          "py_error": "NotPositiveDefiniteError: Multinomial observed information is not positive definite \u2014 the coefficient variance-covariance is not identified. This is the signature of ",
+          "note": "complete separation: multinom raises NotPositiveDefiniteError (the observed information is not positive definite; the coefficient covariance is not identified) \u2014 fail-loud, matching polr. nnet returns the degenerate fit (conv=1, |coef|~567 if finite) with a non-convergence flag; pystatistics refuses rather than return a meaningless variance-covariance.",
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

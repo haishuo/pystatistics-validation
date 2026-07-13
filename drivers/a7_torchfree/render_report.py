@@ -14,7 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
-VER = "4.6.12"
+VER = "5.0.0"
 ROOT = Path(__file__).resolve().parents[2]
 ART = ROOT / "artifacts/a7_torchfree" / f"v{VER}"
 OUT = ROOT / "reports" / f"a7-torchfree-certification-v{VER}.md"
@@ -124,10 +124,12 @@ def main():
 
     arima_c = checks.get("timeseries.arima[gpu]", {})
     auto_c = checks.get("timeseries.auto_arima[gpu]", {})
+    A7_1_FIX_VER = "4.6.12"  # historical: the version that fixed A7-1 (not VER)
     P.append("### Finding A7-1 — `arima` / `auto_arima` GPU silent-CPU, fixed at "
-             f"{VER}\n")
+             f"{A7_1_FIX_VER}\n")
     P.append(
-        f"This certification pass surfaced one real fidelity defect. Before {VER}, "
+        f"An earlier certification pass surfaced one real fidelity defect. "
+        f"Before {A7_1_FIX_VER}, "
         f"`arima(..., backend='gpu')` and `auto_arima(..., backend='gpu')` "
         f"**silently computed on the CPU** and reported `backend_name='cpu'`: their "
         f"exact-ML/CSS-ML/CSS path has no GPU kernel, and the `backend=` argument "

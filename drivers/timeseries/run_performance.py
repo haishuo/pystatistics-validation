@@ -108,7 +108,7 @@ def main() -> None:
     # arima(1,0,0) ML: Kalman O(n)
     studies.append(scale(
         "arima", [200, 500, 1000, 2000, 5000],
-        lambda y: arima(y, order=(1, 0, 0), method="CSS-ML"),
+        lambda y: arima(y, order=(1, 0, 0), method="css-ml"),
         order=[1, 0, 0], method="CSS-ML", reps=3))
     # ets(ANN): O(n) state-space recursion
     studies.append(scale(

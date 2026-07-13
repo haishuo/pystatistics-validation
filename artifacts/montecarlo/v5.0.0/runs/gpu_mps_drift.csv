@@ -1,0 +1,5 @@
+n,dtype,max_rel_vs_fp64,tier,verdict
+100,torch.float32,1.54e-07,1e-05,ok
+1000,torch.float32,1.24e-07,1e-05,ok
+10000,torch.float32,1.12e-07,1e-05,ok
+100000,torch.float32,1.62e-07,1e-05,ok

@@ -66,9 +66,9 @@ _SEVERITIES = (1e-1, 1e-2, 1e-3, 3e-4, 1e-4, 3e-5, 1e-5)
 
 
 def _fam(family: str | None):
-    from pystatistics.regression import GammaFamily
+    from pystatistics.regression import Gamma
     if family == "gamma":
-        return GammaFamily(link="log")
+        return Gamma(link="log")
     return family
 
 

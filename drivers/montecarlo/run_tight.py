@@ -90,8 +90,8 @@ def _shared_solution(data, stat, t0, t):
     R = len(t)
     base = boot(data, stat, n_resamples=5, seed=0)   # a valid _design only
     params = BootParams(t0=np.asarray(t0, float), t=np.asarray(t, float).reshape(R, 1),
-                        R=R, bias=np.array([t.mean() - t0[0]]),
-                        se=np.array([t.std(ddof=1)]), ci=None, ci_conf_level=None)
+                        n_resamples=R, bias=np.array([t.mean() - t0[0]]),
+                        standard_errors=np.array([t.std(ddof=1)]), conf_int=None, conf_level=None)
     res = Result(params=params, info=base._result.info, timing=None,
                  backend_name="shared", warnings=())
     return BootstrapSolution(_result=res, _design=base._design)
@@ -117,13 +117,13 @@ def run_boot_tight() -> list[dict]:
         # (2) bias / se from shared replicates
         sol = _shared_solution(data, stat, np.array([r["t0"]]), t_R)
         c_bias = scalar_cmp(float(sol.bias[0]), float(r["bias"]))
-        c_se = scalar_cmp(float(sol.se[0]), float(r["se"]))
+        c_se = scalar_cmp(float(sol.standard_errors[0]), float(r["se"]))
 
         # (3) boot.ci normal/basic/perc on the shared replicates (norm.inter now)
-        ci = boot_ci(sol, ci_type="all").ci
+        ci = boot_ci(sol, ci_type="all").conf_int
         c_normal = arr_cmp(ci["normal"][0], r["ci_normal"])
         c_basic = arr_cmp(ci["basic"][0], r["ci_basic"])
-        c_perc = arr_cmp(ci["perc"][0], r["ci_perc"])
+        c_perc = arr_cmp(ci["percentile"][0], r["ci_perc"])
 
         # (4) BCa on shared frequencies via the library arithmetic (regression
         # influence + norm.inter) — matches R's boot.ci default empinf. (The
@@ -185,8 +185,8 @@ def run_stud_tight() -> list[dict]:
     c_var = arr_cmp(var_py, var_R)
 
     sol = _shared_solution(data, stat, np.array([r["t0"]]), t_R)
-    ci = boot_ci(sol, ci_type="stud", var_t=var_R, var_t0=float(r["var_t0"])).ci
-    c_ci = arr_cmp(ci["stud"][0], r["ci_stud"])
+    ci = boot_ci(sol, ci_type="studentized", var_t=var_R, var_t0=float(r["var_t0"])).conf_int
+    c_ci = arr_cmp(ci["studentized"][0], r["ci_stud"])
     recs.append({
         "group": "stud_tight", "dataset": "seeded_gamma_n80", "statistic": "mean",
         "R": R, "t_stat": c_t, "var_t": c_var, "ci_stud": c_ci,

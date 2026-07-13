@@ -289,7 +289,7 @@ def run_by_case(case: ByCase, worker: Path, tmp: Path) -> dict[str, Any]:
         "coef": _vec_cmp(py_fix.coefficients, r_fix["coef"]),
         "total_edf": _cmp(py_fix.total_edf, r_fix["total_edf"]),
         "scale": _cmp(py_fix.scale, r_fix["scale"]),
-        "param_se": _vec_cmp(np.asarray(py_fix.se)[:1], r_fix["p_se"]),
+        "param_se": _vec_cmp(np.asarray(py_fix.standard_errors)[:1], r_fix["p_se"]),
     }
     return rec
 

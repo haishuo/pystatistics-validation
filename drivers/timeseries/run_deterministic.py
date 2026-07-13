@@ -123,7 +123,7 @@ def run_decomposition() -> list[dict]:
                      ("air_passengers", "multiplicative"),
                      ("co2", "additive")]:
         s = load_series(key)
-        p = decompose(s.y, period=s.period, type=typ)
+        p = decompose(s.y, period=s.period, kind=typ)
         r = r_reference("decompose", s.y, period=s.period, type=typ)
         cs = arr_cmp(p.seasonal, r["seasonal"])
         ct = arr_cmp(p.trend, r["trend"])

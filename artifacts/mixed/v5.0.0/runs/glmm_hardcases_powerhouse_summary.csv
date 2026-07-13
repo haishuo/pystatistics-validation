@@ -1,0 +1,7 @@
+case,n,coef_max_rel,py_var,r_var,py_converged,py_warned,r_singular,r_warned,expect_singular,vs_glmer_coef_rel,failed_loud,error
+hc1_quasi_separation,144,4.1518241461359944e-05,1.9064434748513803,1.90617933257352,True,False,False,False,False,,,
+hc2_singular_re,300,2.814152857556343e-08,0.0,0.0,True,True,True,True,True,,,
+hc3_unbalanced,128,0.00022100550146701028,0.6310617456925598,0.630692469014304,True,False,False,False,False,,,
+hc4_default_r15,400,0.0,0.1739582984119443,0.173978373723299,True,,False,False,False,6.2757223712495e-05,,
+hc5_gaussian_loud,120,,,,,,,,,,True,"ValidationError: glmm() supports only fixed-dispersion families (binomial, poisson); family 'gaussian' has a free disper"
+hc6_gamma_loud,120,,,,,,,,,,True,"ValidationError: glmm() supports only fixed-dispersion families (binomial, poisson); family 'gamma' has a free dispersio"

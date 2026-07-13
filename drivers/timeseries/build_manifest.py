@@ -242,7 +242,20 @@ def build_manifest(runs: Path, ver: str) -> dict:
             "Identical float64 inputs to both engines (each "
             "series dumped from the central HDF5 store; the R reference reads the "
             "same values). References: stats/forecast/tseries; statsmodels as an "
-            "independent triangulation for stl and the ADF p-value."},
+            "independent triangulation for stl and the ADF p-value. 5.0.0 is the "
+            "package-rename release over the blessed 4.8.0 line and introduces no "
+            "timeseries algorithm change; re-run live against a PyPI 5.0.0 install, "
+            "every CPU-vs-R correctness table (deterministic, stationarity, ndiffs, "
+            "MLE, xreg, fail-loud, batch contract) reproduces the 4.8.0 numbers "
+            "byte-for-byte — including the optimizer-tier arima/ets/auto_arima fits — "
+            "and CPU performance stays at or faster than R at every size. The "
+            "validation-side edits were 5.0 API renames only (arima method-value "
+            "lowercasing 'CSS-ML'->'css-ml' etc.; forecast h=->n_ahead=, "
+            "levels=percent->conf_level=fraction, newxreg=->new_xreg=; "
+            "auto_arima allowdrift=->allow_drift=; decompose type=->kind=), with the "
+            "R-reference method strings and JSON labels kept at R's uppercase "
+            "convention. The Forge/CUDA arima_batch rows carry forward unchanged "
+            "(GPU Whittle kernel byte-identical across the rename)."},
         "hosts": {
             "arm+r": {"device": f"CPU (numpy {env.get('numpy','?')}) + R "
                       "stats/forecast 9.0.0/tseries 0.10.61"},

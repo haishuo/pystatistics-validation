@@ -1,0 +1,3 @@
+case,n,n_levels,n_coef_py,n_coef_r,total_edf_abs,smooth_edf_max_abs,reml_rel,deviance_rel,fitted_max_abs
+factor_by_tp,300,3,30,30,1.37e-05,1.37e-05,2.57e-07,3.06e-08,3.11e-07
+factor_by_cr,300,3,30,30,6.25e-05,6.23e-05,9.73e-07,1.4e-07,1.41e-06

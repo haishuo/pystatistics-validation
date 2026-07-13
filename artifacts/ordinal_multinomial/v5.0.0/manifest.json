@@ -1,0 +1,221 @@
+{
+  "schema": "validation-artifact-manifest/v1",
+  "subsystem": "ordinal_multinomial",
+  "pystatistics_version": "5.0.0",
+  "install_source": "pypi",
+  "evidence_state": "native-harness",
+  "frozen_utc": "2026-07-13",
+  "provenance": {
+    "note": "Re-validated at 5.0.0 (RIGOR R5). 5.0 renames the polr link value 'logistic'->'logit' and the predict argument 'type'->'kind'; the estimators are otherwise unchanged, and logit/probit/cloglog polr, multinom, predict, the separation/R15 hard cases and the CPU-speed profile all REPRODUCE the blessed 4.6.10 numbers to optimizer round-off (coef/loglik/probs identical to ~1e-11). 5.0 additionally EXPOSES two new polr links that 4.6.10 left unimplemented \u2014 cauchit and loglog \u2014 now validated as supported (see the newlinks study): loglog matches MASS::polr directly, and cauchit is validated against an INDEPENDENT scipy MLE because MASS::polr's cauchit under-converges (its optim stops ~6.6-10.6 loglik short of the true MLE on the heavy-tailed Cauchy likelihood); pystatistics reaches the true MLE. The GPU path is rename-only (byte-unchanged kernels/gate): the MPS leg was re-run live (no negative variance, fp32-tier SE across cond(X)), and the CUDA CF-1 / two-tier / performance evidence is carried forward from the 4.6.10 line (RTX 5070 Ti). The 4.6.10 provenance follows. First-time whole-surface validation of pystatistics.ordinal.polr (vs MASS::polr) and pystatistics.multinomial.multinom (vs nnet::multinom), grouped as one corpus item. The pass drove one R16 emergency stop: the GPU (float32) path of BOTH models inverted the model information matrix (X'WX) in single precision, silently losing accuracy on ill-conditioned designs \u2014 at cond(X)~1e4 (a design the CPU/fp64 path fits correctly) polr returned a negative-variance, 100%-wrong standard error with converged=True, and multinom ~40% wrong SEs, proven on CUDA (RTX 5070 Ti). Fixed in 4.6.9: the variance-covariance is computed in float64 (polr forms the observed-information Hessian on-device in fp64 on CUDA / on host on MPS; multinom forms its closed-form softmax Hessian on the host in fp64), inverted once in fp64 with a positive-definiteness gate. The fast float32 GPU fit is unchanged, so the large-n GPU speedup is preserved (polr ~50x, multinom ~120x over CPU at n=100k). Bundled fixes: multinom now fails loud (NotPositiveDefiniteError) on complete/quasi separation instead of returning a negative-variance covariance (matching polr); the unsupported-link error reads 'Unknown link' not 'Unknown method'; MultinomialSolution gains a .warnings accessor. 4.6.10 then added a predict() method to both models (matching R's predict.polr / predict.multinom \u2014 type='class'/'probs') plus polr fitted_probs / predicted_class, validated on held-out data (probs ~1e-5 vs R, classes exact). Identical float64 inputs to both engines (each design dumped to CSV read by R). Baseline 4.6.8 (defect) evidence retained under v4.6.8/runs/; this report is the validation at 4.6.10 (the CF-1 fix landed at 4.6.9, predict at 4.6.10)."
+  },
+  "hosts": {
+    "arm+r": {
+      "device": "CPU (numpy) + R MASS 7.3.65 / nnet 7.3.20"
+    },
+    "forge-cuda": {
+      "device": "NVIDIA GeForce RTX 5070 Ti (torch 2.11.0.dev20251226+cu128, CUDA)"
+    }
+  },
+  "reference": {
+    "name": "R MASS::polr / nnet::multinom",
+    "kind": "cran"
+  },
+  "studies": [
+    {
+      "id": "g1_polr",
+      "title": "G1 correctness \u2014 polr vs MASS::polr (two-tier: coef/zeta/loglik optimizer, implied probs tight)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/g1_polr_summary.csv",
+      "summary_cols": [
+        "dataset",
+        "link",
+        "n",
+        "K",
+        "coef_maxabs",
+        "zeta_maxabs",
+        "se_beta_maxrel",
+        "loglik_abs",
+        "probs_maxabs",
+        "pass"
+      ]
+    },
+    {
+      "id": "g1_multinom",
+      "title": "G1 correctness \u2014 multinom vs nnet::multinom (decay=0, baseline releveled)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/g1_multinom_summary.csv",
+      "summary_cols": [
+        "dataset",
+        "n",
+        "K",
+        "coef_maxabs",
+        "se_maxrel",
+        "loglik_abs",
+        "probs_maxabs",
+        "pass"
+      ]
+    },
+    {
+      "id": "newlinks",
+      "title": "G1 correctness \u2014 cauchit & loglog links (added after 4.6.10): loglog vs MASS::polr, cauchit vs an independent MLE (MASS::polr cauchit under-converges)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/newlinks_summary.csv",
+      "summary_cols": [
+        "link",
+        "dataset",
+        "reference",
+        "n",
+        "K",
+        "coef_maxabs",
+        "thr_maxabs",
+        "loglik_abs",
+        "reference_note",
+        "pass"
+      ],
+      "note": "cauchit is validated against an INDEPENDENT scipy MLE, not MASS::polr: MASS's optim under-converges on the heavy-tailed Cauchy likelihood (loglik worse by ~6.6 on the synthetic and ~10.6 on housing than the true MLE). pystatistics reaches the true MLE on both; loglog agrees with MASS::polr directly."
+    },
+    {
+      "id": "r10_r15",
+      "title": "G1 hard cases \u2014 R10 separation / rare category + R15 default invocation (match R's failures)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/r10_r15_summary.csv",
+      "summary_cols": [
+        "surface",
+        "case",
+        "detail",
+        "pass"
+      ]
+    },
+    {
+      "id": "predict",
+      "title": "G1 correctness \u2014 predict() on held-out data vs R predict.polr / predict.multinom (probs tight, class exact)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "agreement",
+      "host": "arm+r",
+      "summary": "runs/predict_summary.csv",
+      "summary_cols": [
+        "surface",
+        "case",
+        "n_test",
+        "probs_maxabs",
+        "class_match",
+        "pass"
+      ]
+    },
+    {
+      "id": "fidelity",
+      "title": "G2 fidelity \u2014 fail-loud, no silent substitution (unsupported links, l2-on-GPU, backend, bad y/X)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "fail-loud",
+      "host": "arm+r",
+      "summary": "runs/fidelity_summary.csv",
+      "summary_cols": [
+        "key",
+        "surface",
+        "desc",
+        "got",
+        "pass"
+      ]
+    },
+    {
+      "id": "cpu_speed",
+      "title": "G3 performance \u2014 CPU vs R across n and #categories (empirical complexity)",
+      "device": [
+        "cpu"
+      ],
+      "claim": "speed",
+      "host": "arm+r",
+      "summary": "runs/cpu_speed_summary.csv",
+      "summary_cols": [
+        "func",
+        "n",
+        "p",
+        "K",
+        "py_ms",
+        "r_ms",
+        "ratio_py_over_r",
+        "py_slope",
+        "r_slope",
+        "pass"
+      ]
+    },
+    {
+      "id": "cf1",
+      "title": "CF-1 \u2014 fp32 GPU standard errors vs CPU across a cond(X) sweep (4.6.9 fix: no negative variance, fp32 tier)",
+      "device": [
+        "cuda"
+      ],
+      "claim": "fail-loud",
+      "host": "forge-cuda",
+      "summary": "runs/cf1_summary.csv",
+      "summary_cols": [
+        "surface",
+        "cond_X",
+        "xtx_cond",
+        "fp32_se_relerr",
+        "fp32_neg_var",
+        "fp64_se_relerr"
+      ],
+      "carried_forward": "CUDA CF-1 evidence measured at the blessed 4.6.10 line on an RTX 5070 Ti. 5.0 is rename-only for the GPU path (kernels/gate byte-unchanged), so the CUDA result carries forward; the MPS leg was re-run live at 5.0.0 and shows no negative variance with fp32-tier SE across the cond(X) sweep.",
+      "note": "4.6.8 returned negative variances / 100%-wrong SE with converged=True here; 4.6.9 computes the vcov in fp64 \u2014 fp32_neg_var=False everywhere, SE_relerr at the fp32 tier. The gpu_fp64-vs-cpu pivot (R11) is machine-precision, so the residual is fp32, not hardware."
+    },
+    {
+      "id": "gpu_twotier",
+      "title": "GPU_FP32 two-tier correctness \u2014 fp32 GPU vs CPU fp64 on a well-conditioned design",
+      "device": [
+        "cuda"
+      ],
+      "claim": "agreement",
+      "host": "forge-cuda",
+      "summary": "runs/gpu_twotier_summary.csv",
+      "carried_forward": "CUDA measurement from the 4.6.10 line; GPU path is rename-only at 5.0 (byte-unchanged kernels).",
+      "summary_cols": [
+        "surface",
+        "n",
+        "coef_relerr",
+        "se_relerr",
+        "probs_relerr"
+      ]
+    },
+    {
+      "id": "gpu_perf",
+      "title": "GPU performance \u2014 CPU vs gpu_fp32 vs gpu_fp64 across n (Guarantee-3 GPU corollary)",
+      "device": [
+        "cuda"
+      ],
+      "claim": "speed",
+      "host": "forge-cuda",
+      "summary": "runs/gpu_perf_summary.csv",
+      "summary_cols": [
+        "surface",
+        "n",
+        "cpu_ms",
+        "gpu_fp32_ms",
+        "gpu_fp64_ms",
+        "speedup_fp32_vs_cpu"
+      ],
+      "carried_forward": "CUDA performance measured at the 4.6.10 line; GPU path is rename-only at 5.0 (byte-unchanged kernels).",
+      "note": "The float32 GPU fit is unchanged by the CF-1 fix (only the post-fit vcov moved to fp64), so the large-n speedup stands: polr ~50x, multinom ~120x over CPU at n=100k."
+    }
+  ]
+}

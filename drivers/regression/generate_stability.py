@@ -53,7 +53,7 @@ def _rel(a, b):
 
 
 def generate(host: str, device: str) -> Path:
-    from pystatistics.regression import Design, fit, ridge, GammaFamily
+    from pystatistics.regression import Design, fit, ridge, Gamma
     from pystatistics.core.exceptions import NumericalError
 
     env = env_manifest(device=device, host=host)
@@ -61,7 +61,7 @@ def generate(host: str, device: str) -> Path:
     backend = "gpu"
 
     def _fam(f):
-        return GammaFamily(link="log") if f == "gamma" else f
+        return Gamma(link="log") if f == "gamma" else f
 
     rows: list[dict[str, Any]] = []
     seed = 0
@@ -71,7 +71,7 @@ def generate(host: str, device: str) -> Path:
             X, y = _synth(n, p, family, seed=seed)
             d = Design.from_arrays(X, y)
             cpu = fit(d, family=_fam(family), backend="cpu")
-            cpu_ridge = ridge(X, y, lam=_LAM, family=_fam(family), backend="cpu")
+            cpu_ridge = ridge(X, y, l2=_LAM, family=_fam(family), backend="cpu")
             row: dict[str, Any] = {"model_key": model_key, "n": n, "p": p, "lam": _LAM}
 
             # plain GPU GLM — may fail loud
@@ -85,7 +85,7 @@ def generate(host: str, device: str) -> Path:
 
             # ridge GPU GLM — should converge (penalty conditions the solve)
             try:
-                rg = ridge(X, y, lam=_LAM, family=_fam(family), backend=backend)
+                rg = ridge(X, y, l2=_LAM, family=_fam(family), backend=backend)
                 row["ridge_status"] = "converged" if rg.converged else "not_converged"
                 row["ridge_rel_vs_cpu_ridge"] = _rel(rg.coefficients, cpu_ridge.coefficients)
             except NumericalError:

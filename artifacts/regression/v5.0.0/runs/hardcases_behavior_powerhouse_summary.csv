@@ -1,0 +1,7 @@
+case,n,p,pystat_behavior,r_behavior,match,coef_max_rel,detail
+separation_complete,60,2,"diverges (max|β|=277), converged=False@25","diverges (max|β|=353), converged=False, 2 warning(s)",behaviour-match,8.193627061388463,glm.fit: algorithm did not converge
+separation_quasi,60,2,"diverges (max|β|=277), converged=False@25","diverges (max|β|=353), converged=False, 2 warning(s)",behaviour-match,0.21421852788050713,glm.fit: algorithm did not converge
+factor_interaction,400,9,build_terms_design treatment contrasts (9 cols),model.matrix default contrasts (9 cols),yes,1.9409587203649252e-15,"design bijection=yes, se_max_rel=5.24e-16"
+weights,4000,4,"supported (fit(weights=...)), CPU + GPU",R weighted lm,yes,9.42682287271489e-16,se_max_rel=6.77e-16; GPU fp32 matches CPU to 2.0e-07
+offset,4000,4,"supported (fit(offset=...)), CPU + GPU",R offset poisson,yes,1.9907107085585877e-11,se_max_rel=2.64e-07; GPU fp32 matches CPU to 1.7e-07
+rank_deficient,200,4,drops aliased col→NaN at index [3],drops aliased col→NA at index [3],yes,3.682838825166275e-16,aliased-position match=yes

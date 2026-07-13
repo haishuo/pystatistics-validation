@@ -1,0 +1,6 @@
+dataset,link,n,K,coef_maxabs,zeta_maxabs,se_beta_maxrel,loglik_abs,probs_maxabs,pass
+housing,logistic,1681,3,2.487e-07,2.058e-07,1.049e-06,2.274e-12,7.673e-08,True
+housing,probit,1681,3,4.516e-07,1.170e-06,9.149e-07,2.004e-09,7.184e-07,True
+housing,cloglog,1681,3,1.390e-05,8.648e-06,3.226e-06,2.051e-08,4.632e-06,True
+synth_ordinal,logistic,1200,4,3.007e-07,5.044e-06,2.127e-07,2.180e-09,1.387e-06,True
+collapsed_ordinal,logistic,400,3,1.437e-04,1.755e-05,5.343e-05,6.142e-07,3.722e-05,True

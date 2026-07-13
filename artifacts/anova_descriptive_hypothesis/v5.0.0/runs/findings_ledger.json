@@ -1,0 +1,59 @@
+{
+  "findings_ledger": "anova+descriptive+hypothesis",
+  "validated_version": "5.0.0",
+  "status": "ALL FINDINGS FIXED at 4.6.11 and re-validated at 5.0.0 (rename-only release over 4.6.11; statistically identical). Bless precondition satisfied (RIGOR R18: no open fixable finding).",
+  "findings": [
+    {
+      "id": "F1",
+      "fn": "wilcox_test",
+      "kind": "CI convention",
+      "found_at": "4.6.10",
+      "fixed_at": "4.6.11",
+      "fix": "Exact order-statistic inversion (qsignrank/qwilcox) + tie-corrected uniroot; zeros dropped for signed-rank. New module _wilcox_ci.py.",
+      "revalidation": "exact rank-sum/signed-rank CIs machine-exact vs R; approx CIs within R's uniroot tol (~1e-4).",
+      "divergence": "HL confidence interval used empirical percentiles of the Walsh averages (wrong endpoints for small n) while labelled \"exact\"."
+    },
+    {
+      "id": "F2",
+      "fn": "prop_test",
+      "kind": "CI convention",
+      "found_at": "4.6.10",
+      "fixed_at": "4.6.11",
+      "fix": "Cap the correction at min(0.5, |Δ|/Σ(1/n)), matching R.",
+      "revalidation": "CI matches R to machine precision.",
+      "divergence": "2-sample CI always used the full 0.5 continuity correction (interval wider than R when proportions are close)."
+    },
+    {
+      "id": "F3",
+      "fn": "ks_test",
+      "kind": "warning fidelity",
+      "found_at": "4.6.10",
+      "fixed_at": "4.6.11",
+      "fix": "Emit R's one-sample KS ties warning.",
+      "revalidation": "warning present, matches R.",
+      "divergence": "one-sample KS handled ties silently; R warns \"ties should not be present\"."
+    },
+    {
+      "id": "F4",
+      "fn": "anova_rm",
+      "kind": "diagnostic convention",
+      "found_at": "4.6.10",
+      "fixed_at": "4.6.11",
+      "fix": "Add R's second-order correction: p = Pr1 + w2·(Pr2−Pr1), Pr2 at df+4.",
+      "revalidation": "Mauchly p matches afex to machine precision.",
+      "divergence": "Mauchly p used only the first-order chi-square, omitting R's second-order (Box) term (~1e-3 off)."
+    },
+    {
+      "id": "F5",
+      "fn": "quantile",
+      "kind": "fail-loud gap",
+      "found_at": "4.6.10",
+      "fixed_at": "4.6.11",
+      "fix": "Raise ValidationError on probs ∉ [0,1], matching R.",
+      "revalidation": "raises; matches R's error.",
+      "divergence": "probs outside [0,1] were silently clamped to min/max instead of raising (fail-loud gap)."
+    }
+  ],
+  "showstoppers_R16": [],
+  "note": "No test statistic or default p-value on valid input was ever wrong (all matched R to machine precision at 4.6.10). The five findings were CI/warning/diagnostic/invalid-input conventions; all fixed and re-validated at 4.6.11. 5.0.0 is a rename-only release over the blessed 4.6.11 line; every G1/G2 number reproduces 4.6.11 bit-for-bit."
+}

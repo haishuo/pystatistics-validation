@@ -290,7 +290,7 @@ def _run_factor(records: list, brows: list) -> None:
     z = rng.standard_normal(n)
     src = {"g3": g3, "g2": g2, "z": z}
     terms = ["z", C("g3"), C("g2"), (C("g3"), C("g2")), (C("g3"), "z")]
-    X, names = build_terms_design(src, terms, intercept=True)
+    X, names, *_ = build_terms_design(src, terms, intercept=True)
 
     beta = rng.standard_normal(X.shape[1]) * 0.5
     y = X @ beta + 0.3 * rng.standard_normal(n)

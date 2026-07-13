@@ -1,0 +1,156 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "5.0.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "mps",
+    "torch": "2.13.0",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ]
+  },
+  "config": {
+    "suite": "montecarlo-gpu-mps",
+    "reference": "CPU fp64 (same estimator); GPU-vs-CPU speed",
+    "tolerance_contract": "GPU beats CPU at large n*B; fp32 reduction within the GPU_FP32 tier (MPS) / exact (CUDA fp64); RNG reproducible + unbiased; opt-in never silently substitutes. montecarlo exposes no gpu_fp64 (honest subset)."
+  },
+  "records": [
+    {
+      "key": "speed",
+      "checks": [
+        {
+          "group": "speed",
+          "op": "boot_mean",
+          "n": 1000,
+          "B": 20000,
+          "gpu_s": 0.010486249811947346,
+          "cpu_s": 0.17884804075583816,
+          "speedup": 17.055481603353606,
+          "pass": true
+        },
+        {
+          "group": "speed",
+          "op": "boot_mean",
+          "n": 5000,
+          "B": 50000,
+          "gpu_s": 0.1144633749499917,
+          "cpu_s": 1.0333227920345962,
+          "speedup": 9.027540839906635,
+          "pass": true
+        },
+        {
+          "group": "speed",
+          "op": "boot_mean",
+          "n": 20000,
+          "B": 100000,
+          "gpu_s": 0.8881262079812586,
+          "cpu_s": 6.457305292133242,
+          "speedup": 7.270706836600305,
+          "pass": true
+        },
+        {
+          "group": "speed",
+          "op": "perm_meandiff",
+          "n": 500,
+          "B": 50000,
+          "gpu_s": 0.017975750379264355,
+          "cpu_s": 0.5556212500669062,
+          "speedup": 30.909488524486544,
+          "pass": true
+        },
+        {
+          "group": "speed",
+          "op": "perm_meandiff",
+          "n": 2000,
+          "B": 100000,
+          "gpu_s": 0.19431866705417633,
+          "cpu_s": 3.1532475003041327,
+          "speedup": 16.22719807678077,
+          "pass": true
+        },
+        {
+          "group": "speed",
+          "op": "perm_meandiff",
+          "n": 5000,
+          "B": 200000,
+          "gpu_s": 0.7405584580264986,
+          "cpu_s": 15.788926458917558,
+          "speedup": 21.320297253768725,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "fp32_drift",
+      "checks": [
+        {
+          "group": "fp32_drift",
+          "n": 100,
+          "dtype": "torch.float32",
+          "max_rel_vs_fp64": 1.5395765485353297e-07,
+          "tier": 1e-05,
+          "pass": true
+        },
+        {
+          "group": "fp32_drift",
+          "n": 1000,
+          "dtype": "torch.float32",
+          "max_rel_vs_fp64": 1.237483456232971e-07,
+          "tier": 1e-05,
+          "pass": true
+        },
+        {
+          "group": "fp32_drift",
+          "n": 10000,
+          "dtype": "torch.float32",
+          "max_rel_vs_fp64": 1.1209891956427147e-07,
+          "tier": 1e-05,
+          "pass": true
+        },
+        {
+          "group": "fp32_drift",
+          "n": 100000,
+          "dtype": "torch.float32",
+          "max_rel_vs_fp64": 1.6224878395438325e-07,
+          "tier": 1e-05,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "rng_quality",
+      "checks": [
+        {
+          "group": "rng",
+          "check": "boot_reproducible",
+          "identical": true,
+          "pass": true
+        },
+        {
+          "group": "rng",
+          "check": "perm_unbiased_null",
+          "perm_dist_mean": 0.00020375154534354805,
+          "perm_dist_se": 0.0002158078308688209,
+          "note": "permutation distribution centered at 0 under the null (argsort-key shuffle is unbiased)",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "fail_loud",
+      "checks": [
+        {
+          "group": "fail_loud",
+          "missing_flag_raises": true,
+          "declared_wrong_raises": true,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

@@ -102,7 +102,7 @@ def run() -> list[dict]:
         C.append(case(f"prop:2samp:correct={corr}:ci", "conf_int", s.conf_int,
                       r["conf_int"], TOL_TIGHT))
     # 1-sample vs p
-    s = prop_test(np.array([83.]), np.array([100.]), p=0.75)
+    s = prop_test(np.array([83.]), np.array([100.]), null_value=0.75)
     r = r_ref("prop_test", x=[83], n=[100], p=[0.75], alternative="two-sided",
               conf_level=0.95, correct=True)
     C += [case("prop:1samp:stat", "X2", s.statistic, r["statistic"], TOL_TIGHT),
@@ -134,7 +134,7 @@ def run() -> list[dict]:
         C += [case(f"chisq:2x2:correct={corr}:stat", "X2", s.statistic, r["statistic"], TOL_TIGHT),
               case(f"chisq:2x2:correct={corr}:p", "p_value", s.p_value, r["p_value"], TOL_TIGHT)]
     # goodness-of-fit vs uniform
-    s = chisq_test(ct["gof_dice"], p=np.array([1/6.]*6))
+    s = chisq_test(ct["gof_dice"], expected_probs=np.array([1/6.]*6))
     r = r_ref("chisq_test", table=ct["gof_dice"], nrow=1, p=[1/6.]*6)
     C += [case("chisq:gof:stat", "X2", s.statistic, r["statistic"], TOL_TIGHT),
           case("chisq:gof:df", "df", s.parameter["df"], r["df"], TOL_EXACT),

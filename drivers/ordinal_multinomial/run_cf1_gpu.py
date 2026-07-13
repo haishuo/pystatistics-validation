@@ -121,7 +121,7 @@ def polr_case(device: str, cond: float, has_fp64: bool) -> dict:
     out = {"surface": "polr", "cond": cond, "n": len(y), "p": X.shape[1], "K": K,
            "xtx_cond": float(np.linalg.cond(X.T @ X))}
     try:
-        cpu = polr(y, X, link="logistic", backend="cpu")
+        cpu = polr(y, X, link="logit", backend="cpu")
     except ConvergenceError as e:
         out["cpu_error"] = str(e)[:120]
         out["note"] = ("CPU fp64 itself refuses (design beyond fp64) — not a CF-1 "
@@ -131,7 +131,7 @@ def polr_case(device: str, cond: float, has_fp64: bool) -> dict:
 
     # BLACK-BOX: gpu fp32 vs cpu fp64
     try:
-        gpu = polr(y, X, link="logistic", backend="gpu")
+        gpu = polr(y, X, link="logit", backend="gpu")
         out["gpu_fp32_converged"] = bool(gpu.converged)
         out["gpu_fp32_coef_relerr"] = _relerr(gpu.coefficients, cpu.coefficients)
         out["gpu_fp32_se_relerr"] = _relerr(gpu.standard_errors,
@@ -143,7 +143,7 @@ def polr_case(device: str, cond: float, has_fp64: bool) -> dict:
 
     if has_fp64:
         try:
-            g64 = polr(y, X, link="logistic", backend="gpu_fp64")
+            g64 = polr(y, X, link="logit", backend="gpu_fp64")
             out["gpu_fp64_coef_relerr"] = _relerr(g64.coefficients, cpu.coefficients)
             out["gpu_fp64_se_relerr"] = _relerr(g64.standard_errors,
                                                 cpu.standard_errors)
@@ -152,12 +152,12 @@ def polr_case(device: str, cond: float, has_fp64: bool) -> dict:
 
     # WHITE-BOX: at the SAME cpu params, invert the Hessian in fp32 vs fp64.
     raw = _polr_raw_from_natural(cpu.threshold_values, cpu.coefficients)
-    like32 = PolrGPULikelihood(X, y, K, link_name="logistic", device=device,
+    like32 = PolrGPULikelihood(X, y, K, link_name="logit", device=device,
                                use_fp64=False)
     v32 = np.asarray(like32.compute_vcov(raw))
     ref = None
     if has_fp64:
-        like64 = PolrGPULikelihood(X, y, K, link_name="logistic", device=device,
+        like64 = PolrGPULikelihood(X, y, K, link_name="logit", device=device,
                                    use_fp64=True)
         ref = np.asarray(like64.compute_vcov(raw))
     else:

@@ -1,0 +1,851 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "5.0.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.13.0",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ],
+    "host": "powerhouse"
+  },
+  "config": {
+    "study": "glmm_hardcases_r10_r15",
+    "backend": "cpu",
+    "repeats": 5,
+    "reference": "R lme4::glmer (Laplace, nAGQ=1)",
+    "note": "Adversarial R10 grid + R15 default invocation + A6 fail-loud families. Behaviour match, not just easy-data numbers."
+  },
+  "records": [
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "hc1_quasi_separation",
+      "n": 144,
+      "p": 2,
+      "backend_name": "glmm_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -15.872326698407424,
+      "n_iter": 6,
+      "converged": true,
+      "wall_median_s": 0.03940554102882743,
+      "wall_min_s": 0.039189542178064585,
+      "wall_max_s": 0.041111750062555075,
+      "wall_times_s": [
+        0.039265291299670935,
+        0.039189542178064585,
+        0.041111750062555075,
+        0.040068541187793016,
+        0.03940554102882743
+      ],
+      "coefficients": [
+        0.9218350359719216,
+        10.915775005135465
+      ],
+      "standard_errors": [
+        0.787059387477908,
+        2.6504616247278308
+      ],
+      "z_values": [
+        1.1712394904860932,
+        4.118442954727322
+      ],
+      "p_values": [
+        0.24150252593519705,
+        3.814409651275153e-05
+      ],
+      "coef_names": [
+        "(Intercept)",
+        "x"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 1.9064434748513803,
+          "std_dev": 1.3807401909307124,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            -0.11813101325772554
+          ],
+          [
+            -1.2837583190188058
+          ],
+          [
+            0.03500409656648084
+          ],
+          [
+            0.07646983584010204
+          ],
+          [
+            -0.16691612017911922
+          ],
+          [
+            0.8154691214279594
+          ],
+          [
+            0.17960198656119752
+          ],
+          [
+            -0.831282443643677
+          ],
+          [
+            -0.9535594301004311
+          ],
+          [
+            1.2777978277446298
+          ],
+          [
+            1.4250658398381577
+          ],
+          [
+            -0.05772094236140632
+          ]
+        ]
+      },
+      "log_likelihood": -15.872326698407424,
+      "deviance": 22.690137067935623,
+      "aic": 37.74465339681485,
+      "bic": 46.65409329554285,
+      "analysis": "glmm",
+      "family": "binomial",
+      "link": "logit",
+      "py_warnings": []
+    },
+    {
+      "engine": "R:glmer",
+      "dataset": "hc1_quasi_separation",
+      "n": 144,
+      "p": 2,
+      "backend_name": "glmer",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -15.8723325698399,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.031,
+      "wall_min_s": null,
+      "wall_max_s": null,
+      "wall_times_s": [
+        0.033,
+        0.031,
+        0.0309999999999999,
+        0.032,
+        0.031
+      ],
+      "coefficients": [
+        0.921796764591271,
+        10.9154830982433
+      ],
+      "standard_errors": [
+        0.788883793619418,
+        3.47757402506892
+      ],
+      "z_values": [
+        1.16848231900169,
+        3.1388212068403
+      ],
+      "p_values": [
+        0.242612267124804,
+        0.00169628912343486
+      ],
+      "coef_names": [
+        "(Intercept)",
+        "x"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 1.90617933257352,
+          "std_dev": 1.38064453519851,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            -0.118120198295118
+          ],
+          [
+            -1.28366578544401
+          ],
+          [
+            0.0350039168054903
+          ],
+          [
+            0.076468409456551
+          ],
+          [
+            -0.166903108869604
+          ],
+          [
+            0.815399010748614
+          ],
+          [
+            0.179589283175798
+          ],
+          [
+            -0.831211239840558
+          ],
+          [
+            -0.95347101032495
+          ],
+          [
+            1.27767723981844
+          ],
+          [
+            1.42492719652683
+          ],
+          [
+            -0.0577163150867343
+          ]
+        ]
+      },
+      "log_likelihood": -15.8723325698399,
+      "deviance": 22.6907104527493,
+      "aic": 37.7446651396799,
+      "bic": 46.6541050384079,
+      "analysis": "glmm",
+      "family": "binomial",
+      "link": "logit",
+      "is_singular": false,
+      "r_warnings": [],
+      "r_version": "4.5.2",
+      "lme4_version": "1.1.38"
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "hc2_singular_re",
+      "n": 300,
+      "p": 2,
+      "backend_name": "glmm_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -191.8134237852385,
+      "n_iter": 2,
+      "converged": true,
+      "wall_median_s": 0.22375708306208253,
+      "wall_min_s": 0.22213662508875132,
+      "wall_max_s": 0.25380762526765466,
+      "wall_times_s": [
+        0.22420754190534353,
+        0.22375708306208253,
+        0.22213662508875132,
+        0.22312150010839105,
+        0.25380762526765466
+      ],
+      "coefficients": [
+        0.16223449741149093,
+        0.6578002968050414
+      ],
+      "standard_errors": [
+        0.12197577206665186,
+        0.12800176256412987
+      ],
+      "z_values": [
+        1.330055097522484,
+        5.138994054675445
+      ],
+      "p_values": [
+        0.18350011846535264,
+        2.7621313711534244e-07
+      ],
+      "coef_names": [
+        "(Intercept)",
+        "x"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 0.0,
+          "std_dev": 0.0,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ]
+        ]
+      },
+      "log_likelihood": -191.8134237852385,
+      "deviance": 383.626847570477,
+      "aic": 389.626847570477,
+      "bic": 400.7381949944456,
+      "analysis": "glmm",
+      "family": "binomial",
+      "link": "logit",
+      "py_warnings": [
+        "boundary (singular) fit: a random-effects variance is near zero or a correlation is near \u00b11. The fit is on the boundary of the feasible region; consider simplifying the random-effects structure. (See GLMMSolution.is_singular.)"
+      ]
+    },
+    {
+      "engine": "R:glmer",
+      "dataset": "hc2_singular_re",
+      "n": 300,
+      "p": 2,
+      "backend_name": "glmer",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -191.813423785239,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.019,
+      "wall_min_s": null,
+      "wall_max_s": null,
+      "wall_times_s": [
+        0.019,
+        0.022,
+        0.018,
+        0.019,
+        0.019
+      ],
+      "coefficients": [
+        0.162234495646811,
+        0.657800278293536
+      ],
+      "standard_errors": [
+        0.121975771751572,
+        0.128001761610506
+      ],
+      "z_values": [
+        1.33005508649073,
+        5.13899394834222
+      ],
+      "p_values": [
+        0.183500122099821,
+        2.76213293398162e-07
+      ],
+      "coef_names": [
+        "(Intercept)",
+        "x"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 0.0,
+          "std_dev": 0.0,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ]
+        ]
+      },
+      "log_likelihood": -191.813423785239,
+      "deviance": 383.626847570477,
+      "aic": 389.626847570477,
+      "bic": 400.738194994446,
+      "analysis": "glmm",
+      "family": "binomial",
+      "link": "logit",
+      "is_singular": true,
+      "r_warnings": [
+        "message: boundary (singular) fit: see help('isSingular')"
+      ],
+      "r_version": "4.5.2",
+      "lme4_version": "1.1.38"
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "hc3_unbalanced",
+      "n": 128,
+      "p": 2,
+      "backend_name": "glmm_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -81.171658619918,
+      "n_iter": 4,
+      "converged": true,
+      "wall_median_s": 0.06562745803967118,
+      "wall_min_s": 0.06486062472686172,
+      "wall_max_s": 0.06577962497249246,
+      "wall_times_s": [
+        0.06577962497249246,
+        0.06562745803967118,
+        0.06564645795151591,
+        0.06527954200282693,
+        0.06486062472686172
+      ],
+      "coefficients": [
+        -0.030616296504135488,
+        0.7437810767028038
+      ],
+      "standard_errors": [
+        0.36868286684164164,
+        0.209690285823563
+      ],
+      "z_values": [
+        -0.08304236311931995,
+        3.5470459386403523
+      ],
+      "p_values": [
+        0.9338178550223774,
+        0.0003895766540438858
+      ],
+      "coef_names": [
+        "(Intercept)",
+        "x"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 0.6310617456925598,
+          "std_dev": 0.7943939486756931,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            -0.1624744930549877
+          ],
+          [
+            -0.37585474138916697
+          ],
+          [
+            0.010641453726500638
+          ],
+          [
+            0.3685497667772988
+          ],
+          [
+            -0.6792820283218974
+          ],
+          [
+            1.323791372509085
+          ],
+          [
+            0.03465984558121281
+          ],
+          [
+            -0.38371629191863843
+          ],
+          [
+            -0.3369295870287246
+          ],
+          [
+            0.21043061421828266
+          ]
+        ]
+      },
+      "log_likelihood": -81.171658619918,
+      "deviance": 149.9206312460645,
+      "aic": 168.343317239836,
+      "bic": 176.89940803159487,
+      "analysis": "glmm",
+      "family": "binomial",
+      "link": "logit",
+      "py_warnings": []
+    },
+    {
+      "engine": "R:glmer",
+      "dataset": "hc3_unbalanced",
+      "n": 128,
+      "p": 2,
+      "backend_name": "glmer",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -81.1716729917134,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.022,
+      "wall_min_s": null,
+      "wall_max_s": null,
+      "wall_times_s": [
+        0.026,
+        0.022,
+        0.022,
+        0.024,
+        0.0219999999999999
+      ],
+      "coefficients": [
+        -0.030623064369833,
+        0.743715572593429
+      ],
+      "standard_errors": [
+        0.372172925023464,
+        0.221622329224284
+      ],
+      "z_values": [
+        -0.0822818166257052,
+        3.35577906430531
+      ],
+      "p_values": [
+        0.934422613615208,
+        0.00079141765542479
+      ],
+      "coef_names": [
+        "(Intercept)",
+        "x"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 0.630692469014304,
+          "std_dev": 0.794161487994919,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            -0.162397128018875
+          ],
+          [
+            -0.375653698396328
+          ],
+          [
+            0.0106379420587077
+          ],
+          [
+            0.368376565586332
+          ],
+          [
+            -0.679037148016613
+          ],
+          [
+            1.3233651183942
+          ],
+          [
+            0.0346483401953958
+          ],
+          [
+            -0.383648074266487
+          ],
+          [
+            -0.336889607898342
+          ],
+          [
+            0.210422933359055
+          ]
+        ]
+      },
+      "log_likelihood": -81.1716729917134,
+      "deviance": 149.923480627975,
+      "aic": 168.343345983427,
+      "bic": 176.899436775186,
+      "analysis": "glmm",
+      "family": "binomial",
+      "link": "logit",
+      "is_singular": false,
+      "r_warnings": [],
+      "r_version": "4.5.2",
+      "lme4_version": "1.1.38"
+    },
+    {
+      "engine": "R:glmer",
+      "dataset": "hc4_default_r15",
+      "n": 400,
+      "p": 2,
+      "backend_name": "glmer",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": -263.434205931114,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.0279999999999999,
+      "wall_min_s": null,
+      "wall_max_s": null,
+      "wall_times_s": [
+        0.032,
+        0.027,
+        0.0279999999999999,
+        0.027,
+        0.029
+      ],
+      "coefficients": [
+        0.383748896510478,
+        0.377235232028282
+      ],
+      "standard_errors": [
+        0.134997620554567,
+        0.108172895349389
+      ],
+      "z_values": [
+        2.84263452151265,
+        3.48733599863298
+      ],
+      "p_values": [
+        0.00447423450586723,
+        0.000487858028909603
+      ],
+      "coef_names": [
+        "(Intercept)",
+        "x"
+      ],
+      "var_components": [
+        {
+          "group": "g",
+          "name": "(Intercept)",
+          "variance": 0.173978373723299,
+          "std_dev": 0.417107148971699,
+          "corr": null
+        }
+      ],
+      "blups": {
+        "g": [
+          [
+            0.203461602393049
+          ],
+          [
+            -0.398513930467925
+          ],
+          [
+            0.0672539129763308
+          ],
+          [
+            0.112467783928124
+          ],
+          [
+            -0.116013017209635
+          ],
+          [
+            -0.107839315915975
+          ],
+          [
+            -0.215557255035389
+          ],
+          [
+            0.261846071212085
+          ],
+          [
+            -0.324864772582745
+          ],
+          [
+            0.381152786074938
+          ],
+          [
+            -0.258870936672983
+          ],
+          [
+            -0.398751228102425
+          ],
+          [
+            -0.298938143647216
+          ],
+          [
+            -0.103519381326365
+          ],
+          [
+            0.0797363544440142
+          ],
+          [
+            0.210495292891753
+          ],
+          [
+            0.289203316197536
+          ],
+          [
+            0.180035014863494
+          ],
+          [
+            -0.203820827162579
+          ],
+          [
+            -0.0452270885845351
+          ],
+          [
+            -0.332979482766235
+          ],
+          [
+            0.19490825530565
+          ],
+          [
+            -0.106432264037252
+          ],
+          [
+            0.359791503984225
+          ],
+          [
+            0.48718884843545
+          ]
+        ]
+      },
+      "log_likelihood": -263.434205931114,
+      "deviance": 504.850181483879,
+      "aic": 532.868411862227,
+      "bic": 544.842805503551,
+      "analysis": "glmm",
+      "family": "binomial",
+      "link": "logit",
+      "is_singular": false,
+      "r_warnings": [],
+      "r_version": "4.5.2",
+      "lme4_version": "1.1.38"
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "failloud_gaussian",
+      "n": 120,
+      "p": 2,
+      "backend_name": "glmm_cpu",
+      "precision": null,
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": null,
+      "wall_min_s": null,
+      "wall_max_s": null,
+      "wall_times_s": null,
+      "analysis": "glmm",
+      "family": "gaussian",
+      "link": "identity",
+      "error": "ValidationError: glmm() supports only fixed-dispersion families (binomial, poisson); family 'gaussian' has a free dispersion/scale parameter that glmm's Laplace approximation does not estimate (it fixes dispersion=1), which would produce an incorrect log-likelihood, deviance, AIC/BIC and variance components. For a Gaussian mixed model use lmm()."
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "failloud_gamma",
+      "n": 120,
+      "p": 2,
+      "backend_name": "glmm_cpu",
+      "precision": null,
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": null,
+      "wall_min_s": null,
+      "wall_max_s": null,
+      "wall_times_s": null,
+      "analysis": "glmm",
+      "family": "gamma",
+      "link": "inverse",
+      "error": "ValidationError: glmm() supports only fixed-dispersion families (binomial, poisson); family 'gamma' has a free dispersion/scale parameter that glmm's Laplace approximation does not estimate (it fixes dispersion=1), which would produce an incorrect log-likelihood, deviance, AIC/BIC and variance components. For a Gaussian mixed model use lmm()."
+    }
+  ]
+}

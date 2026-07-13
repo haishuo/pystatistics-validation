@@ -123,7 +123,7 @@ def cpu_calls() -> dict:
     from pystatistics.montecarlo import boot
     bt = boot(np.array([3., 1, 4, 1, 5, 9, 2, 6]),
               lambda d, idx: float(np.mean(d[idx])), n_resamples=200, seed=1)
-    R["montecarlo.boot"] = {"fp": _fp(bt.se)}
+    R["montecarlo.boot"] = {"fp": _fp(bt.standard_errors)}
 
     # ordinal — polr coefficient (tiny ordered response)
     from pystatistics.ordinal import polr

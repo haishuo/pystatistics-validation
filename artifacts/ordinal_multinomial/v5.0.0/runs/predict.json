@@ -1,0 +1,106 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "5.0.0",
+    "install_source": "pypi",
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "device": "cpu",
+    "torch": "2.13.0",
+    "available_devices": [
+      "mps",
+      "cpu"
+    ],
+    "r_packages": {
+      "MASS": "7.3.65",
+      "nnet": "7.3.20",
+      "R": "4.5.2"
+    }
+  },
+  "config": {
+    "suite": "ordinal-multinomial-predict",
+    "reference": "R predict.polr / predict.multinom",
+    "contract": "predicted probs tight vs R; predicted class exact"
+  },
+  "records": [
+    {
+      "key": "polr",
+      "checks": [
+        {
+          "group": "polr_predict",
+          "link": "logistic",
+          "n_test": 200,
+          "probs": {
+            "n": 800,
+            "max_abs": 1.1195272125175126e-05,
+            "max_rel": 5.5065400767560985e-05
+          },
+          "class_match": 200,
+          "class_total": 200,
+          "pass": true
+        },
+        {
+          "group": "polr_predict",
+          "link": "probit",
+          "n_test": 200,
+          "probs": {
+            "n": 800,
+            "max_abs": 1.841635432042743e-06,
+            "max_rel": 1.8361658268174503e-05
+          },
+          "class_match": 200,
+          "class_total": 200,
+          "pass": true
+        },
+        {
+          "group": "polr_predict",
+          "link": "cloglog",
+          "n_test": 200,
+          "probs": {
+            "n": 800,
+            "max_abs": 3.291130631632999e-06,
+            "max_rel": 6.810545446862885e-05
+          },
+          "class_match": 200,
+          "class_total": 200,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "key": "multinom",
+      "checks": [
+        {
+          "group": "multinom_predict",
+          "dataset": "multinom_synth",
+          "n_test": 400,
+          "K": 3,
+          "probs": {
+            "n": 1200,
+            "max_abs": 3.104293932565394e-05,
+            "max_rel": 0.00012341571679216827
+          },
+          "class_match": 400,
+          "class_total": 400,
+          "pass": true
+        },
+        {
+          "group": "multinom_predict",
+          "dataset": "synth_K5",
+          "n_test": 500,
+          "K": 5,
+          "probs": {
+            "n": 2500,
+            "max_abs": 8.99449662316032e-05,
+            "max_rel": 0.0009818824210471328
+          },
+          "class_match": 500,
+          "class_total": 500,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+check,why,raised,pass
+exotic_basis_re,"exotic bases (re/ds/gp/fs) are a declared scope carve-out -> fail loud on an unknown bs, no silent substitution (cc/ps ARE now implemented, validated in the correctness grid; re/ds/gp/fs raise)","ValidationError: bs must be one of ['cc', 'cr', 'ps', 'tp'], got 're'",True
+quasipoisson_family,quasipoisson not supported -> fail loud,"ValidationError: gam does not support family 'quasipoisson'. Supported families: gaussian, binomial, poisson, gamma, ",True
+reml_gamma,"REML for free-dispersion Gamma -> fail loud, direct to GCV",ValidationError: method='REML' is not supported for family 'gamma' with link 'inverse'; use method='GCV',True
+k_exceeds_unique,k > unique x values -> fail loud (mgcv parity),ValidationError: k=10 exceeds the number of unique x values (6); a rank-k spline basis needs at least k distinct valu,True
+backend_removed,GPU backend removed -> backend= raises TypeError (CPU-only module),TypeError: gam() got an unexpected keyword argument 'backend',True
+names_length_mismatch,wrong-length names -> fail loud (would mislabel coefficients),ValidationError: names has 3 entries but the parametric design has 2 column(s); they must match (smooth-term coeffici,True

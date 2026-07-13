@@ -27,7 +27,8 @@ sys.path[:0] = [str(_HERE), str(_HERE.parent / "_shared")]
 from dgp import make_mixed, impose_mcar  # noqa: E402
 from run_r_mice import run_r_mice_record  # noqa: E402
 
-_OUTDIR = _REPO / "artifacts" / "mice" / "v4.6.13" / "runs"
+import pystatistics  # noqa: E402
+_OUTDIR = _REPO / "artifacts" / "mice" / f"v{pystatistics.__version__}" / "runs"
 _SEED = 20260707
 
 

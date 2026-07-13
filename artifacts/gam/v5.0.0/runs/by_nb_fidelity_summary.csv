@@ -1,0 +1,3 @@
+check,surface,py_behaviour,reference,verdict
+"s(x, by=<3-level factor coded {0,1,2}>), by_type unset",VA-2 by= (fail-loud),raises ValidationError,must fail loud: pick by_type='factor' or 'continuous',fails loud (VA2-F1 resolved)
+"family='nb', method='GCV'",VA-3 nb (fail-loud),raises ValidationError,estimated theta needs REML (GCV profiling degenerate),fails loud (correct)

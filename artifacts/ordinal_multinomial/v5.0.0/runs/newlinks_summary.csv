@@ -1,0 +1,5 @@
+link,dataset,reference,n,K,coef_maxabs,thr_maxabs,loglik_abs,reference_note,pass
+cauchit,housing,independent cauchit MLE,1681,3,6.484e-06,6.236e-06,7.049e-09,MASS::polr cauchit under-converges: loglik -1752.7748 vs independent MLE -1742.1562 (worse by 10.6185); pystatistics reaches the true MLE (-1742.1562).,True
+cauchit,synth_ordinal,independent cauchit MLE,1200,4,2.097e-08,2.516e-08,0.000e+00,MASS::polr cauchit under-converges: loglik -1472.4515 vs independent MLE -1465.8228 (worse by 6.6287); pystatistics reaches the true MLE (-1465.8228).,True
+loglog,housing,MASS::polr(method='loglog'),1681,3,3.820e-06,6.683e-07,3.627e-09,MASS::polr is a reliable reference for loglog,True
+loglog,synth_ordinal,MASS::polr(method='loglog'),1200,4,3.908e-06,1.731e-06,5.327e-09,MASS::polr is a reliable reference for loglog,True

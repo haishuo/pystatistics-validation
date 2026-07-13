@@ -64,7 +64,8 @@ sys.path[:0] = [str(_HERE.parent / "_shared")]
 from survey_io import build_mvn_problem  # noqa: E402
 from curate import standardize_columns  # noqa: E402
 
-_OUTDIR = _REPO / "artifacts" / "mvnmle" / "v4.6.13" / "runs"
+import pystatistics as _ps  # noqa: E402
+_OUTDIR = _REPO / "artifacts" / "mvnmle" / f"v{_ps.__version__}" / "runs"
 _DATA = (Path(os.environ["MVNMLE_DATA_DIR"])
          if os.environ.get("MVNMLE_DATA_DIR")
          else _REPO.parent / "datasets")

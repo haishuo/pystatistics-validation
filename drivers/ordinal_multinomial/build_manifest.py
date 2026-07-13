@@ -107,6 +107,26 @@ def hardcases(runs: Path, polr_hard: list, mn_hard: list) -> None:
          ["surface", "case", "detail", "pass"], rows)
 
 
+def newlinks(runs: Path) -> None:
+    doc = _load(runs, "newlinks.json")
+    rows = []
+    for c in _checks(doc):
+        g = c.get("group")
+        if g == "cauchit_vs_independent":
+            rows.append([c["link"], c["dataset"], "independent cauchit MLE",
+                         c["n"], c["K"], _r(c["coef"]["max_abs"]),
+                         _r(c["thr"]["max_abs"]), _r(c["loglik"]["abs"]),
+                         c["mass_note"], c["pass"]])
+        elif g == "loglog_vs_mass":
+            rows.append([c["link"], c["dataset"], "MASS::polr(method='loglog')",
+                         c["n"], c["K"], _r(c["coef"]["max_abs"]),
+                         _r(c["zeta"]["max_abs"]), _r(c["loglik"]["abs"]),
+                         "MASS::polr is a reliable reference for loglog", c["pass"]])
+    _csv(runs / "newlinks_summary.csv",
+         ["link", "dataset", "reference", "n", "K", "coef_maxabs",
+          "thr_maxabs", "loglik_abs", "reference_note", "pass"], rows)
+
+
 def predict(runs: Path) -> None:
     doc = _load(runs, "predict.json")
     rows = []
@@ -189,9 +209,26 @@ def build_manifest(runs: Path, ver: str) -> dict:
         "pystatistics_version": ver,
         "install_source": "pypi",
         "evidence_state": "native-harness",
-        "frozen_utc": "2026-07-06",
+        "frozen_utc": "2026-07-13",
         "provenance": {
             "note": (
+                "Re-validated at 5.0.0 (RIGOR R5). 5.0 renames the polr link value "
+                "'logistic'->'logit' and the predict argument 'type'->'kind'; the "
+                "estimators are otherwise unchanged, and logit/probit/cloglog polr, "
+                "multinom, predict, the separation/R15 hard cases and the CPU-speed "
+                "profile all REPRODUCE the blessed 4.6.10 numbers to optimizer round-"
+                "off (coef/loglik/probs identical to ~1e-11). 5.0 additionally EXPOSES "
+                "two new polr links that 4.6.10 left unimplemented — cauchit and "
+                "loglog — now validated as supported (see the newlinks study): loglog "
+                "matches MASS::polr directly, and cauchit is validated against an "
+                "INDEPENDENT scipy MLE because MASS::polr's cauchit under-converges "
+                "(its optim stops ~6.6-10.6 loglik short of the true MLE on the heavy-"
+                "tailed Cauchy likelihood); pystatistics reaches the true MLE. The "
+                "GPU path is rename-only (byte-unchanged kernels/gate): the MPS leg "
+                "was re-run live (no negative variance, fp32-tier SE across cond(X)), "
+                "and the CUDA CF-1 / two-tier / performance evidence is carried "
+                "forward from the 4.6.10 line (RTX 5070 Ti). The 4.6.10 provenance "
+                "follows. "
                 "First-time whole-surface validation of pystatistics.ordinal.polr "
                 "(vs MASS::polr) and pystatistics.multinomial.multinom (vs "
                 "nnet::multinom), grouped as one corpus item. The pass drove one "
@@ -242,6 +279,19 @@ def build_manifest(runs: Path, ver: str) -> dict:
              "summary": "runs/g1_multinom_summary.csv",
              "summary_cols": ["dataset", "n", "K", "coef_maxabs", "se_maxrel",
                               "loglik_abs", "probs_maxabs", "pass"]},
+            {"id": "newlinks", "title": "G1 correctness — cauchit & loglog links "
+             "(added after 4.6.10): loglog vs MASS::polr, cauchit vs an independent "
+             "MLE (MASS::polr cauchit under-converges)",
+             "device": ["cpu"], "claim": "agreement", "host": "arm+r",
+             "summary": "runs/newlinks_summary.csv",
+             "summary_cols": ["link", "dataset", "reference", "n", "K",
+                              "coef_maxabs", "thr_maxabs", "loglik_abs",
+                              "reference_note", "pass"],
+             "note": "cauchit is validated against an INDEPENDENT scipy MLE, not "
+                     "MASS::polr: MASS's optim under-converges on the heavy-tailed "
+                     "Cauchy likelihood (loglik worse by ~6.6 on the synthetic and "
+                     "~10.6 on housing than the true MLE). pystatistics reaches the "
+                     "true MLE on both; loglog agrees with MASS::polr directly."},
             {"id": "r10_r15", "title": "G1 hard cases — R10 separation / rare "
              "category + R15 default invocation (match R's failures)",
              "device": ["cpu"], "claim": "agreement", "host": "arm+r",
@@ -270,6 +320,11 @@ def build_manifest(runs: Path, ver: str) -> dict:
              "summary": "runs/cf1_summary.csv",
              "summary_cols": ["surface", "cond_X", "xtx_cond", "fp32_se_relerr",
                               "fp32_neg_var", "fp64_se_relerr"],
+             "carried_forward": "CUDA CF-1 evidence measured at the blessed 4.6.10 "
+                     "line on an RTX 5070 Ti. 5.0 is rename-only for the GPU path "
+                     "(kernels/gate byte-unchanged), so the CUDA result carries "
+                     "forward; the MPS leg was re-run live at 5.0.0 and shows no "
+                     "negative variance with fp32-tier SE across the cond(X) sweep.",
              "note": "4.6.8 returned negative variances / 100%-wrong SE with "
                      "converged=True here; 4.6.9 computes the vcov in fp64 — "
                      "fp32_neg_var=False everywhere, SE_relerr at the fp32 tier. "
@@ -279,6 +334,8 @@ def build_manifest(runs: Path, ver: str) -> dict:
              "GPU vs CPU fp64 on a well-conditioned design",
              "device": ["cuda"], "claim": "agreement", "host": "forge-cuda",
              "summary": "runs/gpu_twotier_summary.csv",
+             "carried_forward": "CUDA measurement from the 4.6.10 line; GPU path is "
+                     "rename-only at 5.0 (byte-unchanged kernels).",
              "summary_cols": ["surface", "n", "coef_relerr", "se_relerr",
                               "probs_relerr"]},
             {"id": "gpu_perf", "title": "GPU performance — CPU vs gpu_fp32 vs "
@@ -287,6 +344,8 @@ def build_manifest(runs: Path, ver: str) -> dict:
              "summary": "runs/gpu_perf_summary.csv",
              "summary_cols": ["surface", "n", "cpu_ms", "gpu_fp32_ms",
                               "gpu_fp64_ms", "speedup_fp32_vs_cpu"],
+             "carried_forward": "CUDA performance measured at the 4.6.10 line; GPU "
+                     "path is rename-only at 5.0 (byte-unchanged kernels).",
              "note": "The float32 GPU fit is unchanged by the CF-1 fix (only the "
                      "post-fit vcov moved to fp64), so the large-n speedup stands: "
                      "polr ~50x, multinom ~120x over CPU at n=100k."},
@@ -300,6 +359,7 @@ def main() -> None:
     polr_hard = g1_polr(runs)
     mn_hard = g1_multinom(runs)
     hardcases(runs, polr_hard, mn_hard)
+    newlinks(runs)
     predict(runs)
     fidelity(runs)
     cpu_speed(runs)

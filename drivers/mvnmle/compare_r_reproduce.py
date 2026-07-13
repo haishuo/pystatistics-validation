@@ -35,7 +35,8 @@ from curate import standardize_columns  # noqa: E402
 from run_pystatistics import run_pystatistics  # noqa: E402
 from run_r_mvnmle import run_r_mvnmle  # noqa: E402
 
-_OUTDIR = _REPO / "artifacts" / "mvnmle" / "v4.6.13" / "runs"
+import pystatistics as _ps  # noqa: E402
+_OUTDIR = _REPO / "artifacts" / "mvnmle" / f"v{_ps.__version__}" / "runs"
 _DATA = (Path(os.environ["MVNMLE_DATA_DIR"])
          if os.environ.get("MVNMLE_DATA_DIR")
          else _REPO.parent / "datasets")

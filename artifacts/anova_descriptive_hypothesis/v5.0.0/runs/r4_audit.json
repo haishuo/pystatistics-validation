@@ -1,0 +1,48 @@
+{
+  "audit": "R4_constitutional_naming",
+  "py_version": "5.0.0",
+  "verdict": "CLEAN",
+  "checks": [
+    {
+      "item": "t_test.pop_mean",
+      "law": "A2 + S1/S6 (snake_case over scipy 'popmean')",
+      "ok": true
+    },
+    {
+      "item": "t_test.equal_var / var_test not var.equal",
+      "law": "S6 scipy spelling",
+      "ok": true
+    },
+    {
+      "item": "wilcox_test.null_value (generic shift, not pop_mean)",
+      "law": "A2 generic null",
+      "ok": true
+    },
+    {
+      "item": "var_test.null_value / prop_test.null_value / chisq_test.expected_probs",
+      "law": "null named for constrained quantity (A2); 5.0 rename unifies prop/var null under null_value, GoF probs as expected_probs",
+      "ok": true
+    },
+    {
+      "item": "alternative in {two-sided,less,greater}",
+      "law": "selector taxonomy; scipy spelling (S6)",
+      "ok": true
+    },
+    {
+      "item": "…Solution objects (HTest/Descriptive/Anova/AnovaRM/Levene/PostHoc)",
+      "law": "Solution naming law",
+      "ok": true
+    },
+    {
+      "item": "quantile_type (not builtin-shadowing 'type')",
+      "law": "clarity; improvement over R 'type'",
+      "ok": true
+    },
+    {
+      "item": "levene_test.location (vs R center=)",
+      "law": "descriptive rename; NOT a violation",
+      "ok": true
+    }
+  ],
+  "naming_law_violations": []
+}

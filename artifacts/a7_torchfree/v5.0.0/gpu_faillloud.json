@@ -1,0 +1,40 @@
+{
+  "py_version": "5.0.0",
+  "checks": {
+    "descriptive.var[gpu]": {
+      "failed_loud": true,
+      "exc_type": "RuntimeError",
+      "msg": "No GPU available (need CUDA or MPS). Use backend='cpu', or install PyTorch with CUDA/MPS support."
+    },
+    "regression.fit[gpu]": {
+      "failed_loud": true,
+      "exc_type": "RuntimeError",
+      "msg": "No GPU available (need CUDA or MPS). Use backend='cpu', or install PyTorch with CUDA/MPS support."
+    },
+    "multivariate.pca[gpu]": {
+      "failed_loud": true,
+      "exc_type": "RuntimeError",
+      "msg": "No GPU available (need CUDA or MPS). Use backend='cpu', or install PyTorch with CUDA/MPS support."
+    },
+    "timeseries.arima[gpu]": {
+      "failed_loud": true,
+      "exc_type": "ValidationError",
+      "msg": "arima()'s exact-ML/CSS path has no GPU backend (backend='gpu', method='css-ml'). Use method='whittle' with backend='gpu' for the frequency-domain GPU path, arim"
+    },
+    "timeseries.auto_arima[gpu]": {
+      "failed_loud": true,
+      "exc_type": "ValidationError",
+      "msg": "arima()'s exact-ML/CSS path has no GPU backend (backend='gpu', method='css-ml'). Use method='whittle' with backend='gpu' for the frequency-domain GPU path, arim"
+    },
+    "ordinal.polr[gpu]": {
+      "failed_loud": true,
+      "exc_type": "RuntimeError",
+      "msg": "No GPU available (need CUDA or MPS). Use backend='cpu', or install PyTorch with CUDA/MPS support."
+    },
+    "montecarlo.boot[gpu]": {
+      "failed_loud": true,
+      "exc_type": "RuntimeError",
+      "msg": "No GPU available (need CUDA or MPS). Use backend='cpu', or install PyTorch with CUDA/MPS support."
+    }
+  }
+}

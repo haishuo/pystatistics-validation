@@ -169,7 +169,7 @@ def load_quine_negbin() -> tuple[NDArray[np.float64], NDArray[np.float64], Model
     y = M[:, 0]
     X = np.column_stack([np.ones(len(y)), M[:, 1:]])
     spec = ModelSpec(
-        key="glm_negbin", family="negative.binomial", r_family="negbin", link="log",
+        key="glm_negbin", family="negative-binomial", r_family="negbin", link="log",
         formula="Days ~ Eth + Sex + Age + Lrn",
         dataset="quine",
         why="THE canonical negative-binomial dataset (McCullagh & Nelder): 146 "

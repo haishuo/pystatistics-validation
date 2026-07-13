@@ -53,7 +53,7 @@ def run_regression_record(
     On failure a record with timing nulled and an ``error`` field is returned rather
     than raising — a sweep records the failure and continues.
     """
-    from pystatistics.regression import Design, GammaFamily, fit
+    from pystatistics.regression import Design, Gamma, fit
 
     X = np.asarray(X, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64).ravel()
@@ -65,7 +65,7 @@ def run_regression_record(
     if is_ols:
         fam_arg = None
     elif family == "gamma":
-        fam_arg = GammaFamily(link=link or "log")
+        fam_arg = Gamma(link=link or "log")
     else:
         fam_arg = family
 

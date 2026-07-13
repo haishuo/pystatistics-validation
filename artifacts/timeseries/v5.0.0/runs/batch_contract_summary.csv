@@ -1,0 +1,6 @@
+key,desc,pass,detail
+all_good,"healthy batch: no warning, all converged, no NaN",True,converged=16/16 warned=0
+partial_fail,mixed batch: failed rows -> NaN + warning; no non-stationary number returned,True,n_nan=4 max_finite_ar=0.640 warned=1
+all_fail,all series non-stationary -> raise ConvergenceError,True,raised=ConvergenceError
+single_series_raises,single-series Whittle non-stationary -> raise,True,raised=ConvergenceError
+batch_vs_single_series,CPU batch per-row estimates == single-series arima(Whittle) loop at matched tol (exact),True,ar_abs=0.0e+00 ma_abs=0.0e+00

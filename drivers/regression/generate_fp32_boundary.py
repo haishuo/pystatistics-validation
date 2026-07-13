@@ -68,8 +68,8 @@ _DEV_TOL = 1e-3
 
 
 def _fam(family: str):
-    from pystatistics.regression import GammaFamily
-    return GammaFamily(link="log") if family == "gamma" else family
+    from pystatistics.regression import Gamma
+    return Gamma(link="log") if family == "gamma" else family
 
 
 def _design(mechanism: str, severity: float, family: str, *, seed: int):

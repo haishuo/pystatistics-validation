@@ -189,19 +189,19 @@ def run_forecasts(sc) -> list[dict]:
     # Case A: xreg d=0, newxreg required.
     X = np.column_stack([sc["x1"], sc["x2"]])
     pA = arima(sc["yA"], order=(1, 0, 0), xreg=X)
-    fcA = forecast_arima(pA, sc["yA"], h=6, levels=[95], newxreg=sc["newxA"])
+    fcA = forecast_arima(pA, sc["yA"], n_ahead=6, conf_level=[0.95], new_xreg=sc["newxA"])
     rA = r_reference("forecast_arima_xreg", sc["yA"], period=1, order=[1, 0, 0],
                      xreg=_rows(X), newxreg=_rows(sc["newxA"]),
                      include_mean=True, method="CSS-ML", h=6)
     z = 1.959963984540054
-    cmA, cseA = arr_cmp(fcA.mean, rA["mean"]), arr_cmp((fcA.upper[95] - fcA.mean) / z, rA["se"])
+    cmA, cseA = arr_cmp(fcA.mean, rA["mean"]), arr_cmp((fcA.upper[0.95] - fcA.mean) / z, rA["se"])
     recs.append({"group": "forecast", "case": "xreg_d0", "h": 6,
                  "mean": cmA, "se": cseA,
                  "pass": within(cmA, abs_tol=5e-3) and within(cseA, abs_tol=5e-3)})
 
     # Case D: drift continuation, no newxreg needed.
     pD = arima(sc["yD"], order=(0, 1, 1), include_drift=True)
-    fcD = forecast_arima(pD, sc["yD"], h=6, levels=[95])
+    fcD = forecast_arima(pD, sc["yD"], n_ahead=6, conf_level=[0.95])
     rD = r_reference("forecast_arima_xreg", sc["yD"], period=1, order=[0, 1, 1],
                      include_drift=True, include_mean=False, method="CSS-ML", h=6)
     cmD = arr_cmp(fcD.mean, rD["mean"])
@@ -210,7 +210,7 @@ def run_forecasts(sc) -> list[dict]:
 
     # Case Xd: xreg under d=1.
     pX = arima(sc["yXd"], order=(2, 1, 0), xreg=sc["x1"])
-    fcX = forecast_arima(pX, sc["yXd"], h=6, levels=[95], newxreg=sc["newxXd"])
+    fcX = forecast_arima(pX, sc["yXd"], n_ahead=6, conf_level=[0.95], new_xreg=sc["newxXd"])
     rX = r_reference("forecast_arima_xreg", sc["yXd"], period=1, order=[2, 1, 0],
                      xreg=_rows(sc["x1"]), newxreg=_rows(sc["newxXd"]),
                      include_mean=False, method="CSS-ML", h=6)
@@ -236,7 +236,7 @@ def run_auto(sc) -> list[dict]:
                  "pass": (bool(res.best_model.include_drift)
                           and list(res.best_order) == list(r["order"]))})
     # allowdrift=False must never select drift.
-    res2 = auto_arima(sc["yD"], period=1, stepwise=True, allowdrift=False)
+    res2 = auto_arima(sc["yD"], period=1, stepwise=True, allow_drift=False)
     recs.append({"group": "auto_drift", "case": "allowdrift_false",
                  "py_drift": bool(res2.best_model.include_drift),
                  "pass": not res2.best_model.include_drift})
@@ -259,7 +259,7 @@ def run_fidelity(sc) -> list[dict]:
         ("drift_double_differencing",
          lambda: arima(sc["yD"], order=(0, 2, 1), include_drift=True)),
         ("whittle_with_xreg",
-         lambda: arima(sc["yA"], order=(1, 0, 0), xreg=sc["x1"], method="Whittle")),
+         lambda: arima(sc["yA"], order=(1, 0, 0), xreg=sc["x1"], method="whittle")),
         ("init_with_xreg",
          lambda: arima(sc["yA"], order=(1, 0, 0), xreg=sc["x1"],
                        init=[0.5, 0.0, 0.0, 0.0])),
@@ -274,9 +274,9 @@ def run_fidelity(sc) -> list[dict]:
     pA = arima(sc["yA"], order=(1, 0, 0),
                xreg=np.column_stack([sc["x1"], sc["x2"]]))
     for name, fn in [
-        ("newxreg_missing", lambda: forecast_arima(pA, sc["yA"], h=6)),
+        ("newxreg_missing", lambda: forecast_arima(pA, sc["yA"], n_ahead=6)),
         ("newxreg_wrong_shape",
-         lambda: forecast_arima(pA, sc["yA"], h=6, newxreg=np.zeros((6, 1)))),
+         lambda: forecast_arima(pA, sc["yA"], n_ahead=6, new_xreg=np.zeros((6, 1)))),
     ]:
         rec = expect_raises(fn, ValidationError)
         rec["group"] = "fidelity"

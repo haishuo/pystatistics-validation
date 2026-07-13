@@ -1,0 +1,6 @@
+case,statistic,detail,pass
+small_n=6,corr,t_stat_max_abs=8.881784197001252e-16,True
+skew_perc_vs_bca,ratio,"perc=[1.2438062773480103, 2.098266059722033]; bca=[1.240250623176875, 2.0817923753012106]; endpoint_separation=0.020029338591957435",True
+boundary_corr~1,corr,"t0=0.9999994295046447; perc_ci=[0.9999984945848083, 0.9999998197083072]; no_crash=True",True
+perm_ties,,alternative=two-sided; p_py=0.07999920000799993; p_exact=0.0793650793650794,True
+degenerate_bca_all_equal,,"t0=3.5; se=0.0; bca_ci=[3.5, 3.5]",True

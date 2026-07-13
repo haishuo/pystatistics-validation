@@ -1,0 +1,4 @@
+dataset,n,K,coef_maxabs,se_maxrel,loglik_abs,probs_maxabs,pass
+multinom_synth,1500,3,7.394e-05,2.190e-05,9.146e-07,4.401e-05,True
+synth_multinom_K5_p4,2000,5,3.546e-04,5.663e-05,2.466e-05,1.875e-04,True
+unbalanced_multinom,900,3,4.600e-05,1.949e-05,2.201e-08,3.260e-06,True

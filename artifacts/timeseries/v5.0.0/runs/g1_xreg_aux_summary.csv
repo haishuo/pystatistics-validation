@@ -1,0 +1,14 @@
+group,case,detail_or_mean_abs,se_abs,pass
+forecast,xreg_d0,2.563931873544867e-05,4.9004965316790106e-06,True
+forecast,drift_d1,1.1516768552155554e-06,,True
+forecast,xreg_d1,1.0954336957524902e-06,,True
+auto_drift,rw_with_drift,"py=[0, 1, 0] r=[0, 1, 0]",,True
+auto_drift,allowdrift_false,py=False r=,,True
+fidelity,xreg_wrong_length,ValidationError,ValidationError,True
+fidelity,fixed_unknown_name,ValidationError,ValidationError,True
+fidelity,all_fixed,ValidationError,ValidationError,True
+fidelity,drift_double_differencing,ValidationError,ValidationError,True
+fidelity,whittle_with_xreg,ValidationError,ValidationError,True
+fidelity,init_with_xreg,ValidationError,ValidationError,True
+fidelity,newxreg_missing,ValidationError,ValidationError,True
+fidelity,newxreg_wrong_shape,ValidationError,ValidationError,True

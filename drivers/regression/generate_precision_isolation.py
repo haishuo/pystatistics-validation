@@ -47,9 +47,9 @@ _MODELS = (("ols", None), ("glm_poisson", "poisson"))
 
 
 def _fam(family: str | None):
-    from pystatistics.regression import GammaFamily
+    from pystatistics.regression import Gamma
     if family == "gamma":
-        return GammaFamily(link="log")
+        return Gamma(link="log")
     return family
 
 

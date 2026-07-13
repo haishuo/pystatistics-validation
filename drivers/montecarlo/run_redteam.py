@@ -69,8 +69,8 @@ def run_hard_cases() -> list[dict]:
     from run_tight import _shared_solution
     t_ratio = np.array([mcdata.stat_ratio(city, idxr[b])[0] for b in range(rr["R"])])
     sol = _shared_solution(city, mcdata.STAT["ratio"], np.array([rr["t0"]]), t_ratio)
-    ci = boot_ci(sol, ci_type="all").ci
-    perc, bca = ci["perc"][0], ci["bca"][0]
+    ci = boot_ci(sol, ci_type="all").conf_int
+    perc, bca = ci["percentile"][0], ci["bca"][0]
     sep = float(abs(perc[0] - bca[0]) + abs(perc[1] - bca[1]))
     width = float(perc[1] - perc[0])
     recs.append({"group": "hard", "case": "skew_perc_vs_bca", "statistic": "ratio",
@@ -86,10 +86,10 @@ def run_hard_cases() -> list[dict]:
     xb = rng.normal(0, 1, 20); yb = xb + rng.normal(0, 1e-3, 20)
     bdata = np.column_stack([xb, yb])
     rb = boot(bdata, mcdata.STAT["corr"], n_resamples=3000, seed=3)
-    cib = boot_ci(rb, ci_type="all").ci
-    upper_ok = cib["perc"][0][1] <= 1.0 + 1e-9   # correlation CI capped at 1
+    cib = boot_ci(rb, ci_type="all").conf_int
+    upper_ok = cib["percentile"][0][1] <= 1.0 + 1e-9   # correlation CI capped at 1
     recs.append({"group": "hard", "case": "boundary_corr~1", "statistic": "corr",
-                 "t0": float(rb.t0[0]), "perc_ci": cib["perc"][0].tolist(),
+                 "t0": float(rb.t0[0]), "perc_ci": cib["percentile"][0].tolist(),
                  "no_crash": True, "upper_within_1": bool(upper_ok),
                  "pass": bool(np.isfinite(rb.t0[0]) and upper_ok)})
 
@@ -109,9 +109,9 @@ def run_hard_cases() -> list[dict]:
     rc = boot(const, mcdata.STAT["mean"], n_resamples=500, seed=1)
     outcome = expect_raises(lambda: boot_ci(rc, ci_type="bca"), ValidationError)
     # pystatistics does NOT raise here — it returns a degenerate [c, c] interval.
-    dci = boot_ci(rc, ci_type="bca").ci["bca"][0]
+    dci = boot_ci(rc, ci_type="bca").conf_int["bca"][0]
     recs.append({"group": "hard", "case": "degenerate_bca_all_equal",
-                 "t0": float(rc.t0[0]), "se": float(rc.se[0]),
+                 "t0": float(rc.t0[0]), "se": float(rc.standard_errors[0]),
                  "bca_ci": dci.tolist(),
                  "behavior": "returns degenerate [t0, t0] interval (a=0 fallback, "
                              "se=0); no crash, no garbage — documented",
@@ -144,10 +144,10 @@ def run_fidelity() -> list[dict]:
     x, y = mcdata.two_sample("sleep")
     p = permutation_test(x, y, mcdata.mean_diff)       # R=9999, two-sided, cpu
     recs.append({"group": "fidelity", "case": "default_invocation",
-                 "boot_R": b.R, "boot_backend": b.backend_name,
-                 "perm_R": p.R, "perm_backend": p.backend_name,
+                 "boot_R": b.n_resamples, "boot_backend": b.backend_name,
+                 "perm_R": p.n_resamples, "perm_backend": p.backend_name,
                  "p_value_finite": bool(np.isfinite(p.p_value)),
-                 "pass": bool(b.R == 999 and p.R == 9999
+                 "pass": bool(b.n_resamples == 999 and p.n_resamples == 9999
                               and "cpu" in b.backend_name
                               and np.isfinite(p.p_value))})
 

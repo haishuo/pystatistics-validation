@@ -1,0 +1,1019 @@
+{
+  "module": "anova",
+  "guarantee": "G1_correctness",
+  "engine": "pystatistics",
+  "py_version": "5.0.0",
+  "r_versions": {
+    "R": "R version 4.5.2 (2025-10-31)",
+    "car": "3.1.5",
+    "afex": "1.5.1"
+  },
+  "reference": "R stats(aov) + car(Anova/leveneTest) + TukeyHSD + afex(aov_ez)",
+  "summary": {
+    "n_cases": 98,
+    "n_clean": 98,
+    "n_clean_pass": 98,
+    "n_clean_fail": 0,
+    "clean_all_pass": true,
+    "worst_clean_max_abs": 7.619238573397524e-12,
+    "findings": [],
+    "n_finding_cases": 0
+  },
+  "cases": [
+    {
+      "case": "oneway:PlantGrowth:df",
+      "quantity": "df",
+      "tol": 1e-12,
+      "py": 2.0,
+      "r": 2.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "oneway:PlantGrowth:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 3.7663402797317573,
+      "r": 3.76634027973176,
+      "max_abs": 2.6645352591003757e-15,
+      "max_rel": 7.074600437563609e-16,
+      "pass": true
+    },
+    {
+      "case": "oneway:PlantGrowth:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 4.846088162920248,
+      "r": 4.84608816292024,
+      "max_abs": 7.993605777301127e-15,
+      "max_rel": 1.649496564768273e-15,
+      "pass": true
+    },
+    {
+      "case": "oneway:PlantGrowth:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.015909954807089066,
+      "r": 0.0159099548070891,
+      "max_abs": 3.469446951953614e-17,
+      "max_rel": 2.1806768114813943e-15,
+      "pass": true
+    },
+    {
+      "case": "oneway:PlantGrowth:ss_resid",
+      "quantity": "ss_resid",
+      "tol": 1e-09,
+      "py": 10.492090128574802,
+      "r": 10.4920901285748,
+      "max_abs": 1.7763568394002505e-15,
+      "max_rel": 1.6930438240922194e-16,
+      "pass": true
+    },
+    {
+      "case": "oneway:InsectSprays:df",
+      "quantity": "df",
+      "tol": 1e-12,
+      "py": 5.0,
+      "r": 5.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "oneway:InsectSprays:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 2668.8333333333335,
+      "r": 2668.83333333333,
+      "max_abs": 3.637978807091713e-12,
+      "max_rel": 1.363134505873372e-15,
+      "pass": true
+    },
+    {
+      "case": "oneway:InsectSprays:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 34.702282055491715,
+      "r": 34.7022820554917,
+      "max_abs": 1.4210854715202004e-14,
+      "max_rel": 4.095077866198459e-16,
+      "pass": true
+    },
+    {
+      "case": "oneway:InsectSprays:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 3.1825837261451046e-17,
+      "r": 3.18258372614512e-17,
+      "max_abs": 1.5407439555097887e-31,
+      "max_rel": 4.8411733612928475e-15,
+      "pass": true
+    },
+    {
+      "case": "oneway:InsectSprays:ss_resid",
+      "quantity": "ss_resid",
+      "tol": 1e-09,
+      "py": 1015.1666666666665,
+      "r": 1015.16666666667,
+      "max_abs": 3.524291969370097e-12,
+      "max_rel": 3.471638781188723e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type1:dose:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 2426.4343188912076,
+      "r": 2426.43431889121,
+      "max_abs": 2.2737367544323206e-12,
+      "max_rel": 9.370691539968547e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type1:dose:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 91.99996341776364,
+      "r": 91.9999634177636,
+      "max_abs": 4.263256414560601e-14,
+      "max_rel": 4.633976206274708e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type1:dose:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 4.046292550235282e-18,
+      "r": 4.0462925502353e-18,
+      "max_abs": 1.771855548836257e-32,
+      "max_rel": 4.378960559174645e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type1:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 205.34998764991792,
+      "r": 205.349987649918,
+      "max_abs": 8.526512829121202e-14,
+      "max_rel": 4.1521857033939817e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type1:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 15.57197835898044,
+      "r": 15.5719783589804,
+      "max_abs": 3.907985046680551e-14,
+      "max_rel": 2.5096265590600477e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type1:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.0002311829133917824,
+      "r": 0.000231182913391782,
+      "max_abs": 4.0657581468206416e-19,
+      "max_rel": 1.758675884463168e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type1:dose:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 108.31902268505223,
+      "r": 108.319022685052,
+      "max_abs": 2.2737367544323206e-13,
+      "max_rel": 2.0991112161743087e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type1:dose:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 4.106991912736594,
+      "r": 4.10699191273659,
+      "max_abs": 3.552713678800501e-15,
+      "max_rel": 8.650403395689279e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type1:dose:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.021860253430431305,
+      "r": 0.0218602534304313,
+      "max_abs": 3.469446951953614e-18,
+      "max_rel": 1.587102804180602e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type2:dose:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 2426.434318891207,
+      "r": 2426.43431889121,
+      "max_abs": 2.7284841053187847e-12,
+      "max_rel": 1.1244829847962257e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type2:dose:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 91.99996341776362,
+      "r": 91.9999634177636,
+      "max_abs": 2.842170943040401e-14,
+      "max_rel": 3.089317470849806e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type2:dose:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 4.046292550235296e-18,
+      "r": 4.04629255023533e-18,
+      "max_abs": 3.389636702121535e-32,
+      "max_rel": 8.377141939290563e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type2:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 205.34998764991792,
+      "r": 205.349987649918,
+      "max_abs": 8.526512829121202e-14,
+      "max_rel": 4.1521857033939817e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type2:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 15.57197835898044,
+      "r": 15.5719783589804,
+      "max_abs": 3.907985046680551e-14,
+      "max_rel": 2.5096265590600477e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type2:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.0002311829133917824,
+      "r": 0.000231182913391783,
+      "max_abs": 5.963111948670274e-19,
+      "max_rel": 2.5793912972126354e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type2:dose:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 108.31902268505223,
+      "r": 108.319022685052,
+      "max_abs": 2.2737367544323206e-13,
+      "max_rel": 2.0991112161743087e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type2:dose:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 4.106991912736594,
+      "r": 4.10699191273659,
+      "max_abs": 3.552713678800501e-15,
+      "max_rel": 8.650403395689279e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type2:dose:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.021860253430431305,
+      "r": 0.0218602534304313,
+      "max_abs": 3.469446951953614e-18,
+      "max_rel": 1.587102804180602e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type3:dose:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 2426.4343188912076,
+      "r": 2426.43431889121,
+      "max_abs": 2.2737367544323206e-12,
+      "max_rel": 9.370691539968547e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type3:dose:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 91.99996341776364,
+      "r": 91.9999634177636,
+      "max_abs": 4.263256414560601e-14,
+      "max_rel": 4.633976206274708e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type3:dose:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 4.046292550235282e-18,
+      "r": 4.04629255023533e-18,
+      "max_abs": 4.776306262080345e-32,
+      "max_rel": 1.1804154550818521e-14,
+      "pass": true
+    },
+    {
+      "case": "balanced:type3:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 205.3499876499178,
+      "r": 205.349987649918,
+      "max_abs": 1.9895196601282805e-13,
+      "max_rel": 9.68843330791929e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type3:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 15.57197835898043,
+      "r": 15.5719783589804,
+      "max_abs": 3.019806626980426e-14,
+      "max_rel": 1.9392568865464005e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type3:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.00023118291339178237,
+      "r": 0.000231182913391782,
+      "max_abs": 3.7947076036992655e-19,
+      "max_rel": 1.6414308254989569e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type3:dose:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 108.31902268505223,
+      "r": 108.319022685052,
+      "max_abs": 2.2737367544323206e-13,
+      "max_rel": 2.0991112161743087e-15,
+      "pass": true
+    },
+    {
+      "case": "balanced:type3:dose:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 4.106991912736594,
+      "r": 4.10699191273659,
+      "max_abs": 3.552713678800501e-15,
+      "max_rel": 8.650403395689279e-16,
+      "pass": true
+    },
+    {
+      "case": "balanced:type3:dose:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.021860253430431305,
+      "r": 0.0218602534304313,
+      "max_abs": 3.469446951953614e-18,
+      "max_rel": 1.587102804180602e-16,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type1:dose:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 2074.0517141948276,
+      "r": 2074.05171419483,
+      "max_abs": 2.2737367544323206e-12,
+      "max_rel": 1.0962777537661402e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type1:dose:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 74.93998189207609,
+      "r": 74.9399818920761,
+      "max_abs": 1.4210854715202004e-14,
+      "max_rel": 1.8962981250339227e-16,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type1:dose:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 1.7224473829561465e-15,
+      "r": 1.72244738295614e-15,
+      "max_abs": 6.508102468073347e-30,
+      "max_rel": 3.778404224402986e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type1:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 237.15732313866442,
+      "r": 237.157323138665,
+      "max_abs": 5.684341886080801e-13,
+      "max_rel": 2.396865427072302e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type1:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 17.13801577843904,
+      "r": 17.1380157784391,
+      "max_abs": 6.039613253960852e-14,
+      "max_rel": 3.5241029837066287e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type1:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.00013965600652769087,
+      "r": 0.00013965600652769,
+      "max_abs": 8.673617379884035e-19,
+      "max_rel": 6.2107012763280555e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type1:dose:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 62.217877056596535,
+      "r": 62.2178770565967,
+      "max_abs": 1.6342482922482304e-13,
+      "max_rel": 2.6266538968560934e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type1:dose:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 2.248066693840776,
+      "r": 2.24806669384078,
+      "max_abs": 3.9968028886505635e-15,
+      "max_rel": 1.777884481630792e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type1:dose:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.11660954477815978,
+      "r": 0.116609544778159,
+      "max_abs": 7.771561172376096e-16,
+      "max_rel": 6.664601244401488e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type2:dose:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 2231.731791670083,
+      "r": 2231.73179167008,
+      "max_abs": 3.183231456205249e-12,
+      "max_rel": 1.4263503652574352e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type2:dose:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 80.63730470705909,
+      "r": 80.6373047070592,
+      "max_abs": 1.1368683772161603e-13,
+      "max_rel": 1.4098541380397054e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type2:dose:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 4.493582670114697e-16,
+      "r": 4.49358267011458e-16,
+      "max_abs": 1.1635698352009924e-29,
+      "max_rel": 2.5894034239973668e-14,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type2:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 237.15732313866442,
+      "r": 237.157323138665,
+      "max_abs": 5.684341886080801e-13,
+      "max_rel": 2.396865427072302e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type2:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 17.13801577843904,
+      "r": 17.1380157784391,
+      "max_abs": 6.039613253960852e-14,
+      "max_rel": 3.5241029837066287e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type2:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.00013965600652769087,
+      "r": 0.00013965600652769,
+      "max_abs": 8.673617379884035e-19,
+      "max_rel": 6.2107012763280555e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type2:dose:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 62.217877056596535,
+      "r": 62.2178770565968,
+      "max_abs": 2.6290081223123707e-13,
+      "max_rel": 4.225486703638057e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type2:dose:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 2.248066693840776,
+      "r": 2.24806669384079,
+      "max_abs": 1.3766765505351941e-14,
+      "max_rel": 6.123824325617146e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type2:dose:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.11660954477815978,
+      "r": 0.116609544778159,
+      "max_abs": 7.771561172376096e-16,
+      "max_rel": 6.664601244401488e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type3:dose:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 2106.338042187813,
+      "r": 2106.33804218781,
+      "max_abs": 2.7284841053187847e-12,
+      "max_rel": 1.2953685736429867e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type3:dose:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 76.10655687118418,
+      "r": 76.1065568711842,
+      "max_abs": 1.4210854715202004e-14,
+      "max_rel": 1.8672313266325914e-16,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type3:dose:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 1.3000774323395495e-15,
+      "r": 1.30007743233955e-15,
+      "max_abs": 3.944304526105059e-31,
+      "max_rel": 3.033899695502828e-16,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type3:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 207.29733474457066,
+      "r": 207.297334744571,
+      "max_abs": 3.410605131648481e-13,
+      "max_rel": 1.6452720609509924e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type3:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 14.980203633027138,
+      "r": 14.9802036330271,
+      "max_abs": 3.730349362740526e-14,
+      "max_rel": 2.4901860175759983e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type3:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.0003275815176802108,
+      "r": 0.00032758151768021,
+      "max_abs": 7.589415207398531e-19,
+      "max_rel": 2.3168020165311744e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type3:dose:supp:ss",
+      "quantity": "sum_sq",
+      "tol": 1e-09,
+      "py": 62.21787705659665,
+      "r": 62.2178770565968,
+      "max_abs": 1.4921397450962104e-13,
+      "max_rel": 2.398249210172951e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type3:dose:supp:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 2.24806669384078,
+      "r": 2.24806669384078,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:type3:dose:supp:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.11660954477815938,
+      "r": 0.116609544778159,
+      "max_abs": 3.7470027081099033e-16,
+      "max_rel": 3.2132898856935746e-15,
+      "pass": true
+    },
+    {
+      "case": "UNBAL:divergence-check",
+      "quantity": "dose_SS_by_type[I,II,III]",
+      "py": [
+        2074.0517141948276,
+        2231.731791670083,
+        2106.338042187813
+      ],
+      "r": null,
+      "tol": null,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true,
+      "extra": {
+        "supp_SS_by_type": [
+          237.15732313866442,
+          237.15732313866442,
+          207.29733474457066
+        ],
+        "note": "dose SS diverges across Type I/II/III; each type matched its R counterpart above -> no silent SS-type substitution. supp I==II is the entered-last identity."
+      }
+    },
+    {
+      "case": "levene:InsectSprays:median:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 3.8213563132259276,
+      "r": 3.82135631322593,
+      "max_abs": 2.220446049250313e-15,
+      "max_rel": 5.810622897334185e-16,
+      "pass": true
+    },
+    {
+      "case": "levene:InsectSprays:median:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.004222791138992107,
+      "r": 0.00422279113899213,
+      "max_abs": 2.3418766925686896e-17,
+      "max_rel": 5.545802800769432e-15,
+      "pass": true
+    },
+    {
+      "case": "levene:InsectSprays:median:df",
+      "quantity": "df_between",
+      "tol": 1e-12,
+      "py": 5.0,
+      "r": 5.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "levene:InsectSprays:mean:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 6.455352710086696,
+      "r": 6.4553527100867,
+      "max_abs": 4.440892098500626e-15,
+      "max_rel": 6.879394973355347e-16,
+      "pass": true
+    },
+    {
+      "case": "levene:InsectSprays:mean:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 6.103633834482075e-05,
+      "r": 6.1036338344821e-05,
+      "max_abs": 2.439454888092385e-19,
+      "max_rel": 3.996725482303405e-15,
+      "pass": true
+    },
+    {
+      "case": "levene:InsectSprays:mean:df",
+      "quantity": "df_between",
+      "tol": 1e-12,
+      "py": 5.0,
+      "r": 5.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "levene:PlantGrowth:median:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 1.119185517015875,
+      "r": 1.11918551701588,
+      "max_abs": 4.884981308350689e-15,
+      "max_rel": 4.3647645846737456e-15,
+      "pass": true
+    },
+    {
+      "case": "levene:PlantGrowth:median:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.34122668016809365,
+      "r": 0.341226680168094,
+      "max_abs": 3.3306690738754696e-16,
+      "max_rel": 9.76086943797808e-16,
+      "pass": true
+    },
+    {
+      "case": "levene:PlantGrowth:median:df",
+      "quantity": "df_between",
+      "tol": 1e-12,
+      "py": 2.0,
+      "r": 2.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "levene:PlantGrowth:mean:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 1.2369626016491477,
+      "r": 1.23696260164915,
+      "max_abs": 2.220446049250313e-15,
+      "max_rel": 1.7950793712679413e-15,
+      "pass": true
+    },
+    {
+      "case": "levene:PlantGrowth:mean:p",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 0.30619502195557863,
+      "r": 0.306195021955579,
+      "max_abs": 3.885780586188048e-16,
+      "max_rel": 1.2690541346396462e-15,
+      "pass": true
+    },
+    {
+      "case": "levene:PlantGrowth:mean:df",
+      "quantity": "df_between",
+      "tol": 1e-12,
+      "py": 2.0,
+      "r": 2.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt1-ctrl:diff",
+      "quantity": "diff",
+      "tol": 1e-09,
+      "py": -0.3710000276565557,
+      "r": -0.371000027656554,
+      "max_abs": 1.7208456881689926e-15,
+      "max_rel": 4.638397735544192e-15,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt1-ctrl:lwr",
+      "quantity": "ci_lower",
+      "tol": 1e-09,
+      "py": -1.062216083294645,
+      "r": -1.06221608330226,
+      "max_abs": 7.615019725903949e-12,
+      "max_rel": 7.168993056695272e-12,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt1-ctrl:upr",
+      "quantity": "ci_upper",
+      "tol": 1e-09,
+      "py": 0.3202160279815336,
+      "r": 0.32021602798915,
+      "max_abs": 7.61640750468473e-12,
+      "max_rel": 2.3785216350703093e-11,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt1-ctrl:padj",
+      "quantity": "p_adj",
+      "tol": 1e-09,
+      "py": 0.39087109582923873,
+      "r": 0.390871095829266,
+      "max_abs": 2.7255975254547593e-14,
+      "max_rel": 6.973136552018957e-14,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt2-ctrl:diff",
+      "quantity": "diff",
+      "tol": 1e-09,
+      "py": 0.4940000057220457,
+      "r": 0.494000005722047,
+      "max_abs": 1.27675647831893e-15,
+      "max_rel": 2.5845272541096024e-15,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt2-ctrl:lwr",
+      "quantity": "ci_lower",
+      "tol": 1e-09,
+      "py": -0.19721604991604358,
+      "r": -0.197216049923656,
+      "max_abs": 7.61241070179608e-12,
+      "max_rel": 3.8599346781070345e-11,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt2-ctrl:upr",
+      "quantity": "ci_upper",
+      "tol": 1e-09,
+      "py": 1.185216061360135,
+      "r": 1.18521606136775,
+      "max_abs": 7.615019725903949e-12,
+      "max_rel": 6.425005510907562e-12,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt2-ctrl:padj",
+      "quantity": "p_adj",
+      "tol": 1e-09,
+      "py": 0.19799598801948648,
+      "r": 0.197995988019627,
+      "max_abs": 1.405264793419292e-13,
+      "max_rel": 7.097440748546836e-13,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt2-trt1:diff",
+      "quantity": "diff",
+      "tol": 1e-09,
+      "py": 0.8650000333786014,
+      "r": 0.865000033378601,
+      "max_abs": 4.440892098500626e-16,
+      "max_rel": 5.133979106515128e-16,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt2-trt1:lwr",
+      "quantity": "ci_lower",
+      "tol": 1e-09,
+      "py": 0.17378397774051213,
+      "r": 0.173783977732897,
+      "max_abs": 7.615130748206411e-12,
+      "max_rel": 4.3819521497607434e-11,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt2-trt1:upr",
+      "quantity": "ci_upper",
+      "tol": 1e-09,
+      "py": 1.5562160890166907,
+      "r": 1.55621608902431,
+      "max_abs": 7.619238573397524e-12,
+      "max_rel": 4.89600295687375e-12,
+      "pass": true
+    },
+    {
+      "case": "tukey:PlantGrowth:trt2-trt1:padj",
+      "quantity": "p_adj",
+      "tol": 1e-09,
+      "py": 0.012006421067189521,
+      "r": 0.0120064210671561,
+      "max_abs": 3.3421182488169165e-14,
+      "max_rel": 2.783609062286991e-12,
+      "pass": true
+    },
+    {
+      "case": "rm:within:df1",
+      "quantity": "df1",
+      "tol": 1e-12,
+      "py": 3.0,
+      "r": 3.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true
+    },
+    {
+      "case": "rm:within:F",
+      "quantity": "F",
+      "tol": 1e-09,
+      "py": 155.38996949427835,
+      "r": 155.389969494277,
+      "max_abs": 1.3358203432289883e-12,
+      "max_rel": 8.596567381900325e-15,
+      "pass": true
+    },
+    {
+      "case": "rm:within:p_uncorr",
+      "quantity": "p_value",
+      "tol": 1e-09,
+      "py": 1.5533796578237878e-19,
+      "r": 1.55337965782407e-19,
+      "max_abs": 2.8214873685273005e-32,
+      "max_rel": 1.8163540087035515e-13,
+      "pass": true
+    },
+    {
+      "case": "rm:mauchly:W",
+      "quantity": "mauchly_w",
+      "tol": 1e-09,
+      "py": 0.7688980238743035,
+      "r": 0.768898023874303,
+      "max_abs": 5.551115123125783e-16,
+      "max_rel": 7.219572623109331e-16,
+      "pass": true
+    },
+    {
+      "case": "rm:mauchly:p",
+      "quantity": "mauchly_p",
+      "tol": 1e-09,
+      "py": 0.7692462181845625,
+      "r": 0.769246218184562,
+      "max_abs": 5.551115123125783e-16,
+      "max_rel": 7.216304730397683e-16,
+      "pass": true
+    },
+    {
+      "case": "rm:gg_epsilon",
+      "quantity": "gg_eps",
+      "tol": 1e-09,
+      "py": 0.8440891748030266,
+      "r": 0.844089174803026,
+      "max_abs": 5.551115123125783e-16,
+      "max_rel": 6.576455768931254e-16,
+      "pass": true
+    },
+    {
+      "case": "rm:hf_epsilon(capped)",
+      "quantity": "hf_eps_min1",
+      "tol": 1e-09,
+      "py": 1.0,
+      "r": 1.0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "pass": true,
+      "extra": {
+        "note": "py reports capped HF=min(1,raw); afex raw=1.117466"
+      }
+    },
+    {
+      "case": "rm:p_gg",
+      "quantity": "gg_p_value",
+      "tol": 1e-09,
+      "py": 8.235880918895114e-17,
+      "r": 8.23588091889651e-17,
+      "max_abs": 1.3965303212740725e-29,
+      "max_rel": 1.6956659949633991e-13,
+      "pass": true
+    },
+    {
+      "case": "rm:p_hf",
+      "quantity": "hf_p_value",
+      "tol": 1e-09,
+      "py": 1.5533796578237878e-19,
+      "r": 1.55337965782407e-19,
+      "max_abs": 2.8214873685273005e-32,
+      "max_rel": 1.8163540087035515e-13,
+      "pass": true
+    }
+  ]
+}
