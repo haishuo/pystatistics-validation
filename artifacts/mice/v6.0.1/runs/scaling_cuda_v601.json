@@ -1,0 +1,258 @@
+{
+  "schema": "validation-run/v1",
+  "env": {
+    "pystatistics_version": "6.0.1",
+    "install_source": "pypi",
+    "python": "3.11.14",
+    "numpy": "2.3.5",
+    "os": "Linux-6.8.0-134-generic-x86_64-with-glibc2.39",
+    "cpu": "x86_64",
+    "device": "cuda",
+    "torch": "2.11.0.dev20251226+cu128",
+    "available_devices": [
+      "cuda",
+      "cpu"
+    ],
+    "gpu_name": "NVIDIA GeForce RTX 5070 Ti",
+    "cuda_version": "12.8"
+  },
+  "config": {
+    "study": "scaling",
+    "slice": "vary_n",
+    "n": [
+      2000,
+      5000,
+      20000
+    ],
+    "p": 20,
+    "rate": 0.2,
+    "m": 20,
+    "maxit": 10,
+    "method": "pmm",
+    "seed": 20260617,
+    "backends": [
+      "cpu",
+      "gpu",
+      "gpu_fp64"
+    ],
+    "dgp": "make_complete+impose_mcar (synthetic, seeded)"
+  },
+  "records": [
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "n2000",
+      "n": 2000,
+      "p": 21,
+      "backend_name": "mice_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 1.4149662459967658,
+      "wall_min_s": 1.410539717064239,
+      "wall_max_s": 1.4200127739459276,
+      "wall_times_s": [
+        1.410539717064239,
+        1.4200127739459276,
+        1.4149662459967658
+      ],
+      "m_imputations": 20,
+      "maxit": 10,
+      "method": "pmm",
+      "peak_mem_mb": 10.5
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "n2000",
+      "n": 2000,
+      "p": 21,
+      "backend_name": "mice_gpu",
+      "precision": "fp32",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.11885838909074664,
+      "wall_min_s": 0.11778415006119758,
+      "wall_max_s": 0.1191962449811399,
+      "wall_times_s": [
+        0.11778415006119758,
+        0.11885838909074664,
+        0.1191962449811399
+      ],
+      "m_imputations": 20,
+      "maxit": 10,
+      "method": "pmm",
+      "peak_mem_mb": 26.1
+    },
+    {
+      "engine": "pystatistics:gpu_fp64",
+      "dataset": "n2000",
+      "n": 2000,
+      "p": 21,
+      "backend_name": "mice_gpu_fp64",
+      "precision": "fp32",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.158620472997427,
+      "wall_min_s": 0.1580843700794503,
+      "wall_max_s": 0.2129892889643088,
+      "wall_times_s": [
+        0.2129892889643088,
+        0.158620472997427,
+        0.1580843700794503
+      ],
+      "m_imputations": 20,
+      "maxit": 10,
+      "method": "pmm",
+      "peak_mem_mb": 131.2
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "n5000",
+      "n": 5000,
+      "p": 21,
+      "backend_name": "mice_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 3.0820954990340397,
+      "wall_min_s": 3.079184492933564,
+      "wall_max_s": 3.093674276024103,
+      "wall_times_s": [
+        3.079184492933564,
+        3.0820954990340397,
+        3.093674276024103
+      ],
+      "m_imputations": 20,
+      "maxit": 10,
+      "method": "pmm",
+      "peak_mem_mb": 16.8
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "n5000",
+      "n": 5000,
+      "p": 21,
+      "backend_name": "mice_gpu",
+      "precision": "fp32",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.12058970797806978,
+      "wall_min_s": 0.12052836804650724,
+      "wall_max_s": 0.12410308292601258,
+      "wall_times_s": [
+        0.12052836804650724,
+        0.12410308292601258,
+        0.12058970797806978
+      ],
+      "m_imputations": 20,
+      "maxit": 10,
+      "method": "pmm",
+      "peak_mem_mb": 50.3
+    },
+    {
+      "engine": "pystatistics:gpu_fp64",
+      "dataset": "n5000",
+      "n": 5000,
+      "p": 21,
+      "backend_name": "mice_gpu_fp64",
+      "precision": "fp32",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.299564115004614,
+      "wall_min_s": 0.2993494480615482,
+      "wall_max_s": 0.300193908973597,
+      "wall_times_s": [
+        0.300193908973597,
+        0.299564115004614,
+        0.2993494480615482
+      ],
+      "m_imputations": 20,
+      "maxit": 10,
+      "method": "pmm",
+      "peak_mem_mb": 0.0
+    },
+    {
+      "engine": "pystatistics:cpu",
+      "dataset": "n20000",
+      "n": 20000,
+      "p": 21,
+      "backend_name": "mice_cpu",
+      "precision": "fp64",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 12.047275613993406,
+      "wall_min_s": 12.028285020962358,
+      "wall_max_s": 12.047860380960628,
+      "wall_times_s": [
+        12.047275613993406,
+        12.047860380960628,
+        12.028285020962358
+      ],
+      "m_imputations": 20,
+      "maxit": 10,
+      "method": "pmm",
+      "peak_mem_mb": 67.8
+    },
+    {
+      "engine": "pystatistics:gpu",
+      "dataset": "n20000",
+      "n": 20000,
+      "p": 21,
+      "backend_name": "mice_gpu",
+      "precision": "fp32",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 0.29955007799435407,
+      "wall_min_s": 0.29641937790438533,
+      "wall_max_s": 0.29990333202295005,
+      "wall_times_s": [
+        0.29641937790438533,
+        0.29990333202295005,
+        0.29955007799435407
+      ],
+      "m_imputations": 20,
+      "maxit": 10,
+      "method": "pmm",
+      "peak_mem_mb": 175.3
+    },
+    {
+      "engine": "pystatistics:gpu_fp64",
+      "dataset": "n20000",
+      "n": 20000,
+      "p": 21,
+      "backend_name": "mice_gpu_fp64",
+      "precision": "fp32",
+      "parameterization": null,
+      "loglik": null,
+      "n_iter": null,
+      "converged": null,
+      "wall_median_s": 1.1092645819298923,
+      "wall_min_s": 1.1081256669713184,
+      "wall_max_s": 1.10952536505647,
+      "wall_times_s": [
+        1.1081256669713184,
+        1.1092645819298923,
+        1.10952536505647
+      ],
+      "m_imputations": 20,
+      "maxit": 10,
+      "method": "pmm",
+      "peak_mem_mb": null
+    }
+  ]
+}

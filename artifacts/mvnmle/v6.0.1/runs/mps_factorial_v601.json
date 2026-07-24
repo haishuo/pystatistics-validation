@@ -1,0 +1,244 @@
+{
+  "records": [
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 25,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 786.63,
+      "gradient_ms": 2323.86,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 25,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 786.63,
+      "gradient_ms": 412.59,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 25,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 16.92,
+      "gradient_ms": 756.21,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 25,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 16.92,
+      "gradient_ms": 19.83,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 50,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 5809.5,
+      "gradient_ms": 16379.73,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 50,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 5809.5,
+      "gradient_ms": 3267.26,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 50,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 175.51,
+      "gradient_ms": 5084.45,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 50,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 175.51,
+      "gradient_ms": 204.68,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 100,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 21109.87,
+      "gradient_ms": 62594.1,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 100,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 21109.87,
+      "gradient_ms": 16307.5,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 100,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 2136.16,
+      "gradient_ms": 23314.49,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "wvs",
+      "p": 100,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 2136.16,
+      "gradient_ms": 2191.66,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 25,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 11.61,
+      "gradient_ms": 32.61,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 25,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 11.61,
+      "gradient_ms": 6.65,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 25,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 1.31,
+      "gradient_ms": 12.08,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 25,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 1.31,
+      "gradient_ms": 1.58,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 50,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 849.61,
+      "gradient_ms": 2459.32,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 50,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 849.61,
+      "gradient_ms": 476.77,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 50,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 34.93,
+      "gradient_ms": 791.61,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 50,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 34.93,
+      "gradient_ms": 41.33,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 100,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 20757.42,
+      "gradient_ms": 61057.21,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 100,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 20757.42,
+      "gradient_ms": 12774.25,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 100,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 697.91,
+      "gradient_ms": 20530.4,
+      "version": "6.0.1"
+    },
+    {
+      "backend": "mps",
+      "survey": "gss",
+      "p": 100,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 697.91,
+      "gradient_ms": 845.58,
+      "version": "6.0.1"
+    }
+  ]
+}

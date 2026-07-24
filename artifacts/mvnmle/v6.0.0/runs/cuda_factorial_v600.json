@@ -1,0 +1,244 @@
+{
+  "records": [
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 25,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 1.33,
+      "gradient_ms": 56.63,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 25,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 1.33,
+      "gradient_ms": 54.91,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 25,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 3.04,
+      "gradient_ms": 58.12,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 25,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 3.04,
+      "gradient_ms": 56.67,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 50,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 18.81,
+      "gradient_ms": 399.56,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 50,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 18.81,
+      "gradient_ms": 373.03,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 50,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 34.4,
+      "gradient_ms": 409.46,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 50,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 34.4,
+      "gradient_ms": 390.15,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 100,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 145.2,
+      "gradient_ms": 2296.63,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 100,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 145.2,
+      "gradient_ms": 2072.46,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 100,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 320.6,
+      "gradient_ms": 2429.3,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "wvs",
+      "p": 100,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 320.6,
+      "gradient_ms": 2260.74,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 25,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 0.28,
+      "gradient_ms": 2.02,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 25,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 0.28,
+      "gradient_ms": 1.62,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 25,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 0.47,
+      "gradient_ms": 2.21,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 25,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 0.47,
+      "gradient_ms": 1.79,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 50,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 2.99,
+      "gradient_ms": 145.44,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 50,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 2.99,
+      "gradient_ms": 141.14,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 50,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 5.5,
+      "gradient_ms": 147.13,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 50,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 5.5,
+      "gradient_ms": 143.96,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 100,
+      "trace": "solve",
+      "grad": "autodiff",
+      "objective_ms": 94.23,
+      "gradient_ms": 2825.16,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 100,
+      "trace": "solve",
+      "grad": "analytic",
+      "objective_ms": 94.23,
+      "gradient_ms": 2679.6,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 100,
+      "trace": "blocked",
+      "grad": "autodiff",
+      "objective_ms": 202.93,
+      "gradient_ms": 2905.19,
+      "version": "6.0.0"
+    },
+    {
+      "backend": "cuda",
+      "survey": "gss",
+      "p": 100,
+      "trace": "blocked",
+      "grad": "analytic",
+      "objective_ms": 202.93,
+      "gradient_ms": 2796.62,
+      "version": "6.0.0"
+    }
+  ]
+}
