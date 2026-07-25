@@ -10,6 +10,11 @@ them. Artifacts: `artifacts/mvnmle/v6.0.1/runs/`.
 - Apple Metal (MPS): `mps_endtoend_v601.json`, `mps_factorial_v601.json`
 - CUDA (RTX 5070 Ti, sm_120): `cuda_endtoend_v601.json`, `cuda_factorial_v601.json`,
   `fp32_gate_v601_cuda.json`
+- Paper-protocol GSS (`max_iter=500`) and WVS p=5/10, added 2026-07-24 (see the
+  section at the end): `{mps,cuda}_endtoend_gss500_v601.json` +
+  `_repeat_` companions, `{mps,cuda}_endtoend_smallp_v601.json`, and the FP64
+  anchors `cpu_anchor_gss_p50_v601.json`, `cpu_anchor_gss_p100_v601.json`,
+  `cpu_anchor_wvs_smallp_v601.json`
 
 6.0.1 is the red-team fix release (12 defects; see `v6.0.1-redteam-fix-bless.md`).
 On the paper's **screened, well-conditioned** survey problems the fixes are inert —
@@ -46,8 +51,15 @@ the two backends reach the optimum in comparable iteration counts.
 `{mps,cuda}_factorial_v601.json` and `{mps,cuda}_endtoend_v601.json` reproduce the
 6.0.0 device-dispatch story (blocked-inverse wins on Metal, solve wins on CUDA;
 closed-form gradient on both). Wall-clock varies run-to-run; the qualitative
-attribution and ratios are stable. GSS p=50/100 fp32 do not converge (the disclosed
-fp32 conditioning limit), unchanged from 6.0.0.
+attribution and ratios are stable.
+
+**Correction (2026-07-24).** This report previously read "GSS p=50/100 fp32 do not
+converge (the disclosed fp32 conditioning limit), unchanged from 6.0.0." That was
+wrong about the cause and wrong about the conclusion. Those GSS records were run at
+the driver's **default 100-iteration budget**, while GSS p=50/100 need 115–176
+iterations; the fits were budget-truncated, not stopped by conditioning. At the
+paper's protocol (`max_iter=500`) **both backends converge at both sizes** — see the
+final section.
 
 ## fp32 no-silent-wrong gate (R12/R13) — CUDA, fresh at 6.0.1
 
@@ -62,3 +74,148 @@ Re-pin (option B): the manuscript's `pystatistics 3.18.0` captions (main.tex L60
 move to **6.0.1**, and the GPU/FP32 + timing tables source their values from the
 `v6.0.1` artifacts above. CPU/FP64 values are unchanged. This is a paper-repo edit,
 to be done on the paper side; the validation repo owns only the numbers.
+
+---
+
+# Paper-protocol GSS end-to-end and WVS p=5/10 (added 2026-07-24)
+
+The paper's `results/VENDOR.md` flagged two groups of cells as still backed by the
+3.18.0 snapshot and **PENDING** v6.0.1 coverage: the GSS rows of the end-to-end
+table (`max_iter=500` protocol) and the p=5/10 GPU cells of Table `rcompare`. This
+section generates both. All fits are `pystatistics==6.0.1` from PyPI, on the same
+curated problems as the rest of this report (`wvs.h5`/`gss.h5` verified md5-identical
+on the two hosts, so MPS and CUDA fit byte-identical inputs).
+
+## The convergence question, answered
+
+**Yes — the 6.0.1 GSS fp32 fits converge within `max_iter=500`, on both backends, at
+both p.** Four independent runs (two per backend), all `converged=True`:
+
+| p | backend | run | ℓ | it. | wall median (s) |
+|---|---|---|---|---|---|
+| 50 | MPS | 1 | 27692.6484375 | 115 | 8.96 |
+| 50 | MPS | 2 | 27723.8984375 | 136 | 9.35 |
+| 50 | CUDA | 1 | 27716.265625 | 127 | 23.92 |
+| 50 | CUDA | 2 | 27716.265625 | 127 | 23.90 |
+| 100 | MPS | 1 | −660272.625 | 159 | 180.24 |
+| 100 | MPS | 2 | −660209.0625 | 176 | 196.15 |
+| 100 | CUDA | 1 | −660265.0 | 161 | 550.47 |
+| 100 | CUDA | 2 | −660265.0 | 161 | 550.53 |
+
+The earlier v6.0.1 GSS records that showed `converged=False` were run at the
+driver's **default 100-iteration budget**. GSS needs 115–176 iterations, so those
+fits were cut off by the budget before reaching the optimum — a protocol artifact,
+not the fp32 conditioning limit they were previously attributed to.
+
+The CUDA rows reproduce the manuscript's 3.18.0 GSS cells essentially exactly
+(paper: 27716 / 127 it / 24 s and −660265 / 161 it / 550 s). The MPS rows shift
+within fp32 run-to-run variation (paper: 27713 / 126 it / 8 s and −660176 / 195 it /
+170 s).
+
+**Metal is not run-to-run reproducible here; CUDA is.** The two CUDA runs agree
+bit-for-bit — identical ℓ, iteration count, function-evaluation count and
+‖Σ̂‖_F — while the two MPS runs differ in all of them. Consequently the
+MPS-vs-CUDA ℓ gap is *smaller than* Metal's own run-to-run spread at both sizes
+(p=50: cross-backend 23.6 vs MPS spread 31.3; p=100: cross-backend 7.6 vs MPS
+spread 63.6), so that gap cannot be attributed to the backends.
+
+## What "converged" means here: the FP64 anchor
+
+A converged fp32 fit is only interpretable against the double-precision optimum of
+the same problem, so the FP64 CPU path was run on the identical curated problems
+(`cpu_anchor_*_v601.json`). It reproduces the 3.18.0 artifacts at the same iteration
+counts and to relative ≤7e-13:
+
+| problem | 6.0.1 FP64 ℓ | 3.18.0 FP64 ℓ | relative | it. (both) |
+|---|---|---|---|---|
+| GSS p=50 | 27817.64590962181 | 27817.645909601873 | 7.2e-13 | 272 |
+| GSS p=100 | −660081.1060685551 | −660081.1060685556 | 7.1e-16 | 341 |
+| WVS p=5 | −217412.63268310932 | −217412.63268310926 | 2.7e-16 | 6 |
+| WVS p=10 | −313602.1551319477 | −313602.15513194946 | 5.6e-15 | 18 |
+
+The residual is floating-point summation order across hosts and BLAS thread counts,
+not a change in the CPU path: GSS p=50 drifts most (~5500 double ulps), which is
+what 272 iterations on the worst-conditioned problem here would predict; the other
+three land within 30 ulps. This extends the report's "CPU bit-identical to the
+manuscript" claim from p≤25 to the GSS p=50/100 cells.
+
+Measured against that anchor, every fp32 fit stops **below** the FP64 optimum, and
+stops early (115–176 iterations against FP64's 272/341):
+
+| p | backend | Δℓ vs FP64 | relative | ‖Σ̂ − Σ̂₆₄‖_F / ‖Σ̂₆₄‖_F |
+|---|---|---|---|---|
+| 50 | MPS (2 runs) | −125.00 / −93.75 | 4.5e-3 / 3.4e-3 | 5.5e-2 / 4.9e-2 |
+| 50 | CUDA | −101.38 | 3.6e-3 | 5.1e-2 |
+| 100 | MPS (2 runs) | −191.52 / −127.96 | 2.9e-4 / 1.9e-4 | 5.5e-2 / 4.3e-2 |
+| 100 | CUDA | −183.89 | 2.8e-4 | 5.4e-2 |
+
+Two things follow, both of which the paper-side swap has to absorb:
+
+1. **At p=50 the fp32 optima sit ~4e-3 relative below the FP64 optimum**, not the
+   ~1e-4 the manuscript body claims for GSS. At p=100 the claim is about right
+   (~2–3e-4). This is **not** a 6.0.1 regression — the 3.18.0 numbers behave the
+   same way against the same FP64 optimum: MPS p=50 (27712.60, `v318_mps_t2.json`)
+   is 3.8e-3 below it, MPS p=100 (−660176.31) is 1.4e-4 below it. The p=50 half of
+   the claim was already off on the paper's own numbers; 6.0.1 measures it, it does
+   not cause it.
+2. **The covariance estimate — the actual estimand — carries ~5% relative Frobenius
+   error at GSS conditioning on both backends and at both sizes.** This is the M2
+   framing finding from the 6.0.0 red-team, now quantified at the paper's own GSS
+   cells rather than on a synthetic κ sweep.
+
+Neither disturbs the claims the GSS rows are cited for (both backends converge;
+Apple Silicon is the faster backend there) — but "converged" on GSS fp32 means
+"the fp32 stopping rule fired", not "reached the FP64 optimum".
+
+## Wall-clock: the "Apple Silicon ~3× faster on GSS" claim holds
+
+MPS/CUDA = 23.92/8.96 = **2.7×** at p=50 and 550.47/180.24 = **3.1×** at p=100.
+
+## WVS p=5/10 (Table `rcompare` GPU column)
+
+The GPU column of Table `rcompare` is the MPS path; CUDA was run for completeness.
+FP64 CPU values are freshly generated at 6.0.1 (they reproduce 3.18.0 to relative
+≤6e-15; see the anchor table above).
+
+| p | MPS ℓ | CUDA ℓ | CPU/FP64 ℓ (6.0.1) | MPS rel vs FP64 | MPS wall (s) | CUDA wall (s) |
+|---|---|---|---|---|---|---|
+| 5 | −217412.625 | −217412.625 | −217412.632683109 | 3.5e-8 | 0.071 | 0.040 |
+| 10 | −313601.9375 | −313602.125 | −313602.155131948 | 6.9e-7 | 0.157 | 0.239 |
+
+Both converge (MPS 4 and 15 iterations), so the iteration budget is not in play at
+these sizes, and both stay inside the paper's stated ~1e-6 GPU/FP32 agreement. The
+p=5 MPS value is bit-identical to the 3.18.0 cell the paper currently carries; p=10
+differs by 0.31 (1.0e-6 relative), the expected fp32 floor. Wall-clock is unchanged
+in substance (3.18.0: 0.08 s and 0.15 s).
+
+## Cells this feeds (paper-side follow-up — the paper repo was not touched)
+
+- Table `rcompare`, p=5/10 GPU column → MPS ℓ and wall above.
+- Table `endtoend`, GSS rows → the four rows above (one run per backend; the
+  `_repeat_` companions are the fp32-nondeterminism evidence, not table values).
+- Its caption's cross-backend GSS agreement figure should become ~1e-3 at p=50 /
+  ~1e-5 at p=100, noted as within Metal's run-to-run spread.
+- The §Experiments sentence "each within ~1e-4 of the double-precision optimum" for
+  GSS needs revising to ~4e-3 (p=50) / ~3e-4 (p=100) — see the anchor table.
+- `results/VENDOR.md`: both PENDING flags can be cleared; the CPU/FP64 residual at
+  GSS p=50/100 is also now re-confirmed at 6.0.1.
+
+## Protocol / provenance
+
+```bash
+# GSS at the paper protocol (MPS on the Mac, CUDA on Forge); run 2 used reps=1
+python drivers/mvnmle/bench_endtoend.py {mps,cuda}_endtoend_gss500_v601 gss 50,100 2 500
+# WVS p=5/10
+python drivers/mvnmle/bench_endtoend.py mps_endtoend_smallp_v601 wvs 5,10 5
+# FP64 anchors (backend/warmup args added to the driver for this)
+python drivers/mvnmle/bench_endtoend.py cpu_anchor_gss_p50_v601 gss 50 1 500 cpu 0
+```
+
+Every run: `warmup=1` discarded fit before the timed repeats (0 for the CPU
+anchors, which have no device warmup to discard), `MVNMLE_DATA_DIR` pointing at the
+survey `.h5` store, `pystatistics==6.0.1` from PyPI in a fresh venv — never a local
+checkout. MPS host: this Mac, torch 2.13.0. CUDA host: Forge, RTX 5070 Ti sm_120,
+torch 2.11.0.dev+cu128, conda env `pystatistics-test`. `bench_endtoend.py` gained
+optional `backend` and `warmup` arguments in this pass; the existing positional
+arguments are unchanged, so every command recorded in this report's earlier
+sections still means what it did.

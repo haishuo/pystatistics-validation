@@ -11,8 +11,16 @@ for both architectures.
 Identical code path on both backends (only the resolved device differs), which is
 what the cross-architecture claim requires.
 
-Usage:  python bench_endtoend.py [tag] [surveys] [ps] [reps]
+The optional ``backend`` argument runs the same sweep on the FP64 CPU path
+instead, which is how the double-precision *anchor* for a GPU sweep is produced:
+the FP32 optima are only interpretable against the FP64 optimum of the identical
+curated problem, and only this harness curates it identically. ``warmup`` is
+exposed for that case — the CPU path has no device warmup to discard, and an
+extra discarded fit at p=100 costs half an hour.
+
+Usage:  python bench_endtoend.py [tag] [surveys] [ps] [reps] [max_iter] [backend] [warmup]
         e.g.  python bench_endtoend.py mps_endtoend wvs,gss 50,100 2
+              python bench_endtoend.py cpu_anchor gss 50,100 1 500 cpu 0
 """
 
 import json
@@ -30,13 +38,21 @@ from curate import standardize_columns             # noqa: E402
 from run_pystatistics import run_pystatistics       # noqa: E402
 import pystatistics                                 # noqa: E402
 
-DEVICE = ("cuda" if torch.cuda.is_available() else
-          ("mps" if torch.backends.mps.is_available() else "cpu"))
-TAG = sys.argv[1] if len(sys.argv) > 1 else f"{DEVICE}_endtoend"
+GPU_DEVICE = ("cuda" if torch.cuda.is_available() else
+              ("mps" if torch.backends.mps.is_available() else "cpu"))
+TAG = sys.argv[1] if len(sys.argv) > 1 else f"{GPU_DEVICE}_endtoend"
 SURVEYS = sys.argv[2].split(",") if len(sys.argv) > 2 else ["wvs", "gss"]
 PS = [int(x) for x in sys.argv[3].split(",")] if len(sys.argv) > 3 else [50, 100]
 REPS = int(sys.argv[4]) if len(sys.argv) > 4 else 2
 MAXIT = int(sys.argv[5]) if len(sys.argv) > 5 else None
+BACKEND = sys.argv[6] if len(sys.argv) > 6 else "gpu"
+WARMUP = int(sys.argv[7]) if len(sys.argv) > 7 else 1
+
+if BACKEND not in ("gpu", "cpu"):
+    raise SystemExit(f"backend must be 'gpu' or 'cpu', got {BACKEND!r}")
+# The device stamp must name what actually ran: a CPU sweep on a Mac is 'cpu',
+# not the MPS device that happens to be present.
+DEVICE = GPU_DEVICE if BACKEND == "gpu" else "cpu"
 
 import os
 _DATA = pathlib.Path(os.environ["MVNMLE_DATA_DIR"]) if os.environ.get("MVNMLE_DATA_DIR") else next((d for d in (_HERE / "data", _HERE.parent.parent / "data") if d.is_dir()), _HERE / "data")
@@ -53,9 +69,9 @@ def main() -> int:
                 X = standardize_columns(prob.X)
                 npat = int(np.unique(np.isnan(X), axis=0).shape[0])
                 rec = run_pystatistics(
-                    X, backend="gpu", survey=survey, n_patterns=npat,
-                    missing_frac=prob.overall_missing_frac, reps=REPS, warmup=1,
-                    max_iter=MAXIT)
+                    X, backend=BACKEND, survey=survey, n_patterns=npat,
+                    missing_frac=prob.overall_missing_frac, reps=REPS,
+                    warmup=WARMUP, max_iter=MAXIT)
             except Exception as e:  # noqa: BLE001
                 rec = {"survey": survey, "p": p,
                        "error": f"{type(e).__name__}: {e}"}
