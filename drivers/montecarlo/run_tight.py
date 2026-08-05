@@ -24,7 +24,7 @@ What this isolates and the honest per-quantity tolerance contract:
 
 Emits artifacts/montecarlo/v<ver>/runs/tight.json (render-from-artifacts).
 
-Run: MVNMLE_DATA_DIR=Dev/datasets python drivers/montecarlo/run_tight.py
+Run: DATASETS_ROOT=Dev/datasets python drivers/montecarlo/run_tight.py
 """
 
 from __future__ import annotations

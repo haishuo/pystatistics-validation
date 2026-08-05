@@ -22,7 +22,7 @@ sits at rank position ``kept[p-1]``, so reaching p independents consumes the top
     n_replaced(p) = kept[p-1] - (p - 1).
 
 Usage:  python collinearity_screening.py [tag]
-        MVNMLE_DATA_DIR=/path/to/h5 python collinearity_screening.py
+        DATASETS_ROOT=/path/to/h5 python collinearity_screening.py
 """
 
 import csv

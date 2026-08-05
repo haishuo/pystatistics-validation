@@ -8,7 +8,7 @@ so ETS optimum quality is compared convention-free via the in-sample SSE.
 
 Emits artifacts/timeseries/v<ver>/runs/mle.json.
 
-Run:  MVNMLE_DATA_DIR=Dev/datasets python drivers/timeseries/run_mle.py
+Run:  DATASETS_ROOT=Dev/datasets python drivers/timeseries/run_mle.py
 """
 
 from __future__ import annotations

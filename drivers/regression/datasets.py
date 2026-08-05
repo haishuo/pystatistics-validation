@@ -21,7 +21,7 @@ The California derivations are deterministic functions of the raw data (percenti
 and median cutpoints — no randomness), so R and Python land on identical rows. The
 airquality and quine designs are produced from R (so Python sees R's exact model
 matrix, including factor coding) and live in the central HDF5 store, read here via
-``MVNMLE_DATA_DIR`` — no CSV in the driver (R17). airquality is stored float64
+``DATASETS_ROOT`` — no CSV in the driver (R17). airquality is stored float64
 (``Wind`` is not fp32-exact, and the Gamma fit matches R to ~1e-15); quine is
 float32 (model-matrix dummies + integer counts, fp32-exact).
 

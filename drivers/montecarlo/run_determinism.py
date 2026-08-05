@@ -9,7 +9,7 @@ on GPU (same device).
 
 Emits artifacts/montecarlo/v<ver>/runs/determinism.json (render-from-artifacts).
 
-Run: MVNMLE_DATA_DIR=Dev/datasets python drivers/montecarlo/run_determinism.py
+Run: DATASETS_ROOT=Dev/datasets python drivers/montecarlo/run_determinism.py
 """
 
 from __future__ import annotations

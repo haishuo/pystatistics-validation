@@ -20,7 +20,7 @@ shared harness `pystatsval`; the paper is now a downstream consumer (see its
 ```bash
 pip install "pystatistics==6.0.1"           # the version being validated, from PyPI
 pip install -e ../../../pystatistics/validation   # pystatsval harness
-export MVNMLE_DATA_DIR=/path/to/survey/h5    # wvs.h5, gss.h5 (see PROVENANCE.md in the dataset store)
+export DATASETS_ROOT=/path/to/survey/h5    # wvs.h5, gss.h5 (see PROVENANCE.md in the dataset store)
 ```
 
 CPU + MPS run on a Mac; **CUDA numbers require Forge** (per Dev `OPERATIONS.md`).

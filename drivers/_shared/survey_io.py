@@ -12,7 +12,7 @@ HDF5 layout (per file)::
     /columns/display_names  (p,)   object
     /metadata               group, attrs: dataset_name, source, ...
 
-See ``PROVENANCE.md`` in the dataset store (``$MVNMLE_DATA_DIR``, e.g.
+See ``PROVENANCE.md`` in the dataset store (``$DATASETS_ROOT``, e.g.
 ``Dev/datasets/PROVENANCE.md``) for the origin of these files.
 
 The values matrix can be multi-GB (e.g. GSS is ~2 GB), so column statistics are

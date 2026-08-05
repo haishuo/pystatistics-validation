@@ -14,7 +14,7 @@ both as first-class supported links:
             pystatistics matches to optimizer tier.
 
 Emits artifacts/ordinal_multinomial/v<ver>/runs/newlinks.json.
-Run: MVNMLE_DATA_DIR=Dev/datasets python drivers/ordinal_multinomial/run_newlinks.py
+Run: DATASETS_ROOT=Dev/datasets python drivers/ordinal_multinomial/run_newlinks.py
 """
 
 from __future__ import annotations

@@ -21,7 +21,7 @@ grid (random intercept, random slopes+correlation, crossed, nested) under both
 REML and ML, plus the R15 default invocation.
 
 PyPI-only (``require_pypi``). Run from the dedicated 4.4.1 PyPI venv with
-``MVNMLE_DATA_DIR`` pointing at the curated HDF5 store.
+``DATASETS_ROOT`` pointing at the curated HDF5 store.
 
     python -m drivers.mixed.generate_correctness --host powerhouse
 """

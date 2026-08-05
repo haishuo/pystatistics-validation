@@ -9,7 +9,7 @@ ML factor-analysis case vs ``factanal`` (which exercises finding F2 — the Heyw
 uniqueness-floor convention difference — recorded honestly; see findings_ledger).
 
 PyPI-only (``require_pypi``). Run from the dedicated 4.4.0 PyPI venv with
-``MVNMLE_DATA_DIR`` pointing at the curated HDF5 store.
+``DATASETS_ROOT`` pointing at the curated HDF5 store.
 
     python -m drivers.multivariate.generate_correctness --host powerhouse
 """

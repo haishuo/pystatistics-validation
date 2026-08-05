@@ -78,7 +78,7 @@ variance-reduction; caller-applyable) · multivariate `prcomp tol` (`n_component
 - **Validation:** `Dev/pystatistics-validation` (branch main; commit+push). Drivers `drivers/<mod>/`,
   prose `subsystems/<mod>/meta.json`, artifacts `artifacts/<mod>/v<ver>/`, render via
   `render_report.py`. Shared harness `pystatsval` lives in `pystatistics/validation/`.
-- **Data:** `MVNMLE_DATA_DIR=Dev/datasets` (HDF5, R17). **R** available (`Rscript`).
+- **Data:** `DATASETS_ROOT=Dev/datasets` (HDF5, R17). **R** available (`Rscript`).
 - **CUDA:** any GPU claim proven on **Forge (CUDA) first** — standing allowance in `OPERATIONS.md`
   (`gpumice` env or a throwaway cloned env + scratch dir; yield the GPU via `nvidia-smi`; clean up
   after). MPS is second-class. See memory `cuda-first-gpu-ordering`, `forge-cuda-testing`.

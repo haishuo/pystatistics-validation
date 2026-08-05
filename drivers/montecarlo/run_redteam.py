@@ -22,7 +22,7 @@ Guarantee 2 fidelity:
 
 Emits artifacts/montecarlo/v<ver>/runs/redteam.json (render-from-artifacts).
 
-Run: MVNMLE_DATA_DIR=Dev/datasets python drivers/montecarlo/run_redteam.py
+Run: DATASETS_ROOT=Dev/datasets python drivers/montecarlo/run_redteam.py
 """
 
 from __future__ import annotations

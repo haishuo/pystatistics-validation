@@ -15,8 +15,8 @@ so a coefficient-for-coefficient / variance-component comparison is meaningful.
 
 Source of truth is the centralized store (R17): ``sleepstudy.h5``,
 ``penicillin.h5``, ``dyestuff.h5``, ``dyestuff2.h5``, ``pastes.h5`` live in
-``Dev/datasets`` (Forge mirror ``/mnt/data/pystatistics-datasets``), reached via
-``MVNMLE_DATA_DIR``. ``/data/values`` is float32; continuous columns are promoted
+the ``pystatistics`` namespace of the central store, reached via
+``DATASETS_ROOT``. ``/data/values`` is float32; continuous columns are promoted
 to float64 on load and grouping factors are read back as integer codes from the
 column ``category_map``. Because the loaded array is the single source handed to
 BOTH engines (Python fits it directly; R reads the identical values via the CSV

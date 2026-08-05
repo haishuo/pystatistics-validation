@@ -14,7 +14,7 @@ call; and the R10 hard cases (complete separation -> loud failure matching R's
 divergence; a rare interior category).
 
 Emits artifacts/ordinal_multinomial/v<ver>/runs/g1_ordinal.json.
-Run: MVNMLE_DATA_DIR=Dev/datasets python drivers/ordinal_multinomial/run_g1_ordinal.py
+Run: DATASETS_ROOT=Dev/datasets python drivers/ordinal_multinomial/run_g1_ordinal.py
 """
 
 from __future__ import annotations

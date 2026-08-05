@@ -1,6 +1,6 @@
 """GAM validation datasets — real (HDF5 store) + seeded simulated.
 
-Real datasets come from the central HDF5 store (``MVNMLE_DATA_DIR``); the
+Real datasets come from the central HDF5 store (``DATASETS_ROOT``); the
 simulated multi-smooth designs are generated deterministically by a seeded R
 ``mgcv::gamSim`` call so BOTH engines fit the identical dumped values (the
 seed and mgcv version are recorded in every artifact). No CSVs live in the

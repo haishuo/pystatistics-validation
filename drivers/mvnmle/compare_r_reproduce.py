@@ -14,7 +14,7 @@ v3.18.0 evidence (loglik must match the frozen R value), and the pystatistics
 side is re-measured fresh across p=15,20,25.
 
 Usage:
-    MVNMLE_DATA_DIR=/path python compare_r_reproduce.py [tag] [--with-r-all]
+    DATASETS_ROOT=/path python compare_r_reproduce.py [tag] [--with-r-all]
 """
 
 from __future__ import annotations

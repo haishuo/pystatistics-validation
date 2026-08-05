@@ -44,7 +44,7 @@ Device is chosen by the installed torch (MPS on Mac, CUDA on Forge). CUDA is the
 authoritative check (RIGOR: never bless a GPU path on MPS evidence alone).
 
 Usage:
-    MVNMLE_DATA_DIR=/path/to/h5 python fp32_gate.py [tag] [--family both|synthetic|survey]
+    DATASETS_ROOT=/path/to/h5 python fp32_gate.py [tag] [--family both|synthetic|survey]
 """
 
 from __future__ import annotations

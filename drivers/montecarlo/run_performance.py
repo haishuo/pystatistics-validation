@@ -11,7 +11,7 @@ Timing: best-of-N wall time; R measured inside R via system.time (excludes the
 
 Emits artifacts/montecarlo/v<ver>/runs/performance.json (render-from-artifacts).
 
-Run: MVNMLE_DATA_DIR=Dev/datasets python drivers/montecarlo/run_performance.py
+Run: DATASETS_ROOT=Dev/datasets python drivers/montecarlo/run_performance.py
 """
 
 from __future__ import annotations

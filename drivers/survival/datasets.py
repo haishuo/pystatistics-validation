@@ -12,7 +12,7 @@ and the comparison against R is meaningful.
 
 The designs are produced from R (``_r/prep_lung.R``) with the documented
 complete-case NA drop and live in the central HDF5 store (schema 1.0.0), read
-here via ``MVNMLE_DATA_DIR`` — no CSV in the driver (R17). Both are stored
+here via ``DATASETS_ROOT`` — no CSV in the driver (R17). Both are stored
 float32 (all values are integers, so fp32 is lossless). Two designs, each
 complete-cased over only the columns it uses:
 

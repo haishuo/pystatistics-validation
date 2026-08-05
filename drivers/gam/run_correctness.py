@@ -16,7 +16,7 @@ shows. Covers:
 * G2 fidelity: fail-loud on bs='cc', quasipoisson, REML+Gamma, k>n_unique,
   and the removed backend= kwarg.
 
-Run:  MVNMLE_DATA_DIR=Dev/datasets python drivers/gam/run_correctness.py
+Run:  DATASETS_ROOT=Dev/datasets python drivers/gam/run_correctness.py
 """
 
 from __future__ import annotations

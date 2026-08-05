@@ -389,9 +389,11 @@ correctness-driven sibling.**
 
 ## R17 — Datasets: one centralized store, HDF5 only
 
-Validation datasets live in **one place, in one format**: the centralized store
-`Dev/datasets/` (Forge mirror `/mnt/data/pystatistics-datasets`), reached via
-`MVNMLE_DATA_DIR`, as **HDF5 (`.h5`)** files written by `dataset_writer.py` and
+Validation datasets live in **one place, in one format**: the centralized store,
+namespaced as `<root>/pystatistics/<name>.h5` and reached via `DATASETS_ROOT`
+(Mac: `Dev/datasets`; on Forge, set it explicitly — that mirror is still flat and
+so cannot satisfy the namespaced path), as **HDF5 (`.h5`)** files written by
+`dataset_writer.py` and
 documented in `SCHEMA.md`, with checksums in `MANIFEST.sha256`. Drivers **load from the
 central store** — they do not carry their own copies.
 
@@ -403,7 +405,7 @@ central store** — they do not carry their own copies.
   the same bytes feed pystatistics, R, and every host.
 - **Known stragglers to migrate (cleanup):** `drivers/regression/data/*.csv` and
   `drivers/survival/data/*.csv` predate this rule and duplicate `.h5` files already in the
-  central store — fold them into the store and load from `MVNMLE_DATA_DIR` when those
+  central store — fold them into the store and load from `DATASETS_ROOT` when those
   modules are next touched.
 
 ## R18 — Triage every finding: showstoppers slam the brakes, the rest are gathered into one bundled patch

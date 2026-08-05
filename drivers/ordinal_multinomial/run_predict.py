@@ -7,7 +7,7 @@ tier, the predicted probabilities must reproduce R's predict() to the tight tier
 and the predicted classes must match exactly.
 
 Emits artifacts/ordinal_multinomial/v<ver>/runs/predict.json.
-Run: MVNMLE_DATA_DIR=Dev/datasets python drivers/ordinal_multinomial/run_predict.py
+Run: DATASETS_ROOT=Dev/datasets python drivers/ordinal_multinomial/run_predict.py
 """
 
 from __future__ import annotations

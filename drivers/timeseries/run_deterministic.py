@@ -5,7 +5,7 @@ defined convention).
 
 Emits artifacts/timeseries/v<ver>/runs/deterministic.json (render-from-artifacts).
 
-Run:  MVNMLE_DATA_DIR=Dev/datasets python drivers/timeseries/run_deterministic.py
+Run:  DATASETS_ROOT=Dev/datasets python drivers/timeseries/run_deterministic.py
 """
 
 from __future__ import annotations

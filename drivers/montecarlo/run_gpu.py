@@ -17,7 +17,7 @@ GPU path (the 4.6.7 declared-``gpu_statistic`` opt-in) to the full bar:
 
 Emits artifacts/montecarlo/v<ver>/runs/gpu_<device>.json.
 
-Run (MPS):   MVNMLE_DATA_DIR=Dev/datasets python drivers/montecarlo/run_gpu.py
+Run (MPS):   DATASETS_ROOT=Dev/datasets python drivers/montecarlo/run_gpu.py
 Run (CUDA):  same, on Forge.
 """
 

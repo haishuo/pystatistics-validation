@@ -20,7 +20,7 @@ main grid (binomial/logit random intercept + fixed factor, Poisson/log, correlat
 random slope, and a probit link via a Family instance).
 
 PyPI-only (``require_pypi``). Run from the dedicated PyPI venv with
-``MVNMLE_DATA_DIR`` pointing at the curated HDF5 store.
+``DATASETS_ROOT`` pointing at the curated HDF5 store.
 
     python -m drivers.mixed.generate_glmm_correctness --host powerhouse
 """

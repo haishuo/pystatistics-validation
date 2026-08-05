@@ -18,7 +18,7 @@ loglik/probability agreement and the coefficient divergence rather than
 demanding a coefficient match that does not exist.
 
 Emits artifacts/ordinal_multinomial/v<ver>/runs/g1_multinom.json.
-Run: MVNMLE_DATA_DIR=Dev/datasets python drivers/ordinal_multinomial/run_g1_multinom.py
+Run: DATASETS_ROOT=Dev/datasets python drivers/ordinal_multinomial/run_g1_multinom.py
 """
 
 from __future__ import annotations

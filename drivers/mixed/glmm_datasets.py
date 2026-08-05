@@ -17,8 +17,8 @@ binomial, no offset), so ``cbpp`` is loaded ALREADY EXPANDED to Bernoulli rows
 expanded frame, so the two Laplace fits are directly comparable.
 
 Source of truth is the centralized store (R17): ``cbpp.h5``, ``grouseticks.h5``,
-``glmm_slope_synth.h5`` live in ``Dev/datasets`` (Forge mirror
-``/mnt/data/pystatistics-datasets``), reached via ``MVNMLE_DATA_DIR``. Continuous
+``glmm_slope_synth.h5`` live in the ``pystatistics`` namespace of the central
+store, reached via ``DATASETS_ROOT``. Continuous
 columns are promoted to float64 on load; grouping / fixed factors are read back
 as integer codes. Because the loaded array is the single source handed to BOTH
 engines (Python fits it; R reads the identical values via the CSV the driver

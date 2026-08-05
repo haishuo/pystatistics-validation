@@ -210,8 +210,10 @@ BLOCKER bullets below are kept for history.
   library-wide, or if it can't be done now, log it in `CARRY_FORWARD.md` so the affected
   module's chip clears it. Modules are not silos; the Rule-8 boundary is *sibling repos*,
   not intra-library modules. Open: **CF-1** (fp64-Gram GPU fix → PCA).
-- **Datasets: centralized HDF5 only (RIGOR R17).** One store (`Dev/datasets` /
-  `/mnt/data/pystatistics-datasets` via `MVNMLE_DATA_DIR`), HDF5 via `dataset_writer.py` +
+- **Datasets: centralized HDF5 only (RIGOR R17).** One store, namespaced as
+  `<root>/pystatistics/<name>.h5` and located via `DATASETS_ROOT` (Mac:
+  `Dev/datasets`; on Forge, set it explicitly — that mirror is not yet
+  namespaced). HDF5 via `dataset_writer.py` +
   `SCHEMA.md` + `MANIFEST.sha256`. No new CSVs in drivers. Cleanup owed: migrate the
   existing `drivers/{regression,survival}/data/*.csv` stragglers into the store.
 - **GPU must EARN its existence (RIGOR priority 4 / R1).** The GPU trades accuracy for
@@ -294,7 +296,7 @@ Each module chip is self-contained (the spawned session has no prior context) an
 5. Deliverables: `drivers/<m>/`, `artifacts/<m>/v<current>/`, `subsystems/<m>/meta.json`,
    `reports/<m>-v<current>.md` (current PyPI version, which may advance mid-run under
    R16); commit to validation `main` and push. **Any new dataset → centralized HDF5 in
-   `Dev/datasets` (writer + SCHEMA + MANIFEST), loaded via `MVNMLE_DATA_DIR` — no CSVs in
+   `Dev/datasets` (writer + SCHEMA + MANIFEST), loaded via `DATASETS_ROOT` — no CSVs in
    `drivers/*/data/` (R17).**
 6. Opens with discuss-before-acting: understanding + plan first.
 

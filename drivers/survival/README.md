@@ -11,7 +11,7 @@ enforces it) and the R `survival` reference on the shared `pystatsval` harness.
 | `datasets.py` | curate the canonical designs from `survival::lung`: `lung_km` (time, event, sex; KM + log-rank) and `lung_coxph` (time, event, age, sex, ph.ecog; Cox + discrete-time). Reads the committed CSVs; `discrete_interval_bounds()` makes coarse, well-posed bins for discrete-time. |
 | `run_pystatistics.py` | fit + time `kaplan_meier` / `survdiff` / `coxph` / `discrete_time` → `validation-run/v1` records with the full estimate vectors. |
 | `run_r_survival.py` + `_r/survival_run.R` | fit the R reference (`survfit` / `survdiff` / `coxph`, and `glm(binomial)` for discrete-time), timing inside R, → comparable records. |
-| `_r/prep_lung.R` | emit the lung KM + Cox designs from `survival::lung`; run by the store generator into the central HDF5 store (`lung_km.h5`, `lung_coxph.h5`). The driver loads them from the store via `MVNMLE_DATA_DIR` — no committed CSV (R17). |
+| `_r/prep_lung.R` | emit the lung KM + Cox designs from `survival::lung`; run by the store generator into the central HDF5 store (`lung_km.h5`, `lung_coxph.h5`). The driver loads them from the store via `DATASETS_ROOT` — no committed CSV (R17). |
 | `_person_period.py` | reconstruct the discrete-time person-period design, mirroring `pystatistics/survival/_discrete.py`, so the R `glm` reference fits the identical matrix (guarded by a `person_period_n` check). |
 | `agreement.py` | reduce a pystatistics-vs-R pair to per-quantity agreement rows (max abs / max rel). |
 | `generate_correctness.py` | KM + log-rank + Cox + discrete-time, pystatistics vs R, on lung → `correctness_cpu_<host>.{json,_agreement.csv,_timing.csv}`. |

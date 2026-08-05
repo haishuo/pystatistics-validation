@@ -6,8 +6,8 @@ meaningful. No fitting, no timing, no R invocation for the analysis itself — j
 the data.
 
 Source of truth is the centralized HDF5 store (R17): ``iris.h5`` and
-``usarrests.h5`` live in ``Dev/datasets`` (Forge mirror
-``/mnt/data/pystatistics-datasets``), reached via ``MVNMLE_DATA_DIR``. The store
+``usarrests.h5`` live in the ``pystatistics`` namespace of the central store,
+reached via ``DATASETS_ROOT``. The store
 writes ``/data/values`` as float32 (schema 1.0.0); we promote to float64 on load
 so the CPU reference path runs in double precision. Because the loaded float64
 array is the single source handed to BOTH engines (Python fits it directly; R
