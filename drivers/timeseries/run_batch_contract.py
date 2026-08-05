@@ -29,7 +29,12 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pystatsval.device import env_manifest, require_pypi  # noqa: E402
-from pystatsval.serialize import build_run, write_run  # noqa: E402
+from pystatsval.serialize import build_run  # noqa: E402
+# write_run comes from the guard, not pystatsval: it refuses to overwrite
+# evidence that is committed to git unless PYSTATSVAL_ALLOW_ARTIFACT_OVERWRITE=1.
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_guard import write_run  # noqa: E402
 from tscompare import to_native, expect_raises, arr_cmp, within  # noqa: E402
 
 from pystatistics.timeseries import arima_batch, arima  # noqa: E402

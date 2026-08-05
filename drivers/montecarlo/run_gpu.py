@@ -35,7 +35,12 @@ import mcdata  # noqa: E402
 from mccompare import expect_raises  # noqa: E402
 
 from pystatsval.device import env_manifest, require_pypi  # noqa: E402
-from pystatsval.serialize import build_run, write_run  # noqa: E402
+from pystatsval.serialize import build_run  # noqa: E402
+# write_run comes from the guard, not pystatsval: it refuses to overwrite
+# evidence that is committed to git unless PYSTATSVAL_ALLOW_ARTIFACT_OVERWRITE=1.
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_guard import write_run  # noqa: E402
 
 from pystatistics.montecarlo import boot, permutation_test  # noqa: E402
 from pystatistics.core.exceptions import ValidationError  # noqa: E402

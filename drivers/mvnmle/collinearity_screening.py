@@ -50,6 +50,13 @@ MAX_ABS_CORR = 0.99
 
 from store_io import DEFAULT_NAMESPACE, store_root  # noqa: E402
 
+# Guard artifact writes: refuse to clobber evidence committed to git unless
+# PYSTATSVAL_ALLOW_ARTIFACT_OVERWRITE=1. See drivers/_shared/artifact_guard.py.
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_guard import guard_artifact_path  # noqa: E402
+
+
 _DATA = store_root() / DEFAULT_NAMESPACE
 _OUTDIR = _REPO / "artifacts" / "mvnmle" / "v3.18.0" / "runs"
 
@@ -112,10 +119,12 @@ def main():
                    "definition": "n_replaced(p) = kept[p-1] - (p-1)"},
         "records": records,
     }
+    guard_artifact_path((_OUTDIR / f"{TAG}.json"))
     (_OUTDIR / f"{TAG}.json").write_text(json.dumps(payload, indent=2))
     fields = ["survey", "p", "n_eligible", "n_independent",
               "n_replaced", "replaced_frac", "feasible", "reason",
               "max_abs_corr"]
+    guard_artifact_path((_OUTDIR / f"{TAG}_summary.csv"))
     with (_OUTDIR / f"{TAG}_summary.csv").open("w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=fields)
         w.writeheader()

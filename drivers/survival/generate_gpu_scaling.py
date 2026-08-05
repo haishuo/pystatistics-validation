@@ -42,7 +42,15 @@ from typing import Any
 import numpy as np
 
 from pystatsval.device import env_manifest, require_pypi
-from pystatsval.serialize import build_run, write_run
+from pystatsval.serialize import build_run
+
+# write_run comes from the guard, not pystatsval: it refuses to overwrite
+# evidence that is committed to git unless PYSTATSVAL_ALLOW_ARTIFACT_OVERWRITE=1.
+# Drivers hardcode their artifact dir, so an ordinary run would otherwise
+# silently destroy the artifacts a report was blessed against.
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_guard import write_run  # noqa: E402
 
 from drivers.survival import datasets
 from drivers.survival._person_period import build_person_period

@@ -42,7 +42,12 @@ from typing import Any, Callable
 import numpy as np
 
 from pystatsval.device import env_manifest, require_pypi
-from pystatsval.serialize import build_run, write_run
+from pystatsval.serialize import build_run
+# write_run comes from the guard, not pystatsval: it refuses to overwrite
+# evidence that is committed to git unless PYSTATSVAL_ALLOW_ARTIFACT_OVERWRITE=1.
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_guard import write_run  # noqa: E402
 
 from pystatistics import __version__ as _VER
 from pystatistics.gam import gam, te, ti, s

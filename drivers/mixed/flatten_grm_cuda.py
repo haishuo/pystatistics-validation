@@ -16,6 +16,13 @@ import json
 import sys
 from pathlib import Path
 
+# Guard artifact writes: refuse to clobber evidence committed to git unless
+# PYSTATSVAL_ALLOW_ARTIFACT_OVERWRITE=1. See drivers/_shared/artifact_guard.py.
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_guard import guard_artifact_path  # noqa: E402
+
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 
@@ -26,6 +33,7 @@ def _write_csv(path: Path, rows: list[dict]) -> None:
             if k not in cols:
                 cols.append(k)
     path.parent.mkdir(parents=True, exist_ok=True)
+    guard_artifact_path(path)
     with path.open("w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=cols)
         w.writeheader(); w.writerows(rows)
@@ -53,6 +61,7 @@ def main() -> None:
         "speed": raw["speed"],
     }
     run_path = out_dir / "grm_gpu_cuda_forge.json"
+    guard_artifact_path(run_path)
     run_path.write_text(json.dumps(run, indent=2))
     _write_csv(out_dir / "grm_cf1_gate_cuda_forge_summary.csv",
                [{"study": "cf1_gate", "device": "cuda", **r} for r in raw["cf1_gate"]])

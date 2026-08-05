@@ -17,6 +17,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+# Guard artifact writes: refuse to clobber evidence committed to git unless
+# PYSTATSVAL_ALLOW_ARTIFACT_OVERWRITE=1. See drivers/_shared/artifact_guard.py.
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_guard import guard_artifact_path  # noqa: E402
+
+
 REPO = Path(__file__).resolve().parent.parent.parent
 PAPER = Path("/Volumes/Archive/Documents/Dropbox/UMassD/Papers/gpu-mice-paper/results")
 OUT = REPO / "artifacts" / "mice" / "v3.16.3"
@@ -179,7 +186,9 @@ def main() -> int:
             "records": recs,
         }
         run_name = f"mice_{sid}.json"
+        guard_artifact_path((RUNS / run_name))
         (RUNS / run_name).write_text(json.dumps(run, indent=2))
+        guard_artifact_path((LEGACY / src))
         (LEGACY / src).write_text(json.dumps(envs, indent=2))  # vendor original
         study = {"id": sid, "run": f"runs/{run_name}", **meta}
         studies.append(study)
@@ -220,6 +229,7 @@ def main() -> int:
             "speedup_cpu_over_r / speedup_gpu_over_r": "pystatistics speedup over R mice",
         },
     }
+    guard_artifact_path((OUT / "manifest.json"))
     (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2))
     print(f"wrote {OUT/'manifest.json'} with {len(studies)} studies")
     return 0

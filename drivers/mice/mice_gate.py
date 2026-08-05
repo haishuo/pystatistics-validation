@@ -39,6 +39,13 @@ sys.path[:0] = [str(_HERE.parent / "_shared")]
 from dgp import make_complete, make_mixed, impose_mcar  # noqa: E402
 
 import pystatistics  # noqa: E402
+
+# Guard artifact writes: refuse to clobber evidence committed to git unless
+# PYSTATSVAL_ALLOW_ARTIFACT_OVERWRITE=1. See drivers/_shared/artifact_guard.py.
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_guard import guard_artifact_path  # noqa: E402
+
 _OUTDIR = _REPO / "artifacts" / "mice" / f"v{pystatistics.__version__}" / "runs"
 _SEED = 20260707
 
@@ -274,6 +281,7 @@ def main() -> int:
                "records": recs}
     _OUTDIR.mkdir(parents=True, exist_ok=True)
     out = _OUTDIR / f"{tag}.json"
+    guard_artifact_path(out)
     out.write_text(json.dumps(payload, indent=2))
     print(f"\nwrote {out} (device={dev})")
     return 0
