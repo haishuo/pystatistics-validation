@@ -1,7 +1,7 @@
 """timeseries validation data layer — canonical series + derived hard cases.
 
 One job: load the univariate reference series from the central HDF5 store
-(``MVNMLE_DATA_DIR``) and expose them, plus a handful of deterministically
+(``DATASETS_ROOT``) and expose them, plus a handful of deterministically
 derived R10 hard cases (short, missing-value, pure-noise, near-non-invertible),
 each with its seasonal period. Every case carries the values as a plain fp64
 array so the SAME numbers feed pystatistics and R (the R reference reads them
@@ -12,7 +12,7 @@ No CSVs live in the repo; the store is the single source of truth.
 
 from __future__ import annotations
 
-import os
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -21,10 +21,11 @@ from numpy.typing import NDArray
 
 import h5py
 
-_STORE_FALLBACKS = [
-    Path("/Volumes/Archive/Documents/Dropbox/Dev/datasets"),
-    Path("/mnt/data/pystatistics-datasets"),
-]
+_SHARED = Path(__file__).resolve().parent.parent / "_shared"
+if str(_SHARED) not in sys.path:
+    sys.path.insert(0, str(_SHARED))
+
+from store_io import DEFAULT_NAMESPACE, store_root  # noqa: E402
 
 # Seasonal period of each stored series (a fixed known property of the named
 # series; monthly series are m=12, annual series m=1).
@@ -52,17 +53,12 @@ class Series:
 
 
 def _store_dir() -> Path:
-    root = os.environ.get("MVNMLE_DATA_DIR")
-    if root:
-        p = Path(root)
-        if p.is_dir():
-            return p
-    for p in _STORE_FALLBACKS:
-        if p.is_dir():
-            return p
-    raise FileNotFoundError(
-        "time-series store not found; set MVNMLE_DATA_DIR (Mac: Dev/datasets, "
-        "Forge: /mnt/data/pystatistics-datasets).")
+    """Directory holding this project's curated datasets.
+
+    Store resolution lives in ``drivers/_shared/store_io.py`` — the single place
+    that knows where the store is. Do not reintroduce a local search path here.
+    """
+    return store_root() / DEFAULT_NAMESPACE
 
 
 def load_series(key: str) -> Series:

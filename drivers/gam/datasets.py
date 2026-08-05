@@ -10,8 +10,8 @@ both read.
 
 from __future__ import annotations
 
-import os
 import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -19,10 +19,11 @@ from pathlib import Path
 import numpy as np
 from numpy.typing import NDArray
 
-_STORE_FALLBACKS = [
-    Path("/Volumes/Archive/Documents/Dropbox/Dev/datasets"),
-    Path("/mnt/data/pystatistics-datasets"),
-]
+_SHARED = Path(__file__).resolve().parent.parent / "_shared"
+if str(_SHARED) not in sys.path:
+    sys.path.insert(0, str(_SHARED))
+
+from store_io import store_h5_path  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -39,17 +40,12 @@ class GamDataset:
 
 
 def _store_h5(stem: str) -> Path:
-    root = os.environ.get("MVNMLE_DATA_DIR")
-    candidates = ([Path(root) / f"{stem}.h5"] if root else []) + [
-        p / f"{stem}.h5" for p in _STORE_FALLBACKS
-    ]
-    for c in candidates:
-        if c.is_file():
-            return c
-    raise FileNotFoundError(
-        f"{stem}.h5 not found; set MVNMLE_DATA_DIR (Mac: Dev/datasets). "
-        f"Tried: {[str(c) for c in candidates]}"
-    )
+    """Locate ``<stem>.h5`` in the central store, else fail loud.
+
+    Store resolution lives in ``drivers/_shared/store_io.py`` — the single place
+    that knows where the store is. Do not reintroduce a local search path here.
+    """
+    return store_h5_path(stem)
 
 
 def load_mcycle() -> GamDataset:

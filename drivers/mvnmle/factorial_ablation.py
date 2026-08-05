@@ -18,7 +18,6 @@ Usage:  python factorial_ablation.py [mps|cuda|cpu] [tag]
 import json
 import sys
 import time
-import pathlib
 from pathlib import Path
 
 import numpy as np
@@ -40,9 +39,16 @@ DEV = sys.argv[1] if len(sys.argv) > 1 else (
     ("mps" if torch.backends.mps.is_available() else "cpu"))
 TAG = sys.argv[2] if len(sys.argv) > 2 else f"factorial_{DEV}"
 # data/ sits beside this file (Forge flat bundle) or at the repo root (dev)
-import os
-_DATA = pathlib.Path(os.environ["MVNMLE_DATA_DIR"]) if os.environ.get("MVNMLE_DATA_DIR") else next((d for d in (_HERE / "data", _HERE.parent.parent / "data") if d.is_dir()), _HERE / "data")
-_OUT = _DATA.parent / "results" / f"{TAG}.json"
+from store_io import DEFAULT_NAMESPACE, store_root  # noqa: E402
+
+_DATA = store_root() / DEFAULT_NAMESPACE
+# KNOWN DEFECT (pre-existing, deliberately unchanged): this writes beside the
+# store rather than into artifacts/mvnmle/<version>/runs/ where every other
+# driver's evidence lives, and that directory does not exist. It is pinned to
+# store_root().parent so it resolves exactly where it did before the store was
+# namespaced — deriving it from _DATA would now point *inside* the store. Where
+# these exploratory runs belong is a layout decision, not a mechanical fix.
+_OUT = store_root().parent / "results" / f"{TAG}.json"
 
 MATRIX = [("wvs", [25, 50, 100]), ("gss", [25, 50, 100])]
 TRACES = ["solve", "blocked"]

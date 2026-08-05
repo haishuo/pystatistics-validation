@@ -31,20 +31,18 @@ are the p column names, and ``spec`` documents the analysis + R reference.
 
 from __future__ import annotations
 
-import os
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
 from numpy.typing import NDArray
 
-# Canonical store locations, in resolution order: MVNMLE_DATA_DIR first (Mac:
-# Dev/datasets; Forge: /mnt/data/pystatistics-datasets), then the two known
-# absolute mirrors as a fallback.
-_STORE_FALLBACKS = (
-    Path("/Volumes/Archive/Documents/Dropbox/Dev/datasets"),
-    Path("/mnt/data/pystatistics-datasets"),
-)
+_SHARED = Path(__file__).resolve().parent.parent / "_shared"
+if str(_SHARED) not in sys.path:
+    sys.path.insert(0, str(_SHARED))
+
+from store_io import store_h5_path  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -60,19 +58,12 @@ class MVSpec:
 
 
 def _store_h5(stem: str) -> Path:
-    """Locate ``<stem>.h5`` via MVNMLE_DATA_DIR (Mac/Forge), else fail loud (R5/R17)."""
-    candidates: list[Path] = []
-    root = os.environ.get("MVNMLE_DATA_DIR")
-    if root:
-        candidates.append(Path(root) / f"{stem}.h5")
-    candidates.extend(p / f"{stem}.h5" for p in _STORE_FALLBACKS)
-    for c in candidates:
-        if c.is_file():
-            return c
-    raise FileNotFoundError(
-        f"{stem}.h5 not found. Set MVNMLE_DATA_DIR to the curated dataset dir "
-        f"(Mac: Dev/datasets; Forge: /mnt/data/pystatistics-datasets). "
-        f"Tried: {[str(c) for c in candidates]}")
+    """Locate ``<stem>.h5`` in the central store, else fail loud (R5/R17).
+
+    Store resolution lives in ``drivers/_shared/store_io.py`` — the single place
+    that knows where the store is. Do not reintroduce a local search path here.
+    """
+    return store_h5_path(stem)
 
 
 def _load_values(stem: str) -> tuple[NDArray[np.float64], list[str]]:

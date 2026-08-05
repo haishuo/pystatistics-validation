@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -37,9 +36,9 @@ from run_r_mvnmle import run_r_mvnmle  # noqa: E402
 
 import pystatistics as _ps  # noqa: E402
 _OUTDIR = _REPO / "artifacts" / "mvnmle" / f"v{_ps.__version__}" / "runs"
-_DATA = (Path(os.environ["MVNMLE_DATA_DIR"])
-         if os.environ.get("MVNMLE_DATA_DIR")
-         else _REPO.parent / "datasets")
+from store_io import DEFAULT_NAMESPACE, store_root  # noqa: E402
+
+_DATA = store_root() / DEFAULT_NAMESPACE
 
 GRID = [("gss", p) for p in (15, 20, 25)] + [("wvs", p) for p in (15, 20, 25)]
 

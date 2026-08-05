@@ -25,7 +25,6 @@ Usage:  python bench_endtoend.py [tag] [surveys] [ps] [reps] [max_iter] [backend
 
 import json
 import sys
-import pathlib
 from pathlib import Path
 
 import numpy as np
@@ -54,9 +53,16 @@ if BACKEND not in ("gpu", "cpu"):
 # not the MPS device that happens to be present.
 DEVICE = GPU_DEVICE if BACKEND == "gpu" else "cpu"
 
-import os
-_DATA = pathlib.Path(os.environ["MVNMLE_DATA_DIR"]) if os.environ.get("MVNMLE_DATA_DIR") else next((d for d in (_HERE / "data", _HERE.parent.parent / "data") if d.is_dir()), _HERE / "data")
-_OUT = _DATA.parent / "results" / f"{TAG}.json"
+from store_io import DEFAULT_NAMESPACE, store_root  # noqa: E402
+
+_DATA = store_root() / DEFAULT_NAMESPACE
+# KNOWN DEFECT (pre-existing, deliberately unchanged): this writes beside the
+# store rather than into artifacts/mvnmle/<version>/runs/ where every other
+# driver's evidence lives, and that directory does not exist. It is pinned to
+# store_root().parent so it resolves exactly where it did before the store was
+# namespaced — deriving it from _DATA would now point *inside* the store. Where
+# these exploratory runs belong is a layout decision, not a mechanical fix.
+_OUT = store_root().parent / "results" / f"{TAG}.json"
 
 
 def main() -> int:

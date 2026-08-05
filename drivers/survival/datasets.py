@@ -27,21 +27,20 @@ no intercept term).
 The **flchain** dataset (Dispenzieri et al. 2012; ``survival::flchain``) is the
 large real cohort for the discrete-time / GPU study: n=7874 subjects, 2169
 deaths, follow-up to 5215 days. Read from the curated HDF5 (schema 1.0.0 — see
-``Dev/datasets/SCHEMA.md``) via ``MVNMLE_DATA_DIR`` (Mac: ``Dev/datasets``;
-Forge: ``/mnt/data/pystatistics-datasets``). Expanded to person-period, it yields
+the store's ``SCHEMA.md``) from the ``pystatistics`` namespace of the central
+store, via ``DATASETS_ROOT``. Expanded to person-period, it yields
 ~83k rows yearly → ~952k monthly → ~1.9M biweekly, the scale at which the
 discrete-time GPU claim is made.
 """
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import numpy as np
 from numpy.typing import NDArray
 
-from drivers._shared.store_io import read_store_matrix
+from drivers._shared.store_io import read_store_matrix, store_h5_path
 
 _HERE = Path(__file__).resolve().parent
 
@@ -83,21 +82,12 @@ def load_lung_cox() -> tuple[NDArray[np.float64], NDArray[np.float64],
 
 
 def _flchain_h5_path() -> Path:
-    """Locate ``flchain.h5`` via ``MVNMLE_DATA_DIR`` (Mac/Forge), else fail loud."""
-    root = os.environ.get("MVNMLE_DATA_DIR")
-    candidates = []
-    if root:
-        candidates.append(Path(root) / "flchain.h5")
-    candidates += [
-        Path("/Volumes/Archive/Documents/Dropbox/Dev/datasets/flchain.h5"),
-        Path("/mnt/data/pystatistics-datasets/flchain.h5"),
-    ]
-    for c in candidates:
-        if c.is_file():
-            return c
-    raise FileNotFoundError(
-        "flchain.h5 not found. Set MVNMLE_DATA_DIR to the curated dataset dir "
-        f"(tried: {[str(c) for c in candidates]}).")
+    """Locate ``flchain.h5`` in the central store, else fail loud.
+
+    Store resolution lives in ``drivers/_shared/store_io.py`` — the single place
+    that knows where the store is. Do not reintroduce a local search path here.
+    """
+    return store_h5_path("flchain")
 
 
 def load_flchain(*, standardize: bool = True,

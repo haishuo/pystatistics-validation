@@ -27,9 +27,7 @@ Usage:  python collinearity_screening.py [tag]
 
 import csv
 import json
-import os
 import sys
-import pathlib
 from pathlib import Path
 
 import numpy as np
@@ -50,11 +48,9 @@ CONFIG = dict(allowed_types=("continuous", "ordinal"),
               observed_frac_band=(0.50, 0.95))
 MAX_ABS_CORR = 0.99
 
-_DATA = (pathlib.Path(os.environ["MVNMLE_DATA_DIR"])
-         if os.environ.get("MVNMLE_DATA_DIR")
-         else next((d for d in (_HERE / "data", _REPO / "data",
-                                _REPO.parent / "datasets") if d.is_dir()),
-                   _HERE / "data"))
+from store_io import DEFAULT_NAMESPACE, store_root  # noqa: E402
+
+_DATA = store_root() / DEFAULT_NAMESPACE
 _OUTDIR = _REPO / "artifacts" / "mvnmle" / "v3.18.0" / "runs"
 
 MATRIX = [("wvs", [5, 10, 15, 20, 25, 50, 100]),

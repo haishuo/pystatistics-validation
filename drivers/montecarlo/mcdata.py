@@ -1,7 +1,7 @@
 """montecarlo validation data layer — canonical resampling datasets + statistics.
 
 One job: load the reference tables from the central HDF5 store
-(``MVNMLE_DATA_DIR``) and expose them as fp64 arrays, together with the
+(``DATASETS_ROOT``) and expose them as fp64 arrays, together with the
 statistic functions that MUST mirror the R reference registry in
 ``r_reference.R`` exactly (so both engines compute the identical statistic on
 identical numbers, R17). Also provides the seeded known-DGP generator for the
@@ -13,7 +13,7 @@ No CSVs live in the repo; the store is the single source of truth.
 
 from __future__ import annotations
 
-import os
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -22,10 +22,11 @@ from numpy.typing import NDArray
 
 import h5py
 
-_STORE_FALLBACKS = [
-    Path("/Volumes/Archive/Documents/Dropbox/Dev/datasets"),
-    Path("/mnt/data/pystatistics-datasets"),
-]
+_SHARED = Path(__file__).resolve().parent.parent / "_shared"
+if str(_SHARED) not in sys.path:
+    sys.path.insert(0, str(_SHARED))
+
+from store_io import DEFAULT_NAMESPACE, store_root  # noqa: E402
 
 _WHY = {
     "law": "Efron & Tibshirani law-school data (n=15) — the canonical BCa "
@@ -46,15 +47,12 @@ class Dataset:
 
 
 def _store_dir() -> Path:
-    root = os.environ.get("MVNMLE_DATA_DIR")
-    if root and Path(root).is_dir():
-        return Path(root)
-    for p in _STORE_FALLBACKS:
-        if p.is_dir():
-            return p
-    raise FileNotFoundError(
-        "montecarlo store not found; set MVNMLE_DATA_DIR (Mac: Dev/datasets, "
-        "Forge: /mnt/data/pystatistics-datasets).")
+    """Directory holding this project's curated datasets.
+
+    Store resolution lives in ``drivers/_shared/store_io.py`` — the single place
+    that knows where the store is. Do not reintroduce a local search path here.
+    """
+    return store_root() / DEFAULT_NAMESPACE
 
 
 def load(key: str) -> Dataset:

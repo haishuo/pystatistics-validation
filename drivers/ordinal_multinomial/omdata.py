@@ -20,14 +20,14 @@ is float32; continuous columns are promoted to float64 on load.
 
 Source of truth is the centralized store (R17): ``housing.h5`` (ordinal),
 ``fgl.h5`` / ``iris_multinom.h5`` / ``multinom_synth.h5`` (multinomial) live in
-``Dev/datasets`` (Forge mirror ``/mnt/data/pystatistics-datasets``), reached via
-``MVNMLE_DATA_DIR``.
+the central store under the ``pystatistics`` namespace, reached via
+``DATASETS_ROOT`` (resolution lives in ``drivers/_shared/store_io.py``).
 """
 
 from __future__ import annotations
 
 import json
-import os
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,25 +35,20 @@ import h5py
 import numpy as np
 from numpy.typing import NDArray
 
-_STORE_FALLBACKS = (
-    Path("/Volumes/Archive/Documents/Dropbox/Dev/datasets"),
-    Path("/mnt/data/pystatistics-datasets"),
-)
+_SHARED = Path(__file__).resolve().parent.parent / "_shared"
+if str(_SHARED) not in sys.path:
+    sys.path.insert(0, str(_SHARED))
+
+from store_io import DEFAULT_NAMESPACE, store_root  # noqa: E402
 
 
 def _store_dir() -> Path:
-    root = os.environ.get("MVNMLE_DATA_DIR")
-    if root:
-        p = Path(root)
-        if p.is_dir():
-            return p
-    for cand in _STORE_FALLBACKS:
-        if cand.is_dir():
-            return cand
-    raise FileNotFoundError(
-        "Dataset store not found. Set MVNMLE_DATA_DIR to the curated dataset dir "
-        f"(tried {[str(c) for c in _STORE_FALLBACKS]})."
-    )
+    """Directory holding this project's curated datasets.
+
+    Store resolution lives in ``drivers/_shared/store_io.py`` — the single place
+    that knows where the store is. Do not reintroduce a local search path here.
+    """
+    return store_root() / DEFAULT_NAMESPACE
 
 
 def _load_raw(stem: str) -> tuple[NDArray, list[str], list[str], list[dict]]:
