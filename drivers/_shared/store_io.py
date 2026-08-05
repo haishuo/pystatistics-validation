@@ -50,8 +50,17 @@ STORE_ROOT_ENV = "DATASETS_ROOT"
 #: Deprecated alias for :data:`STORE_ROOT_ENV`, honored during migration.
 STORE_ROOT_ENV_LEGACY = "MVNMLE_DATA_DIR"
 
-#: Namespace these drivers read from. See the store's SCHEMA.md.
+#: Namespace holding this project's curated validation fixtures — the small
+#: derived datasets built by the store's own generators. See the store's
+#: SCHEMA.md.
 DEFAULT_NAMESPACE = "pystatistics"
+
+#: Namespace holding third-party survey microdata (GSS, WVS, CSES,
+#: Afrobarometer, …). Kept separate from the fixtures because it is a different
+#: kind of thing: not reproducible from any generator, and licence-restricted —
+#: several of these programmes prohibit redistribution. One namespace boundary,
+#: three meanings, so "may this leave the machine?" has a directory-level answer.
+SURVEY_NAMESPACE = "surveys"
 
 # Known mirrors of the central store, tried in order after the environment
 # variable. Forge's mirror is not listed until it has been migrated to the

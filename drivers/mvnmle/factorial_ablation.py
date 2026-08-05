@@ -39,9 +39,9 @@ DEV = sys.argv[1] if len(sys.argv) > 1 else (
     ("mps" if torch.backends.mps.is_available() else "cpu"))
 TAG = sys.argv[2] if len(sys.argv) > 2 else f"factorial_{DEV}"
 # data/ sits beside this file (Forge flat bundle) or at the repo root (dev)
-from store_io import DEFAULT_NAMESPACE, store_root  # noqa: E402
+from store_io import SURVEY_NAMESPACE, store_root  # noqa: E402
 
-_DATA = store_root() / DEFAULT_NAMESPACE
+_DATA = store_root() / SURVEY_NAMESPACE
 # KNOWN DEFECT (pre-existing, deliberately unchanged): this writes beside the
 # store rather than into artifacts/mvnmle/<version>/runs/ where every other
 # driver's evidence lives, and that directory does not exist. It is pinned to

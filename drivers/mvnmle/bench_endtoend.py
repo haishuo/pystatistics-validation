@@ -53,9 +53,9 @@ if BACKEND not in ("gpu", "cpu"):
 # not the MPS device that happens to be present.
 DEVICE = GPU_DEVICE if BACKEND == "gpu" else "cpu"
 
-from store_io import DEFAULT_NAMESPACE, store_root  # noqa: E402
+from store_io import SURVEY_NAMESPACE, store_root  # noqa: E402
 
-_DATA = store_root() / DEFAULT_NAMESPACE
+_DATA = store_root() / SURVEY_NAMESPACE
 # KNOWN DEFECT (pre-existing, deliberately unchanged): this writes beside the
 # store rather than into artifacts/mvnmle/<version>/runs/ where every other
 # driver's evidence lives, and that directory does not exist. It is pinned to

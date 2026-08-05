@@ -59,10 +59,30 @@ def test_h5_path_is_namespaced(fake_store, monkeypatch):
 
 def test_h5_path_honors_explicit_namespace(fake_store, monkeypatch):
     monkeypatch.setenv(store_io.STORE_ROOT_ENV, str(fake_store))
-    (fake_store / "lacuna").mkdir()
-    (fake_store / "lacuna" / "demo.h5").write_bytes(b"other namespace")
-    got = store_io.store_h5_path("demo", namespace="lacuna")
-    assert got == fake_store / "lacuna" / "demo.h5"
+    (fake_store / "other").mkdir()
+    (fake_store / "other" / "demo.h5").write_bytes(b"other namespace")
+    got = store_io.store_h5_path("demo", namespace="other")
+    assert got == fake_store / "other" / "demo.h5"
+
+
+def test_survey_and_fixture_namespaces_are_distinct(fake_store, monkeypatch):
+    """A miss in one namespace must not silently resolve in the other.
+
+    The two hold different kinds of thing — reproducible fixtures versus
+    licence-restricted third-party microdata — so a cross-namespace fallback
+    would quietly defeat the boundary that separates them.
+    """
+    monkeypatch.setenv(store_io.STORE_ROOT_ENV, str(fake_store))
+    assert store_io.SURVEY_NAMESPACE != store_io.DEFAULT_NAMESPACE
+    (fake_store / store_io.SURVEY_NAMESPACE).mkdir()
+    (fake_store / store_io.SURVEY_NAMESPACE / "poll.h5").write_bytes(b"survey")
+
+    assert store_io.store_h5_path(
+        "poll", namespace=store_io.SURVEY_NAMESPACE).is_file()
+    with pytest.raises(FileNotFoundError):
+        store_io.store_h5_path("poll")                       # fixture namespace
+    with pytest.raises(FileNotFoundError):
+        store_io.store_h5_path("demo", namespace=store_io.SURVEY_NAMESPACE)
 
 
 # --------------------------------------------------------------------------- #
