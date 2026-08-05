@@ -23,16 +23,13 @@ File as used: `gss7224_r3.dta`.
 
 ## World Values Survey
 
-World Values Survey Wave 7 (2017–2022), cross-national data file, version 6.0.
-Madrid, Spain & Vienna, Austria: JD Systems Institute & WVSA Secretariat.
-<https://www.worldvaluessurvey.org/>
+Haerpfer, C., Inglehart, R., Moreno, A., Welzel, C., Kizilova, K., Diez-Medrano,
+J., Lagos, M., Norris, P., Ponarin, E. & Puranen, B. et al. (eds.). 2022. *World
+Values Survey: Round Seven — Country-Pooled Datafile Version 6.0.0*. Madrid,
+Spain & Vienna, Austria: JD Systems Institute & WVSA Secretariat.
+doi:10.14281/18241.24
 
 File as used: `WVS_Cross-National_Wave_7_spss_v6_0.sav`.
-
-> The exact citation string WVS requires for v6.0 should be confirmed against the
-> programme's own "how to cite" page before this file is treated as
-> authoritative. The dataset identity above is exact; the formatted reference is
-> reconstructed.
 
 ## Comparative Study of Electoral Systems
 
@@ -41,7 +38,10 @@ The Comparative Study of Electoral Systems. *CSES Integrated Module Dataset
 
 File as used: `cses_imd.sav`.
 
-> Formatted reference to be confirmed against the CSES release documentation.
+> Formatted reference still to be confirmed against the CSES release
+> documentation. cses.org refused connection on 2026-08-05 (two attempts); the
+> IMD release number this file corresponds to is not recorded either. Both should
+> be filled in when the site is reachable.
 
 ## Afrobarometer
 
