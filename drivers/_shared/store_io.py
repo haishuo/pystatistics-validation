@@ -63,11 +63,12 @@ DEFAULT_NAMESPACE = "pystatistics"
 SURVEY_NAMESPACE = "surveys"
 
 # Known mirrors of the central store, tried in order after the environment
-# variable. Forge's mirror is not listed until it has been migrated to the
-# namespaced layout — a flat mirror cannot satisfy <namespace>/<name>.h5, so
-# resolving against it would fail confusingly rather than loudly.
+# variable. Both carry the namespaced layout and were verified identical to the
+# manifest on 2026-08-05 (48/48 curated files). A machine that has neither still
+# fails loudly rather than guessing.
 _STORE_MIRRORS = (
     Path("/Volumes/Archive/Documents/Dev/datasets"),   # Mac
+    Path("/mnt/data/pystatistics-datasets"),           # Forge
 )
 
 

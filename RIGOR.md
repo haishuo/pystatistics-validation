@@ -390,10 +390,11 @@ correctness-driven sibling.**
 ## R17 — Datasets: one centralized store, HDF5 only
 
 Validation datasets live in **one place, in one format**: the centralized store,
-namespaced as `<root>/pystatistics/<name>.h5` and reached via `DATASETS_ROOT`
-(Mac: `Dev/datasets`; on Forge, set it explicitly — that mirror is still flat and
-so cannot satisfy the namespaced path), as **HDF5 (`.h5`)** files written by
-`dataset_writer.py` and
+namespaced as `<root>/surveys/<name>.h5` (third-party microdata) and
+`<root>/pystatistics/<name>.h5` (derived fixtures), reached via `DATASETS_ROOT`
+with the Mac (`Dev/datasets`) and Forge (`/mnt/data/pystatistics-datasets`)
+mirrors as fallbacks, as **HDF5 (`.h5`)** files written by `dataset_writer.py`
+and
 documented in `SCHEMA.md`, with checksums in `MANIFEST.sha256`. Drivers **load from the
 central store** — they do not carry their own copies.
 
