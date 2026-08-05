@@ -80,7 +80,13 @@ Because the headline numbers reproduce and M1 makes the Discussion honest.
 
 **Reusable test env (persistent, on Forge):** conda env `pystatistics-test` (cloned from
 `gpumice`, has cu128/sm_120 torch + pystatistics 6.0.0). Future version tests: just
-`pip install pystatistics==X` into it. Datasets at `~/mvndata`, drivers at `~/mvnval`.
+`pip install pystatistics==X` into it. Drivers at `~/mvnval`.
+
+Datasets need no configuration on Forge as of 2026-08-05: the mirror at
+`/mnt/data/pystatistics-datasets` is namespaced and is in `store_io`'s fallback
+list, so `DATASETS_ROOT` can be left unset. (This previously read "Datasets at
+`~/mvndata`" — that directory held a two-file copy of `gss`/`wvs` that duplicated
+the mirror byte-for-byte and has been removed.)
 
 ---
 
