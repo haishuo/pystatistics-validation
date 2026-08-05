@@ -48,11 +48,13 @@ from pystatistics.core.exceptions import ValidationError
 
 import datasets as D  # local driver module
 
+from artifact_root import artifact_root  # noqa: E402
+
 _HERE = Path(__file__).resolve().parent
 _R_REF = _HERE / "r_reference.R"
 _VER = pystatistics.__version__
 _ARTIFACT = (
-    _HERE.parents[1] / f"artifacts/gam/v{_VER}/runs/correctness.json"
+    artifact_root(_HERE.parents[1]) / f"gam/v{_VER}/runs/correctness.json"
 )
 
 

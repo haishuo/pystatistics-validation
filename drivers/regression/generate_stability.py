@@ -39,6 +39,8 @@ import sys as _sys, pathlib as _pathlib
 _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
 from artifact_guard import write_run  # noqa: E402
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 _GRID = ((100_000, 64), (200_000, 128), (500_000, 128))
 _FAMILIES = (("glm_poisson", "poisson"), ("glm_gamma", "gamma"))
@@ -119,7 +121,7 @@ def generate(host: str, device: str) -> Path:
     run = build_run(env=env, config={"study": "gpu_glm_stability", "lam": _LAM,
                                       "grid": [list(g) for g in _GRID]},
                     records=records)
-    out_dir = _REPO / "artifacts" / "regression" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "regression" / f"v{env['pystatistics_version']}" / "runs"
     stem = f"stability_{device}_{host}"
     path = write_run(out_dir / f"{stem}.json", run)
     cols = ["model_key", "n", "p", "lam", "plain_status", "plain_rel_vs_cpu",

@@ -16,8 +16,12 @@ from pathlib import Path
 
 import pystatistics
 
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_root import artifact_root  # noqa: E402
+
 _VER = pystatistics.__version__
-_ROOT = Path(__file__).resolve().parents[2] / f"artifacts/gam/v{_VER}"
+_ROOT = artifact_root(Path(__file__).resolve().parents[2]) / f"gam/v{_VER}"
 _RUNS = _ROOT / "runs"
 _FROZEN_UTC = "2026-07-12"
 

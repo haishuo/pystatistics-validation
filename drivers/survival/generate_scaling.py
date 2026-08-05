@@ -52,6 +52,8 @@ from artifact_guard import write_run  # noqa: E402
 
 from drivers.survival.run_r_survival import _run_worker, _wall
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 _N_GRID = [250, 500, 1000, 2000, 4000, 8000]
@@ -138,7 +140,7 @@ def generate(host: str, *, reps: int, warmup: int) -> Path:
         "reference": "R survival::coxph (ties='efron')",
     }
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "survival" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "survival" / f"v{env['pystatistics_version']}" / "runs"
     stem = f"scaling_cpu_{host}"
     run_path = write_run(out_dir / f"{stem}.json", run)
     cols = ["n", "p", "n_events", "n_iter", "wall_pystat_s", "wall_r_s",

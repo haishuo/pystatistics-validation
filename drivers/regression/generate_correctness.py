@@ -40,6 +40,8 @@ from drivers.regression import datasets
 from drivers.regression.run_pystatistics import run_regression_record
 from drivers.regression.run_r_regression import run_r_regression_record
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 
@@ -144,7 +146,7 @@ def generate(host: str, device: str, *, repeats: int) -> Path:
     }
     run = build_run(env=env, config=config, records=records)
 
-    out_dir = _REPO / "artifacts" / "regression" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "regression" / f"v{env['pystatistics_version']}" / "runs"
     stem = f"correctness_{device}_{host}"
     run_path = write_run(out_dir / f"{stem}.json", run)
     _write_summary_csv(out_dir / f"{stem}_summary.csv", agreement_rows)

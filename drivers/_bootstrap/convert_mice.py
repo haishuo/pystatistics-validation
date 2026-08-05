@@ -23,10 +23,12 @@ import sys as _sys, pathlib as _pathlib
 _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
 from artifact_guard import guard_artifact_path  # noqa: E402
 
+from artifact_root import artifact_root  # noqa: E402
+
 
 REPO = Path(__file__).resolve().parent.parent.parent
 PAPER = Path("/Volumes/Archive/Documents/Dropbox/UMassD/Papers/gpu-mice-paper/results")
-OUT = REPO / "artifacts" / "mice" / "v3.16.3"
+OUT = artifact_root(REPO) / "mice" / "v3.16.3"
 RUNS = OUT / "runs"
 LEGACY = RUNS / "legacy"
 

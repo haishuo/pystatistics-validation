@@ -44,6 +44,8 @@ from drivers.survival.run_pystatistics_feat import (
     run_coxfeat_record, run_kmfeat_record)
 from drivers.survival.run_r_survival import run_r_coxfeat, run_r_kmfeat
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 
@@ -208,7 +210,7 @@ def generate(host: str, *, reps: int, dry_run: bool) -> Path:
     config = {"study": "feature_cluster_correctness", "reps": reps,
               "dry_run": dry_run}
     run = build_run(env=env, config=config, records=records)
-    out_dir = (_REPO / "artifacts" / "survival"
+    out_dir = (artifact_root(_REPO) / "survival"
                / f"v{env['pystatistics_version']}" / "runs")
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = f"feature_cluster_cpu_{host}"

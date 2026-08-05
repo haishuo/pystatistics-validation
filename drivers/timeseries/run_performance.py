@@ -31,10 +31,12 @@ _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shar
 from artifact_guard import write_run  # noqa: E402
 from pystatistics.timeseries import acf, arima, ets, stl  # noqa: E402
 
+from artifact_root import artifact_root  # noqa: E402
+
 _HERE = Path(__file__).resolve().parent
 _PERF_R = _HERE / "perf_reference.R"
-_ARTIFACT = (Path(__file__).resolve().parents[2]
-             / "artifacts/timeseries/v{ver}/runs/performance.json")
+_ARTIFACT = (artifact_root(Path(__file__).resolve().parents[2])
+             / "timeseries/v{ver}/runs/performance.json")
 
 
 def _ar1(n: int, phi: float = 0.5, seed: int = 7) -> np.ndarray:

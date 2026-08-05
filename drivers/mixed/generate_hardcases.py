@@ -56,6 +56,8 @@ from drivers.mixed.datasets import MixedDataset
 from drivers.mixed.run_pystatistics import run_lmm_record
 from drivers.mixed.run_r_mixed import run_r_lmm_record
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 _SEED = 20260630  # documented deterministic seed for every synthetic hard case
 
@@ -268,7 +270,7 @@ def generate(host: str, *, repeats: int) -> Path:
         "r15_default": r15,
     }
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "mixed" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "mixed" / f"v{env['pystatistics_version']}" / "runs"
     run_path = write_run(out_dir / f"hardcases_cpu_{host}.json", run)
     _write_summary_csv(out_dir / f"hardcases_{host}_summary.csv", rows)
     print(f"\nwrote {run_path}")

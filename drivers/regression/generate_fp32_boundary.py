@@ -66,6 +66,8 @@ import sys as _sys, pathlib as _pathlib
 _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
 from artifact_guard import write_run  # noqa: E402
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 # A deviance gap larger than this (relative) means the float32 fit reached a
@@ -220,7 +222,7 @@ def generate(host: str, device: str) -> Path:
               "dev_tol": _DEV_TOL, "sweeps": _SWEEPS,
               "mechanisms": list(_SWEEPS.keys()), "families": ["poisson", "gamma"]}
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "regression" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "regression" / f"v{env['pystatistics_version']}" / "runs"
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = f"fp32_boundary_{device}_{host}"
     run_path = write_run(out_dir / f"{stem}.json", run)

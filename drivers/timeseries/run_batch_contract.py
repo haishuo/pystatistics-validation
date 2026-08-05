@@ -40,8 +40,10 @@ from tscompare import to_native, expect_raises, arr_cmp, within  # noqa: E402
 from pystatistics.timeseries import arima_batch, arima  # noqa: E402
 from pystatistics.core.exceptions import ConvergenceError  # noqa: E402
 
-_ARTIFACT = (Path(__file__).resolve().parents[2]
-             / "artifacts/timeseries/v{ver}/runs/batch_contract.json")
+from artifact_root import artifact_root  # noqa: E402
+
+_ARTIFACT = (artifact_root(Path(__file__).resolve().parents[2])
+             / "timeseries/v{ver}/runs/batch_contract.json")
 
 
 def _arma(n: int, seed: int, ar: float, ma: float) -> np.ndarray:

@@ -15,6 +15,10 @@ import json
 import sys
 from pathlib import Path
 
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_root import artifact_root  # noqa: E402
+
 
 def _write_csv(path: Path, rows: list[dict]) -> None:
     cols: list[str] = []
@@ -55,8 +59,11 @@ def flatten(runs_dir: Path) -> None:
 
 
 def main() -> None:
-    runs_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(
-        "artifacts/multivariate/v4.4.0/runs")
+    # Default is relative to the current directory, as it always was; the only
+    # change is that it now honours VALIDATION_ARTIFACT_ROOT like every other
+    # artifact path. An explicit argv[1] still wins.
+    runs_dir = (Path(sys.argv[1]) if len(sys.argv) > 1
+                else artifact_root(Path.cwd()) / "multivariate/v4.4.0/runs")
     flatten(runs_dir)
 
 

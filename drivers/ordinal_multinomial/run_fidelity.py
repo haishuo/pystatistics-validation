@@ -32,8 +32,10 @@ from pystatistics.ordinal import polr  # noqa: E402
 from pystatistics.multinomial import multinom  # noqa: E402
 from pystatistics.core.exceptions import ValidationError  # noqa: E402
 
-_ART = (Path(__file__).resolve().parents[2]
-        / "artifacts/ordinal_multinomial/v{ver}/runs/fidelity.json")
+from artifact_root import artifact_root  # noqa: E402
+
+_ART = (artifact_root(Path(__file__).resolve().parents[2])
+        / "ordinal_multinomial/v{ver}/runs/fidelity.json")
 
 
 def _expect_raise(key, surface, desc, fn, exc=(ValidationError, RuntimeError,

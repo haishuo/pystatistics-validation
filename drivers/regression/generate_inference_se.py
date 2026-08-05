@@ -61,6 +61,8 @@ from artifact_guard import write_run  # noqa: E402
 
 from drivers.regression.run_r_regression import run_r_regression_record
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 # model_key -> (pystatistics family arg builder tag, R family tag)
@@ -185,7 +187,7 @@ def generate(host: str, device: str) -> Path:
               "models": [m for m, _, _ in _MODELS], "severities": list(_SEVERITIES),
               "reference": "R lm()/glm()"}
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "regression" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "regression" / f"v{env['pystatistics_version']}" / "runs"
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = f"inference_se_{device}_{host}"
     run_path = write_run(out_dir / f"{stem}.json", run)

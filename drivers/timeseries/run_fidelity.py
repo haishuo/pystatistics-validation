@@ -31,8 +31,10 @@ from pystatistics.core.exceptions import ValidationError, ConvergenceError  # no
 from pystatistics.timeseries import (  # noqa: E402
     ets, arima, adf_test, kpss_test, stl, ndiffs, acf, pacf, arima_batch)
 
-_ARTIFACT = (Path(__file__).resolve().parents[2]
-             / "artifacts/timeseries/v{ver}/runs/fidelity.json")
+from artifact_root import artifact_root  # noqa: E402
+
+_ARTIFACT = (artifact_root(Path(__file__).resolve().parents[2])
+             / "timeseries/v{ver}/runs/fidelity.json")
 
 
 def run_fidelity() -> list[dict]:

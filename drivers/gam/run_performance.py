@@ -35,10 +35,12 @@ from artifact_guard import write_run  # noqa: E402
 import pystatistics
 from pystatistics.gam import gam, s
 
+from artifact_root import artifact_root  # noqa: E402
+
 _HERE = Path(__file__).resolve().parent
 _PERF_R = _HERE / "perf_reference.R"
 _VER = pystatistics.__version__
-_ARTIFACT = _HERE.parents[1] / f"artifacts/gam/v{_VER}/runs/performance.json"
+_ARTIFACT = artifact_root(_HERE.parents[1]) / f"gam/v{_VER}/runs/performance.json"
 
 _REPS = 5
 

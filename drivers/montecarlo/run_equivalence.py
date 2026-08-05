@@ -40,8 +40,10 @@ from artifact_guard import write_run  # noqa: E402
 
 from pystatistics.montecarlo import boot, boot_ci, permutation_test  # noqa: E402
 
-_ARTIFACT = (Path(__file__).resolve().parents[2]
-             / "artifacts/montecarlo/v{ver}/runs/equivalence.json")
+from artifact_root import artifact_root  # noqa: E402
+
+_ARTIFACT = (artifact_root(Path(__file__).resolve().parents[2])
+             / "montecarlo/v{ver}/runs/equivalence.json")
 
 
 def run_boot_equivalence() -> list[dict]:

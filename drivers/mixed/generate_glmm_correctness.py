@@ -50,6 +50,8 @@ from drivers.mixed import glmm_datasets as datasets
 from drivers.mixed.run_glmm import run_glmm_record
 from drivers.mixed.run_r_glmm import run_r_glmm_record
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 # Correctness grid: canonical datasets across families/links.
@@ -151,7 +153,7 @@ def generate(host: str, *, repeats: int) -> Path:
     }
     run = build_run(env=env, config=config, records=records)
 
-    out_dir = _REPO / "artifacts" / "mixed" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "mixed" / f"v{env['pystatistics_version']}" / "runs"
     run_path = write_run(out_dir / f"glmm_correctness_cpu_{host}.json", run)
     _write_summary_csv(out_dir / f"glmm_correctness_{host}_summary.csv", rows)
     print(f"\nwrote {run_path}")

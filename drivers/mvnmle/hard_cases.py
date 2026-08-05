@@ -42,7 +42,9 @@ import sys as _sys, pathlib as _pathlib
 _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
 from artifact_guard import guard_artifact_path  # noqa: E402
 
-_OUTDIR = _REPO / "artifacts" / "mvnmle" / f"v{_ps.__version__}" / "runs"
+from artifact_root import artifact_root  # noqa: E402
+
+_OUTDIR = artifact_root(_REPO) / "mvnmle" / f"v{_ps.__version__}" / "runs"
 _SEED = 20260707
 
 

@@ -10,10 +10,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_root import artifact_root  # noqa: E402
+
 VER = "5.0.0"
 BLESSED_AT = "4.6.11"  # statistical bless line; 5.0.0 is a rename-only release over it
 ROOT = Path(__file__).resolve().parents[2]
-RUNS = ROOT / "artifacts/anova_descriptive_hypothesis" / f"v{VER}" / "runs"
+RUNS = artifact_root(ROOT) / "anova_descriptive_hypothesis" / f"v{VER}" / "runs"
 OUT = ROOT / "reports" / f"anova-descriptive-hypothesis-v{VER}.md"
 
 

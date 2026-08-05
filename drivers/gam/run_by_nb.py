@@ -62,8 +62,10 @@ from pystatistics import __version__ as _VER
 from pystatistics.gam import gam, s
 from pystatistics.core.exceptions import ValidationError
 
+from artifact_root import artifact_root  # noqa: E402
+
 _HERE = Path(__file__).resolve().parent
-_ARTIFACT = _HERE.parents[1] / f"artifacts/gam/v{_VER}/runs/by_nb.json"
+_ARTIFACT = artifact_root(_HERE.parents[1]) / f"gam/v{_VER}/runs/by_nb.json"
 
 
 # --------------------------------------------------------------------------

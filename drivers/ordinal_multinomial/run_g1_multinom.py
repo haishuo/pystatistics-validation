@@ -45,8 +45,10 @@ from pystatistics.multinomial import multinom  # noqa: E402
 from pystatistics.core.exceptions import (  # noqa: E402
     ConvergenceError, NotPositiveDefiniteError)
 
-_ART = (Path(__file__).resolve().parents[2]
-        / "artifacts/ordinal_multinomial/v{ver}/runs/g1_multinom.json")
+from artifact_root import artifact_root  # noqa: E402
+
+_ART = (artifact_root(Path(__file__).resolve().parents[2])
+        / "ordinal_multinomial/v{ver}/runs/g1_multinom.json")
 
 
 def _fit(des, max_iter=3000):

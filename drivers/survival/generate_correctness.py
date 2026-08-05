@@ -50,6 +50,8 @@ from drivers.survival.run_pystatistics import (
 from drivers.survival.run_r_survival import (
     run_r_coxph, run_r_discrete, run_r_km, run_r_logrank)
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 
@@ -163,7 +165,7 @@ def generate(host: str, *, reps: int, n_bins: int) -> Path:
     }
     run = build_run(env=env, config=config, records=records)
 
-    out_dir = _REPO / "artifacts" / "survival" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "survival" / f"v{env['pystatistics_version']}" / "runs"
     stem = f"correctness_cpu_{host}"
     run_path = write_run(out_dir / f"{stem}.json", run)
     _write_csv(out_dir / f"{stem}_agreement.csv", agreement_rows,

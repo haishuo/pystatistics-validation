@@ -34,8 +34,10 @@ from artifact_guard import write_run  # noqa: E402
 from pystatistics.ordinal import polr  # noqa: E402
 from pystatistics.multinomial import multinom  # noqa: E402
 
-_ART = (Path(__file__).resolve().parents[2]
-        / "artifacts/ordinal_multinomial/v{ver}/runs/predict.json")
+from artifact_root import artifact_root  # noqa: E402
+
+_ART = (artifact_root(Path(__file__).resolve().parents[2])
+        / "ordinal_multinomial/v{ver}/runs/predict.json")
 
 
 # Shared statistical-link label ("logistic") drives R's predict.polr method= and

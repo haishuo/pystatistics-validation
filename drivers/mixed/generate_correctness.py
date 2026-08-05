@@ -52,6 +52,8 @@ from drivers.mixed import datasets
 from drivers.mixed.run_pystatistics import run_lmm_record
 from drivers.mixed.run_r_mixed import run_r_lmm_record
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 # Correctness grid: (dataset_key, reml). All five at REML (the default); a ML
@@ -209,7 +211,7 @@ def generate(host: str, *, repeats: int) -> Path:
     }
     run = build_run(env=env, config=config, records=records)
 
-    out_dir = _REPO / "artifacts" / "mixed" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "mixed" / f"v{env['pystatistics_version']}" / "runs"
     run_path = write_run(out_dir / f"correctness_cpu_{host}.json", run)
     _write_summary_csv(out_dir / f"correctness_{host}_summary.csv", rows)
     print(f"\nwrote {run_path}")

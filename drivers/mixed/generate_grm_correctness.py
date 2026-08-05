@@ -42,6 +42,8 @@ from drivers.mixed.grm_datasets import make_grm
 from drivers.mixed.run_grm import run_grm_record
 from drivers.mixed.run_r_grm import run_r_grm_record
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 _SEED = 20260630
 
@@ -111,7 +113,7 @@ def generate(host: str, *, repeats: int) -> Path:
                 "constant — estimates agree regardless)",
     }
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "mixed" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "mixed" / f"v{env['pystatistics_version']}" / "runs"
     run_path = write_run(out_dir / f"grm_correctness_cpu_{host}.json", run)
     _write_summary_csv(out_dir / f"grm_correctness_{host}_summary.csv", rows)
     print(f"\nwrote {run_path}")

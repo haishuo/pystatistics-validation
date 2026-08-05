@@ -52,9 +52,11 @@ from artifact_guard import write_run  # noqa: E402
 from pystatistics import __version__ as _VER
 from pystatistics.gam import gam, te, ti, s
 
+from artifact_root import artifact_root  # noqa: E402
+
 _HERE = Path(__file__).resolve().parent
 _R_REF = _HERE / "r_reference.R"
-_ARTIFACT = _HERE.parents[1] / f"artifacts/gam/v{_VER}/runs/tensor.json"
+_ARTIFACT = artifact_root(_HERE.parents[1]) / f"gam/v{_VER}/runs/tensor.json"
 
 
 # --------------------------------------------------------------------------

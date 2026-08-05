@@ -14,7 +14,11 @@ import json
 import sys
 from pathlib import Path
 
-_RUNS = Path(__file__).resolve().parents[2] / "artifacts/montecarlo/v{ver}/runs"
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_root import artifact_root  # noqa: E402
+
+_RUNS = artifact_root(Path(__file__).resolve().parents[2]) / "montecarlo/v{ver}/runs"
 
 
 def _load(runs: Path, name: str) -> dict:

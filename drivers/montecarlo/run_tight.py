@@ -55,6 +55,8 @@ from pystatistics.montecarlo._ci import _norm_inter  # noqa: E402
 from pystatistics.core.result import Result  # noqa: E402
 from scipy.stats import norm  # noqa: E402
 
+from artifact_root import artifact_root  # noqa: E402
+
 
 def _bca_on_shared(t, t0, freq, alpha=0.05):
     """BCa endpoints from SHARED replicates+frequencies via the library's
@@ -77,8 +79,8 @@ def _bca_on_shared(t, t0, freq, alpha=0.05):
     lo, hi = _norm_inter(t, [a1, a2])
     return np.array([lo, hi]), z0, a
 
-_ARTIFACT = (Path(__file__).resolve().parents[2]
-             / "artifacts/montecarlo/v{ver}/runs/tight.json")
+_ARTIFACT = (artifact_root(Path(__file__).resolve().parents[2])
+             / "montecarlo/v{ver}/runs/tight.json")
 
 # Tolerances (the contract above). Since 4.6.8 boot_ci uses R's norm.inter
 # quantile rule, so basic/perc/studentized match R to machine precision on

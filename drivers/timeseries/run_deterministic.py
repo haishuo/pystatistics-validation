@@ -32,14 +32,16 @@ from artifact_guard import write_run  # noqa: E402
 from pystatistics.timeseries import (  # noqa: E402
     acf, pacf, diff, ndiffs, adf_test, kpss_test, decompose, stl)
 
+from artifact_root import artifact_root  # noqa: E402
+
 try:
     from statsmodels.tsa.stattools import adfuller
     _HAVE_SM = True
 except Exception:
     _HAVE_SM = False
 
-_ARTIFACT = (Path(__file__).resolve().parents[2]
-             / "artifacts/timeseries/v{ver}/runs/deterministic.json")
+_ARTIFACT = (artifact_root(Path(__file__).resolve().parents[2])
+             / "timeseries/v{ver}/runs/deterministic.json")
 
 
 # --------------------------------------------------------------------------

@@ -45,6 +45,8 @@ import sys as _sys, pathlib as _pathlib
 _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
 from artifact_guard import write_run  # noqa: E402
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 # Same shape as the scaling grid, trimmed to the large end where the GPU matters
@@ -133,7 +135,7 @@ def generate(host: str, device: str, *, repeats: int, warmup: int) -> Path:
               "n_grid": list(_N_GRID), "p_grid": list(_P_GRID),
               "models": [m for m, _ in _MODELS], "repeats": repeats, "warmup": warmup}
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "regression" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "regression" / f"v{env['pystatistics_version']}" / "runs"
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = f"precision_isolation_{device}_{host}"
     run_path = write_run(out_dir / f"{stem}.json", run)

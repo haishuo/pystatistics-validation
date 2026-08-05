@@ -14,9 +14,13 @@ from pathlib import Path
 
 import numpy as np
 
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_root import artifact_root  # noqa: E402
+
 VER = "5.0.0"
 ROOT = Path(__file__).resolve().parents[2]
-ART = ROOT / "artifacts/a7_torchfree" / f"v{VER}"
+ART = artifact_root(ROOT) / "a7_torchfree" / f"v{VER}"
 OUT = ROOT / "reports" / f"a7-torchfree-certification-v{VER}.md"
 
 _ANCHOR_ATOL = 1e-12

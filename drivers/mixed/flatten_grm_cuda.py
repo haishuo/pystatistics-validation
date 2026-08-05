@@ -22,6 +22,8 @@ import sys as _sys, pathlib as _pathlib
 _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
 from artifact_guard import guard_artifact_path  # noqa: E402
 
+from artifact_root import artifact_root  # noqa: E402
+
 
 _REPO = Path(__file__).resolve().parent.parent.parent
 
@@ -43,7 +45,7 @@ def main() -> None:
     raw = json.loads(Path(sys.argv[1]).read_text())
     ver = raw["pystatistics_version"]
     env = raw["env"]
-    out_dir = _REPO / "artifacts" / "mixed" / f"v{ver}" / "runs"
+    out_dir = artifact_root(_REPO) / "mixed" / f"v{ver}" / "runs"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     run = {

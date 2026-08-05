@@ -66,6 +66,8 @@ from drivers.survival._continuous_synth import continuous_survival
 from drivers.survival._person_period import build_person_period
 from drivers.survival.run_r_survival import run_r_glmdiag
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 # Covariate agreement at or below this (relative) means the default reached R's
@@ -208,7 +210,7 @@ def generate(host: str) -> Path:
               "reference": "R glm(binomial) on the every-unique-event-time design",
               "cases": [c[0] for c in _cases()]}
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "survival" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "survival" / f"v{env['pystatistics_version']}" / "runs"
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = f"default_degeneracy_{host}"
     run_path = write_run(out_dir / f"{stem}.json", run)

@@ -56,6 +56,8 @@ from drivers.survival.run_pystatistics_gpu import (
     fit_pp_glm_record, forced_fp32_accuracy)
 from drivers.survival.run_r_survival import run_r_discrete
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 # Bin grid for the cross-precision sweep (label, bin width in days). Spans the
@@ -166,7 +168,7 @@ def generate(host: str, *, backends: list[str], reps: int, with_r: bool) -> Path
         "reference": "CPU fp64 discrete-time fit; R glm(binomial) for CPU-vs-R",
     }
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "survival" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "survival" / f"v{env['pystatistics_version']}" / "runs"
     stem = f"gpu_correctness_{host}"
     run_path = write_run(out_dir / f"{stem}.json", run)
     if cpu_r_rows:

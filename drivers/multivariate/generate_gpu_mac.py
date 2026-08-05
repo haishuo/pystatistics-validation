@@ -46,6 +46,8 @@ from artifact_guard import write_run  # noqa: E402
 from drivers.multivariate.run_pystatistics import (
     run_pca_record, strip_arrays as _strip_arrays)
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 _SEED = 20260630
 
@@ -299,7 +301,7 @@ def generate(host: str, *, repeats: int) -> Path:
     }
     records = _strip_arrays(records)  # drop bulky scores/rotation (timing study)
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "multivariate" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "multivariate" / f"v{env['pystatistics_version']}" / "runs"
     run_path = write_run(out_dir / f"gpu_mac_{host}.json", run)
     # Split the correctness and value rows (different column sets) for clean tables.
     _write_summary_csv(out_dir / f"gpu_mac_correctness_{host}_summary.csv",

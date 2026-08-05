@@ -46,6 +46,8 @@ from artifact_guard import write_run  # noqa: E402
 from drivers.mixed.grm_datasets import make_grm, make_grm_conditioned
 from drivers.mixed.run_grm import run_grm_record
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 _SEED = 20260630
 # fp32-tier statistical-equivalence bound for accepted GPU fits.
@@ -128,7 +130,7 @@ def generate(host: str, device: str, *, repeats: int) -> Path:
               "note": "CF-1 gate must give silent_wrong_count=0; GPU must beat CPU "
                       "in its regime (else no reason to exist)"}
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "mixed" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "mixed" / f"v{env['pystatistics_version']}" / "runs"
     run_path = write_run(out_dir / f"grm_gpu_{device}_{host}.json", run)
     _write_summary_csv(out_dir / f"grm_cf1_gate_{device}_{host}_summary.csv", cf1)
     _write_summary_csv(out_dir / f"grm_speed_{device}_{host}_summary.csv", spd)

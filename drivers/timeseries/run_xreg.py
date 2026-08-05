@@ -42,8 +42,10 @@ from artifact_guard import write_run  # noqa: E402
 from pystatistics.core.exceptions import ValidationError  # noqa: E402
 from pystatistics.timeseries import arima, forecast_arima, auto_arima  # noqa: E402
 
-_ARTIFACT = (Path(__file__).resolve().parents[2]
-             / "artifacts/timeseries/v{ver}/runs/xreg.json")
+from artifact_root import artifact_root  # noqa: E402
+
+_ARTIFACT = (artifact_root(Path(__file__).resolve().parents[2])
+             / "timeseries/v{ver}/runs/xreg.json")
 
 
 # --------------------------------------------------------------------------

@@ -35,7 +35,9 @@ from run_pystatistics import run_pystatistics  # noqa: E402
 from run_r_mvnmle import run_r_mvnmle  # noqa: E402
 
 import pystatistics as _ps  # noqa: E402
-_OUTDIR = _REPO / "artifacts" / "mvnmle" / f"v{_ps.__version__}" / "runs"
+
+from artifact_root import artifact_root  # noqa: E402
+_OUTDIR = artifact_root(_REPO) / "mvnmle" / f"v{_ps.__version__}" / "runs"
 from store_io import SURVEY_NAMESPACE, store_root  # noqa: E402
 
 # Guard artifact writes: refuse to clobber evidence committed to git unless

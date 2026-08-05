@@ -22,8 +22,12 @@ from rref import r_ref, r_versions
 from pystatistics.descriptive import cor, cov, describe, quantile, var
 from pystatistics import __version__ as PYVER
 
-ART = Path(__file__).resolve().parents[2] / \
-    "artifacts/anova_descriptive_hypothesis" / f"v{PYVER}" / "runs"
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_root import artifact_root  # noqa: E402
+
+ART = artifact_root(Path(__file__).resolve().parents[2]) / \
+    "anova_descriptive_hypothesis" / f"v{PYVER}" / "runs"
 
 
 def run() -> list[dict]:

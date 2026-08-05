@@ -56,9 +56,11 @@ import sys as _sys, pathlib as _pathlib
 _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
 from artifact_guard import guard_artifact_path  # noqa: E402
 
+from artifact_root import artifact_root  # noqa: E402
+
 
 _DATA = store_root() / SURVEY_NAMESPACE
-_OUTDIR = _REPO / "artifacts" / "mvnmle" / "v3.18.0" / "runs"
+_OUTDIR = artifact_root(_REPO) / "mvnmle" / "v3.18.0" / "runs"
 
 MATRIX = [("wvs", [5, 10, 15, 20, 25, 50, 100]),
           ("gss", [5, 10, 15, 20, 25, 50, 100]),

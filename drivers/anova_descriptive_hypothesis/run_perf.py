@@ -34,8 +34,12 @@ from pystatistics.hypothesis import t_test
 from pystatistics.anova import anova_oneway
 from pystatsval.timing import time_call
 
-ART = Path(__file__).resolve().parents[2] / \
-    "artifacts/anova_descriptive_hypothesis" / f"v{PYVER}" / "runs"
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_root import artifact_root  # noqa: E402
+
+ART = artifact_root(Path(__file__).resolve().parents[2]) / \
+    "anova_descriptive_hypothesis" / f"v{PYVER}" / "runs"
 
 NO_GPU_RATIONALE = (
     "No GPU path. Every function here is either a closed-form scalar statistic "

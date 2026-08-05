@@ -29,7 +29,11 @@ import numpy as np
 
 from pystatistics import __version__ as PYVER
 
-ART = Path(__file__).resolve().parents[2] / "artifacts/a7_torchfree" / f"v{PYVER}"
+import sys as _sys, pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
+from artifact_root import artifact_root  # noqa: E402
+
+ART = artifact_root(Path(__file__).resolve().parents[2]) / "a7_torchfree" / f"v{PYVER}"
 TORCH_PRESENT = importlib.util.find_spec("torch") is not None
 
 

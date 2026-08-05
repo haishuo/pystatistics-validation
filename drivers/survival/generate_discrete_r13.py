@@ -59,6 +59,8 @@ from drivers.survival import datasets
 from drivers.survival._person_period import build_person_period
 from drivers.survival._pp_boundary import SWEEPS, eq_cond, make_pp_boundary
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 # fp32 tier: a deviance gap above this (relative) means a DIFFERENT (worse) optimum.
@@ -231,7 +233,7 @@ def generate(host: str, device: str) -> Path:
               "se_understate_frac": _SE_UNDERSTATE_FRAC, "se_rel_tol": _SE_REL_TOL,
               "sweeps": SWEEPS, "anchor": "survival::flchain quarterly person-period"}
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "survival" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "survival" / f"v{env['pystatistics_version']}" / "runs"
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = f"discrete_r13_{device}_{host}"
     run_path = write_run(out_dir / f"{stem}.json", run)

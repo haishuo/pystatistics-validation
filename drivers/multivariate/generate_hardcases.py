@@ -43,6 +43,8 @@ from drivers.multivariate.run_pystatistics import (
     run_pca_record, strip_arrays as _strip_arrays)
 from drivers.multivariate.run_r_multivariate import run_r_pca_record
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 _SEED = 20260630  # documented deterministic seed for the synthetic hard cases
 
@@ -230,7 +232,7 @@ def generate(host: str, *, repeats: int) -> Path:
     }
     records = _strip_arrays(records)  # keep scalar agreement metrics, drop arrays
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "multivariate" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "multivariate" / f"v{env['pystatistics_version']}" / "runs"
     run_path = write_run(out_dir / f"hardcases_cpu_{host}.json", run)
     _write_summary_csv(out_dir / f"hardcases_cpu_{host}_summary.csv", rows)
     print(f"\nwrote {run_path}")

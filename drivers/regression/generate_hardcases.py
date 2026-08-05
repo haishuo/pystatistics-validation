@@ -66,6 +66,8 @@ import sys as _sys, pathlib as _pathlib
 _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
 from artifact_guard import write_run  # noqa: E402
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 _R_WORKER = Path(__file__).resolve().parent / "_r" / "hardcase_run.R"
 
@@ -479,7 +481,7 @@ def generate(host: str) -> Path:
               "reference": "R lm()/glm()"}
     run = build_run(env=env, config=config, records=records)
 
-    out_dir = _REPO / "artifacts" / "regression" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "regression" / f"v{env['pystatistics_version']}" / "runs"
     out_dir.mkdir(parents=True, exist_ok=True)
     run_path = write_run(out_dir / f"hardcases_{host}.json", run)
     _write_csv(out_dir / f"hardcases_behavior_{host}_summary.csv", behavior_rows,

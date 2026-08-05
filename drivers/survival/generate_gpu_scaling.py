@@ -58,6 +58,8 @@ from drivers.survival._pp_synth import make_pp_design
 from drivers.survival.run_pystatistics_gpu import (
     discrete_time_e2e_record, fit_pp_glm_record)
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 # flchain bin sweep: coarse (where MPS float32 holds) through fine (~1M rows).
@@ -134,7 +136,7 @@ def generate(host: str, device: str, *, precision: str, reps: int, warmup: int,
         "synth_intervals": _SYNTH_INTERVALS, "synth_cov": _SYNTH_COV,
         "synth_n": _SYNTH_N, "repeats": reps, "warmup": warmup,
     }
-    out_dir = _REPO / "artifacts" / "survival" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "survival" / f"v{env['pystatistics_version']}" / "runs"
     stem = f"scaling_discrete_{devtag}_{host}"
     run = build_run(env=env, config=config, records=records)
     run_path = write_run(out_dir / f"{stem}.json", run)

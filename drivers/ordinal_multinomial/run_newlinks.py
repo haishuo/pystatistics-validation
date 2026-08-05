@@ -40,8 +40,10 @@ _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shar
 from artifact_guard import write_run  # noqa: E402
 from pystatistics.ordinal import polr  # noqa: E402
 
-_ART = (Path(__file__).resolve().parents[2]
-        / "artifacts/ordinal_multinomial/v{ver}/runs/newlinks.json")
+from artifact_root import artifact_root  # noqa: E402
+
+_ART = (artifact_root(Path(__file__).resolve().parents[2])
+        / "ordinal_multinomial/v{ver}/runs/newlinks.json")
 
 
 def _cauchit_case(des, coef_abs=5e-4, thr_abs=5e-4, ll_abs=1e-3) -> dict:

@@ -41,6 +41,8 @@ from artifact_guard import write_run  # noqa: E402
 
 from drivers.regression.run_pystatistics import run_regression_record
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 
 # (n, p) grid. p includes the intercept-free predictor count; the design adds the
@@ -126,7 +128,7 @@ def generate(host: str, device: str, *, repeats: int, warmup: int) -> Path:
         "families": [f for f, _ in _FAMILIES], "repeats": repeats, "warmup": warmup,
     }
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "regression" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "regression" / f"v{env['pystatistics_version']}" / "runs"
     stem = f"scaling_{device}_{host}"
     run_path = write_run(out_dir / f"{stem}.json", run)
     _write_csv(out_dir / f"{stem}_summary.csv", rows)

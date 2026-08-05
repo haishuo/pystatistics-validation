@@ -37,8 +37,10 @@ from pystatistics.core.exceptions import ValidationError  # noqa: E402
 from pystatistics.timeseries import (  # noqa: E402
     ets, forecast_ets, arima, forecast_arima, auto_arima)
 
-_ARTIFACT = (Path(__file__).resolve().parents[2]
-             / "artifacts/timeseries/v{ver}/runs/mle.json")
+from artifact_root import artifact_root  # noqa: E402
+
+_ARTIFACT = (artifact_root(Path(__file__).resolve().parents[2])
+             / "timeseries/v{ver}/runs/mle.json")
 
 
 _DERIVED = {"near_noninv": near_noninvertible, "pure_noise": pure_noise,

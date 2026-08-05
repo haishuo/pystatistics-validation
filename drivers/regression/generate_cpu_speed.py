@@ -46,6 +46,8 @@ import sys as _sys, pathlib as _pathlib
 _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "_shared"))
 from artifact_guard import write_run  # noqa: E402
 
+from artifact_root import artifact_root  # noqa: E402
+
 _REPO = Path(__file__).resolve().parent.parent.parent
 _R_WORKER = Path(__file__).resolve().parent / "_r" / "cpu_speed_run.R"
 
@@ -180,7 +182,7 @@ def generate(host: str) -> Path:
               "models": [m for m, *_ in _MODELS], "reference": "R lm()/glm()/glm.nb()",
               "host_blas": "powerhouse=Apple Accelerate (fast vendor BLAS)"}
     run = build_run(env=env, config=config, records=records)
-    out_dir = _REPO / "artifacts" / "regression" / f"v{env['pystatistics_version']}" / "runs"
+    out_dir = artifact_root(_REPO) / "regression" / f"v{env['pystatistics_version']}" / "runs"
     out_dir.mkdir(parents=True, exist_ok=True)
     run_path = write_run(out_dir / f"cpu_speed_{host}.json", run)
     _csv(out_dir / f"cpu_speed_{host}_summary.csv", rows,
