@@ -33,15 +33,16 @@ File as used: `WVS_Cross-National_Wave_7_spss_v6_0.sav`.
 
 ## Comparative Study of Electoral Systems
 
-The Comparative Study of Electoral Systems. *CSES Integrated Module Dataset
-(IMD)* [Data set]. <https://cses.org/>
+The Comparative Study of Electoral Systems (www.cses.org). *CSES INTEGRATED
+MODULE DATASET PHASE 4 RELEASE* [dataset and documentation]. February 27, 2024
+version. doi:10.7804/cses.imd.2024-02-27
 
-File as used: `cses_imd.sav`.
+File as used: `cses_imd.sav`. This is the citation form the CSES Secretariat
+specifies, taken verbatim from the codebook shipped with the data — cses.org has
+been offline since at least 2026-08-05.
 
-> Formatted reference still to be confirmed against the CSES release
-> documentation. cses.org refused connection on 2026-08-05 (two attempts); the
-> IMD release number this file corresponds to is not recorded either. Both should
-> be filled in when the site is reachable.
+> Phase 4 is an **advance release**: the codebook states it lacks some of what
+> the Full Release will carry. Worth noting when comparing against other work.
 
 ## Afrobarometer
 
