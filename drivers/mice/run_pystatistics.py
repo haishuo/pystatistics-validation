@@ -44,7 +44,13 @@ def run_mice_record(data: NDArray[np.floating], *,
     from pystatistics.mice.design import MICEDesign
 
     n, p = data.shape
-    device = "gpu" if backend == "gpu" else "cpu"
+    # Any gpu* backend ('gpu', 'gpu_fp64') runs on the accelerator and must be
+    # instrumented as GPU: device sync inside the timed region, warmed first
+    # call, and accelerator peak-memory counters. The previous `== "gpu"`
+    # check instrumented the gpu_fp64 leg as CPU (cold, unsynced, RSS memory,
+    # and mislabeled fp32) — visible in the frozen v6.0.1 CUDA scaling
+    # artifact as an inflated first repeat at n=2000.
+    device = "gpu" if backend.startswith("gpu") else "cpu"
     engine = f"pystatistics:{backend}"
     common = {"m_imputations": int(m), "maxit": int(maxit), "method": method}
 
@@ -63,7 +69,7 @@ def run_mice_record(data: NDArray[np.floating], *,
 
     try:
         summary, _sol = measure(_call, device=device, repeats=repeats,
-                                warmup=warmup if backend == "gpu" else 0)
+                                warmup=warmup if backend.startswith("gpu") else 0)
     except Exception as exc:  # noqa: BLE001 - record and continue the sweep
         return make_record(engine=engine, dataset=dataset, n=n, p=p, wall=None,
                            backend_name=f"mice_{backend}",
@@ -73,7 +79,7 @@ def run_mice_record(data: NDArray[np.floating], *,
     return make_record(
         engine=engine, dataset=dataset, n=n, p=p, wall=summary,
         backend_name=f"mice_{backend}",
-        precision=("fp64" if (backend == "cpu" or use_fp64) else "fp32"),
+        precision=("fp64" if (backend in ("cpu", "gpu_fp64") or use_fp64) else "fp32"),
         extra={**common,
                "peak_mem_mb": (round(peak / 1e6, 1) if peak else None)},
     )
