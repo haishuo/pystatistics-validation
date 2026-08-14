@@ -1,0 +1,107 @@
+{
+ "schema": "mice-cpu-polr-grind-census/v1",
+ "purpose": "Follow-up to mps_misread_revalidation.json side_observations: the gss50k FULL-config CPU cell rerun with fit_polr traced and Python warning dedup disabled, to count the polr ConvergenceError -> marginal-draw fallbacks the sighting's dedup hid. Same curated cell, seed 20260617, m=20, maxit=10, method=auto, backend=cpu, PyPI 6.1.2 pin, torch-free.",
+ "machine": "Powerhouse (M2 Max), macOS Darwin 25.5.0",
+ "date": "2026-08-14",
+ "config": {
+  "cell": "cell_gss50k",
+  "n": 50000,
+  "p": 12,
+  "kinds": [
+   "binary",
+   "binary",
+   "ordered",
+   "ordered",
+   "ordered",
+   "ordered",
+   "binary",
+   "binary",
+   "numeric",
+   "numeric",
+   "numeric",
+   "numeric"
+  ],
+  "seed": 20260617,
+  "m": 20,
+  "maxit": 10,
+  "backend": "cpu",
+  "pystatistics": "6.1.2",
+  "python": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]"
+ },
+ "wall_s": 2063.118099927902,
+ "census": {
+  "polr_fits_total": 800,
+  "polr_fits_failed": 1,
+  "fallback_events": [
+   {
+    "col": 3,
+    "chain": 16,
+    "iter": 6
+   }
+  ],
+  "failed_fit_events": [
+   {
+    "col": 3,
+    "chain": 16,
+    "iter": 6,
+    "wall_s": 0.313,
+    "overflow_warns": 3,
+    "error": "ConvergenceError",
+    "msg": "polr observed information is not positive definite (likely data separation): Internal potrf return info = [22] for slices [0].. Optimizer ran 9 iterations (CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH)."
+   }
+  ],
+  "final_iteration_fallbacks": 0,
+  "overflow_warnings_total": 3,
+  "warning_census": [
+   {
+    "category": "RuntimeWarning",
+    "site": "_likelihood.py:220",
+    "message": "overflow encountered in exp",
+    "count": 2,
+    "first_ctx": {
+     "col": 3,
+     "chain": 16,
+     "iter": 6
+    },
+    "last_ctx": {
+     "col": 3,
+     "chain": 16,
+     "iter": 6
+    }
+   },
+   {
+    "category": "RuntimeWarning",
+    "site": "_likelihood.py:426",
+    "message": "overflow encountered in exp",
+    "count": 1,
+    "first_ctx": {
+     "col": 3,
+     "chain": 16,
+     "iter": 6
+    },
+    "last_ctx": {
+     "col": 3,
+     "chain": 16,
+     "iter": 6
+    }
+   },
+   {
+    "category": "UserWarning",
+    "site": "_chain.py:80",
+    "message": "polr fit failed (ConvergenceError); using a marginal draw for this sweep step.",
+    "count": 1,
+    "first_ctx": {
+     "col": 3,
+     "chain": 16,
+     "iter": 6
+    },
+    "last_ctx": {
+     "col": 3,
+     "chain": 16,
+     "iter": 6
+    }
+   }
+  ]
+ },
+ "verdict": "1 failure in 800 fits (0.125%), col 3 / chain 16 / iter 7 of 10, reason non-PD observed information. Immaterial: fired mid-chain so the marginal draw was never delivered (iterations 8-10 re-fit successfully); affected chain's imputed distribution ranks 11/20 by TV vs other chains (0.006, chain-spread median 0.007); failed fit cost 0.31 s vs 2.52 s mean converged (no L-BFGS-B budget burn). Rerun is bitwise identical to this record set's cpu_gss50k reference on every incomplete column, so the census applies verbatim to the recorded baseline. Paper CPU legs unaffected."
+}
