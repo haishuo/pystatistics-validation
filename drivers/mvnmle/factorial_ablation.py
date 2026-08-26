@@ -27,7 +27,7 @@ _HERE = Path(__file__).resolve().parent
 # Paper harness modules live beside this file (Forge flat bundle) or one level up
 # in code/ (dev layout); pystatistics comes from PYTHONPATH / the installed pkg.
 sys.path[:0] = [str(_HERE), str(_HERE.parent / "_shared")]
-from survey_io import build_mvn_problem            # noqa: E402
+from problem_source import resolve_problem          # noqa: E402
 from curate import standardize_columns             # noqa: E402
 from pystatistics.mvnmle._objectives.gpu_fp32 import GPUObjectiveFP32  # noqa: E402
 from pystatistics.mvnmle._objectives._batched_cholesky import (  # noqa: E402
@@ -50,7 +50,7 @@ _DATA = store_root() / SURVEY_NAMESPACE
 # these exploratory runs belong is a layout decision, not a mechanical fix.
 _OUT = store_root().parent / "results" / f"{TAG}.json"
 
-MATRIX = [("wvs", [25, 50, 100]), ("gss", [25, 50, 100])]
+MATRIX = [("simw", [25, 50, 100]), ("simg", [25, 50, 100])]
 TRACES = ["solve", "blocked"]
 GRADS = ["autodiff", "analytic"]
 
@@ -76,7 +76,7 @@ def main():
     for survey, ps in MATRIX:
         for p in ps:
             try:
-                prob = build_mvn_problem(str(_DATA / f"{survey}.h5"), p)
+                prob = resolve_problem(survey, p)
                 X = standardize_columns(prob.X)
                 obj = GPUObjectiveFP32(X, device=DEV)
                 theta = obj.get_initial_parameters()

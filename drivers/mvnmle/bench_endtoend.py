@@ -32,7 +32,7 @@ import torch
 
 _HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(_HERE), str(_HERE.parent / "_shared")]
-from survey_io import build_mvn_problem            # noqa: E402
+from problem_source import resolve_problem          # noqa: E402
 from curate import standardize_columns             # noqa: E402
 from run_pystatistics import run_pystatistics       # noqa: E402
 import pystatistics                                 # noqa: E402
@@ -40,7 +40,7 @@ import pystatistics                                 # noqa: E402
 GPU_DEVICE = ("cuda" if torch.cuda.is_available() else
               ("mps" if torch.backends.mps.is_available() else "cpu"))
 TAG = sys.argv[1] if len(sys.argv) > 1 else f"{GPU_DEVICE}_endtoend"
-SURVEYS = sys.argv[2].split(",") if len(sys.argv) > 2 else ["wvs", "gss"]
+SURVEYS = sys.argv[2].split(",") if len(sys.argv) > 2 else ["simw", "simg"]
 PS = [int(x) for x in sys.argv[3].split(",")] if len(sys.argv) > 3 else [50, 100]
 REPS = int(sys.argv[4]) if len(sys.argv) > 4 else 2
 MAXIT = int(sys.argv[5]) if len(sys.argv) > 5 else None
@@ -71,7 +71,7 @@ def main() -> int:
     for survey in SURVEYS:
         for p in PS:
             try:
-                prob = build_mvn_problem(str(_DATA / f"{survey}.h5"), p)
+                prob = resolve_problem(survey, p)
                 X = standardize_columns(prob.X)
                 npat = int(np.unique(np.isnan(X), axis=0).shape[0])
                 rec = run_pystatistics(

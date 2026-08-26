@@ -60,7 +60,7 @@ import numpy as np
 _HERE = Path(__file__).resolve().parent
 _REPO = _HERE.parents[1]
 sys.path[:0] = [str(_HERE.parent / "_shared")]
-from survey_io import build_mvn_problem  # noqa: E402
+from problem_source import resolve_problem  # noqa: E402
 from curate import standardize_columns  # noqa: E402
 
 import pystatistics as _ps  # noqa: E402
@@ -267,21 +267,19 @@ def synthetic_records() -> list[dict]:
 
 
 def survey_records() -> list[dict]:
-    """Real GSS/WVS problems in the §5 benchmark regime: screened (|corr|<=0.99)
-    AND standardized (unit-variance columns — the paper pipeline). This is the
-    exact regime whose CPU-vs-fp32-GPU ``|Δloglik|`` of 113–146 the A0 audit
-    flagged; ``report_gap`` reproduces that number, ``deficit`` decomposes it into
-    the real optimisation bias vs benign fp32 evaluation noise."""
+    """Benchmark-regime problems: screened (|corr|<=0.99) AND standardized
+    (unit-variance columns — the paper pipeline). The grid is the
+    redistributable set (simulated survey profiles + the NHANES extract) that
+    replaced the registration-gated GSS/WVS problems; the regime is the exact
+    one whose CPU-vs-fp32-GPU ``|Δloglik|`` of 113–146 the A0 audit flagged.
+    ``report_gap`` reproduces that number, ``deficit`` decomposes it into the
+    real optimisation bias vs benign fp32 evaluation noise."""
     out = []
-    grid = [("gss", p) for p in (15, 20, 25, 50)] + \
-           [("wvs", p) for p in (15, 20, 25, 50)]
+    grid = [("simg", p) for p in (15, 20, 25, 50)] + \
+           [("simw", p) for p in (15, 20, 25, 50)] + [("nhanes_cardio", 11)]
     for survey, p in grid:
-        path = _DATA / f"{survey}.h5"
-        if not path.exists():
-            print(f"{survey}: missing {path}", file=sys.stderr)
-            continue
         try:
-            prob = build_mvn_problem(path, p, max_abs_corr=0.99)
+            prob = resolve_problem(survey, p, max_abs_corr=0.99)
             X = np.asarray(standardize_columns(prob.X), dtype=np.float64)
             out.append(gate_measure(
                 X, label=f"{survey}_p{p}_std", family="survey",
