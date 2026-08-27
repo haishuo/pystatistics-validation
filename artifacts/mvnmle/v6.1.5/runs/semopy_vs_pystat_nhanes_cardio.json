@@ -1,0 +1,16 @@
+{
+  "records": [
+    {
+      "survey": "nhanes_cardio",
+      "p": 11,
+      "n": 5569,
+      "pystatistics_version": "6.1.5",
+      "pystat_s": 0.8467737501487136,
+      "pystat_loglik": -5638.453125,
+      "semopy_s": 5.543408791534603,
+      "sigma_max_abs_diff": 0.9289038437057372,
+      "sigma_rel_fro": 0.785189326333168,
+      "speedup_semopy_over_pystat": 6.54650523892722
+    }
+  ]
+}

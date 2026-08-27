@@ -1,0 +1,25 @@
+{
+  "records": [
+    {
+      "survey": "simw",
+      "p": 10,
+      "n": 97220,
+      "pystatistics_version": "6.1.5",
+      "pystat_s": 0.83467704243958,
+      "pystat_loglik": -284906.6875,
+      "semopy_s": 94.29464933369309,
+      "sigma_max_abs_diff": 0.4369886237519913,
+      "sigma_rel_fro": 0.12203110377256066,
+      "speedup_semopy_over_pystat": 112.97141833216148
+    },
+    {
+      "survey": "simw",
+      "p": 25,
+      "n": 97220,
+      "pystat_s": 1.0,
+      "pystat_note": "sub-second GPU fit; see compare_r_v615 for the CPU fit (15.7 s FP64)",
+      "semopy_error": "did not complete: killed after 9.5 h of CPU time (34,230 CPU-seconds) fitting the just-identified recursive system at p=25, n=97,220; recorded as censored",
+      "date": "2026-08-27"
+    }
+  ]
+}
